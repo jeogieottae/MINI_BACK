@@ -3,6 +3,7 @@ package com.example.mini.domain.cart.entity;
 
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.global.model.entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -24,10 +25,17 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class CartItem extends BaseEntity {
 
-	private LocalDateTime startDate;
-	private LocalDateTime endDate;
-	private Integer personNumber;
-	private String price;
+	@Column(nullable = false)
+	private LocalDateTime check_in;
+
+	@Column(nullable = false)
+	private LocalDateTime check_out;
+
+	@Column(nullable = false)
+	private Integer peopleNumber;
+
+	@Column(nullable = false)
+	private Integer price;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "cart_id")
@@ -36,5 +44,4 @@ public class CartItem extends BaseEntity {
 	@OneToMany
 	@JoinColumn(name = "room_id")
 	private List<Room> roomList;
-
 }

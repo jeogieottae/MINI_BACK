@@ -23,11 +23,20 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class Room extends BaseEntity {
 
+	@Column(nullable = false)
 	private String name;
-	private String price;
+
+	@Column(nullable = false)
 	private Integer base_guests;
+
+	@Column(nullable = false)
+	private Integer price;
+
+	@Column(nullable = false)
 	private Integer max_guests;
-	private Integer room_count;
+
+	@Column(nullable = false)
+	private Integer extra_person_charge;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "cart_item_id")
@@ -40,8 +49,5 @@ public class Room extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "reservation_id")
 	private Reservation reservation;
-
-
-
 
 }

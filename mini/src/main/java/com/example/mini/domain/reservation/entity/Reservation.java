@@ -24,7 +24,7 @@ public class Reservation extends BaseEntity {
 	private String peopleNumber;
 
 	@Column(nullable = false)
-	private String price;
+	private Integer price;
 
 	@Column(nullable = false)
 	private LocalDateTime checkIn;

@@ -1,6 +1,5 @@
-package com.example.mini.domain.category.entity;
+package com.example.mini.domain.accomodation.entity;
 
-import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

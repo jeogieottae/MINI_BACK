@@ -1,6 +1,5 @@
 package com.example.mini.domain.accomodation.entity;
 
-import com.example.mini.domain.category.entity.Category;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,22 +28,25 @@ public class Accomodation extends BaseEntity {
 	private String name;
 
 	@Column(nullable = false)
-	private Double price;
+	private String description;
 
 	@Column(nullable = false)
-	private String description;
+	private int postalCode;
 
 	@Column(nullable = false)
 	private String address;
 
 	@Column(nullable = false)
-	private String location;
+	private Boolean parkingAvailable;
 
 	@Column(nullable = false)
-	private int maxGuests;
+	private Boolean cookingAvailable;
 
 	@Column(nullable = false)
-	private int inventory;
+	private LocalDateTime checkIn;
+
+	@Column(nullable = false)
+	private LocalDateTime checkOut;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id", nullable = false)
