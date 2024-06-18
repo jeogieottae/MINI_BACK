@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/KDT_BE8_Mini-Project.iml" filepath="$PROJECT_DIR$/.idea/KDT_BE8_Mini-Project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mini.main.iml" filepath="$PROJECT_DIR$/.idea/modules/mini.main.iml" />
     </modules>
   </component>
 </project>
