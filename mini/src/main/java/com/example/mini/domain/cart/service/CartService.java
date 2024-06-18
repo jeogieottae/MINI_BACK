@@ -12,13 +12,14 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
+import com.example.mini.global.exception.error.CartErrorCode;
+import com.example.mini.global.exception.type.CartException;
 import com.example.mini.global.util.SecurityUtil;
-import jakarta.persistence.EntityNotFoundException;
-import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,7 @@ public class CartService {
   public List<CartResponse> getAllCartItems() {
     Long currentUserId = SecurityUtil.getCurrentUserId();
     Member member = memberRepository.findById(currentUserId)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 
     Cart cart = member.getCart();
 
@@ -56,23 +57,21 @@ public class CartService {
   }
 
   private CartResponse mapToCartResponse(CartItem cartItem) {
-
     CartResponse cartResponse = new CartResponse();
     cartResponse.setId(cartItem.getId());
     cartResponse.setCheckIn(cartItem.getCheckIn());
     cartResponse.setCheckOut(cartItem.getCheckOut());
     cartResponse.setPeopleNumber(cartItem.getPeopleNumber());
     cartResponse.setPrice(cartItem.getPrice());
-
     return cartResponse;
   }
 
   public CartItemResponse addCartItem(Long cartId, AddCartItemRequest request) {
     Cart cart = cartRepository.findById(cartId)
-        .orElseThrow(() -> new EntityNotFoundException("장바구니 id " + cartId + "에 해당하는 장바구니를 찾을 수 없습니다."));
+        .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
 
     Room room = roomRepository.findById(request.getRoomId())
-        .orElseThrow(() -> new EntityNotFoundException("객실 id " + request.getRoomId() + "에 해당하는 객실을 찾을 수 없습니다."));
+        .orElseThrow(() -> new CartException(CartErrorCode.ROOM_NOT_FOUND));
 
     CartItem cartItem = CartItem.builder()
         .checkIn(request.getCheckIn())
@@ -100,7 +99,7 @@ public class CartService {
     List<Long> cartItemIds = request.getCartItemIds();
     cartItemIds.forEach(cartItemId -> {
       CartItem cartItem = cartItemRepository.findById(cartItemId)
-          .orElseThrow(() -> new EntityNotFoundException("장바구니 항목 id " + cartItemId + "에 해당하는 항목을 찾을 수 없습니다."));
+          .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
       cartItemRepository.delete(cartItem);
     });
   }
