@@ -23,4 +23,11 @@ public class AccomodationService {
                 .map(AccomodationResponseDto::toDto)
                 .collect(Collectors.toList());
     }
+
+    public List<AccomodationResponseDto> getAccommodationsByCategory(int categoryId) {
+        List<Accomodation> accomodations = accomodationRepository.findByCategoryId(categoryId);
+        return accomodations.stream()
+                .map(AccomodationResponseDto::toDto)
+                .collect(Collectors.toList());
+    }
 }

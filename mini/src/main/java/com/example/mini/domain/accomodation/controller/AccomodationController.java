@@ -5,10 +5,7 @@ import com.example.mini.domain.accomodation.service.AccomodationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,10 +24,12 @@ public class AccomodationController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/category")
-    public String getCategory(
-            @RequestParam String category
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<List<AccomodationResponseDto>> getCategory(
+            @PathVariable int categoryId
     ) {
-        return category;
+        List<AccomodationResponseDto> response = accomodationService.getAccommodationsByCategory(categoryId);
+
+        return ResponseEntity.ok(response);
     }
 }
