@@ -5,34 +5,35 @@ import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.model.response.CartItemResponse;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.mini.global.util.APIUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
+@RequiredArgsConstructor
 public class CartController {
 
   private final CartService cartService;
 
-  @Autowired
-  public CartController(CartService cartService) {
-    this.cartService = cartService;
-  }
-
   @GetMapping("/{cartId}/items")
-  public List<CartResponse> getAllCartItems(@PathVariable Long cartId) {
-    return cartService.getAllCartItems();
+  public ResponseEntity<List<CartResponse>> getAllCartItems(@PathVariable Long cartId) {
+    List<CartResponse> cartResponses = cartService.getAllCartItems();
+    return APIUtil.OK(cartResponses);
   }
 
   @PostMapping("/{cartId}/items")
-  public CartItemResponse addCartItem(@PathVariable Long cartId, @RequestBody AddCartItemRequest request) {
-    return cartService.addCartItem(cartId, request);
+  public ResponseEntity<CartItemResponse> addCartItem(@PathVariable Long cartId, @RequestBody AddCartItemRequest request) {
+    CartItemResponse cartItemResponse = cartService.addCartItem(cartId, request);
+    return APIUtil.OK(cartItemResponse);
   }
 
   @DeleteMapping("/items")
-  public void deleteCartItem(@RequestBody DeleteCartItemRequest request) {
+  public ResponseEntity<Void> deleteCartItem(@RequestBody DeleteCartItemRequest request) {
     cartService.deleteCartItem(request);
+    return APIUtil.OK();
   }
 }
