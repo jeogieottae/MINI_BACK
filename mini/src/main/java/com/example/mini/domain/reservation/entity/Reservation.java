@@ -2,6 +2,7 @@ package com.example.mini.domain.reservation.entity;
 
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.entity.Accomodation;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,4 +36,8 @@ public class Reservation extends BaseEntity {
 	@OneToMany
 	@JoinColumn(name = "room_id")
 	private List<Room> roomList;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "accommodation_id")
+	private Accomodation accomodation;
 }
