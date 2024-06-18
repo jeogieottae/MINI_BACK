@@ -4,6 +4,7 @@ import com.example.mini.domain.accomodation.model.AccomodationResponseDto;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +19,10 @@ public class AccomodationController {
     private final AccomodationService accomodationService;
 
     @GetMapping("")
-    public ResponseEntity<List<AccomodationResponseDto>> getAllAccomodations() {
-        List<AccomodationResponseDto> response = accomodationService.getAllAccomodations();
+    public ResponseEntity<Page<AccomodationResponseDto>> getAllAccomodations(
+            @RequestParam(value="page", required = false, defaultValue = "1") int page
+    ) {
+        Page<AccomodationResponseDto> response = accomodationService.getAllAccomodations(page);
 
         return ResponseEntity.ok(response);
     }
