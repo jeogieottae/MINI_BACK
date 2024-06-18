@@ -1,20 +1,20 @@
 package com.example.mini.domain.cart.entity;
 
-
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDateTime;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -26,10 +26,10 @@ import java.util.List;
 public class CartItem extends BaseEntity {
 
 	@Column(nullable = false)
-	private LocalDateTime check_in;
+	private LocalDateTime checkIn;
 
 	@Column(nullable = false)
-	private LocalDateTime check_out;
+	private LocalDateTime checkOut;
 
 	@Column(nullable = false)
 	private Integer peopleNumber;
@@ -42,6 +42,6 @@ public class CartItem extends BaseEntity {
 	private Cart cart;
 
 	@OneToMany
-	@JoinColumn(name = "room_id")
+	@JoinColumn(name = "cart_item_id")
 	private List<Room> roomList;
 }
