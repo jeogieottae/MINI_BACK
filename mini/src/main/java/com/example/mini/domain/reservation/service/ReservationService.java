@@ -52,10 +52,13 @@ public class ReservationService {
     }
 
     Accomodation accommodation = rooms.get(0).getAccomodation();
+    int totalExtraCharge = calculateTotalExtraCharge(rooms, Integer.parseInt(request.getPeopleNumber()));
+    int totalPrice = calculateTotalPrice(rooms, totalExtraCharge);
 
     return Reservation.builder()
         .peopleNumber(request.getPeopleNumber())
-        .price(request.getPrice())
+        .extraCharge(totalExtraCharge)
+        .totalPrice(totalPrice)
         .checkIn(request.getCheckIn())
         .checkOut(request.getCheckOut())
         .roomList(rooms)
@@ -67,7 +70,8 @@ public class ReservationService {
     return AddReservationResponse.builder()
         .id(reservation.getId())
         .peopleNumber(reservation.getPeopleNumber())
-        .price(reservation.getPrice())
+        .extraCharge(reservation.getExtraCharge())
+        .totalPrice(reservation.getTotalPrice())
         .checkIn(reservation.getCheckIn())
         .checkOut(reservation.getCheckOut())
         .roomIds(reservation.getRoomList().stream().map(Room::getId).collect(Collectors.toList()))
@@ -82,8 +86,7 @@ public class ReservationService {
 
     return ReservationResponse.builder()
         .id(reservation.getId())
-        .peopleNumber(reservation.getPeopleNumber())
-        .price(reservation.getPrice())
+        .totalPrice(reservation.getTotalPrice())
         .checkIn(reservation.getCheckIn())
         .checkOut(reservation.getCheckOut())
         .roomIds(roomIds)
@@ -99,11 +102,25 @@ public class ReservationService {
     return ReservationRoomResponse.builder()
         .id(reservation.getId())
         .peopleNumber(reservation.getPeopleNumber())
-        .price(reservation.getPrice())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
         .rooms(rooms)
+        .extraCharge(reservation.getExtraCharge())
         .build();
+  }
+
+  private int calculateTotalExtraCharge(List<Room> rooms, int peopleNumber) {
+    int totalExtraCharge = 0;
+    for (Room room : rooms) {
+      int extraGuests = peopleNumber - room.getBaseGuests();
+      if (extraGuests > 0) {
+        totalExtraCharge += extraGuests * room.getExtraPersonCharge();
+      }
+    }
+    return totalExtraCharge;
+  }
+
+  private int calculateTotalPrice(List<Room> rooms, int totalExtraCharge) {
+    int totalPrice = rooms.stream().mapToInt(Room::getPrice).sum();
+    return totalPrice + totalExtraCharge;
   }
 
   private ReservationAccomodationResponse mapToReservationAccomodationResponse(Accomodation accommodation) {

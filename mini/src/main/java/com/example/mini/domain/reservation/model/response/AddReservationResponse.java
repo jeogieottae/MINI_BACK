@@ -11,7 +11,8 @@ import java.util.List;
 public class AddReservationResponse {
   private Long id;
   private String peopleNumber;
-  private Integer price;
+  private Integer extraCharge;
+  private Integer totalPrice;
   private LocalDateTime checkIn;
   private LocalDateTime checkOut;
   private List<Long> roomIds;

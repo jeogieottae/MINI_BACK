@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -15,8 +14,6 @@ public class ReservationRoomResponse {
 
   private Long id;
   private String peopleNumber;
-  private Integer price;
-  private LocalDateTime checkIn;
-  private LocalDateTime checkOut;
   private List<Room> rooms;
+  private Integer extraCharge;
 }

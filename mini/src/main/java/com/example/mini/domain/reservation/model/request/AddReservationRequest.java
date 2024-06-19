@@ -7,7 +7,6 @@ import java.util.List;
 @Data
 public class AddReservationRequest {
   private String peopleNumber;
-  private Integer price;
   private LocalDateTime checkIn;
   private LocalDateTime checkOut;
   private List<Long> roomIds;
