@@ -73,11 +73,22 @@ public class CartService {
     Room room = roomRepository.findById(request.getRoomId())
         .orElseThrow(() -> new CartException(CartErrorCode.ROOM_NOT_FOUND));
 
+    int roomPrice = room.getPrice();
+    int extraPersonCharge = room.getExtra_person_charge();
+    int totalPeople = request.getPeopleNumber();
+
+    int additionalCharge = 0;
+    if (totalPeople > room.getBase_guests()) {
+      additionalCharge = (totalPeople - room.getBase_guests()) * extraPersonCharge;
+    }
+
+    int totalPrice = roomPrice + additionalCharge;
+
     CartItem cartItem = CartItem.builder()
         .checkIn(request.getCheckIn())
         .checkOut(request.getCheckOut())
         .peopleNumber(request.getPeopleNumber())
-        .price(request.getPrice())
+        .price(totalPrice)
         .roomList(Collections.singletonList(room))
         .cart(cart)
         .build();
