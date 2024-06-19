@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Data
 @NoArgsConstructor
@@ -14,13 +15,13 @@ import org.springframework.http.HttpStatus;
 @Builder
 public class Result {
 
-	private Integer resultCode;
+	private HttpStatusCode resultCode;
 	private String resultMessage;
 	private String resultDescription;
 
 	public static Result OK() {
 		return Result.builder()
-			.resultCode(SuccessCode.OK.getSuccessCode())
+			.resultCode(HttpStatus.OK)
 			.resultMessage("성공")
 			.resultDescription(SuccessCode.OK.getDescription())
 			.build();
@@ -28,7 +29,7 @@ public class Result {
 
 	public static Result CREATED() {
 		return Result.builder()
-			.resultCode(SuccessCode.CREATED.getSuccessCode())
+			.resultCode(HttpStatus.CREATED)
 			.resultMessage("등록 성공")
 			.resultDescription(SuccessCode.CREATED.getDescription())
 			.build();
@@ -36,7 +37,7 @@ public class Result {
 
 	public static Result DELETE() {
 		return Result.builder()
-			.resultCode(SuccessCode.DELETE.getSuccessCode())
+			.resultCode(HttpStatus.OK)
 			.resultMessage("삭제성공")
 			.resultDescription(SuccessCode.DELETE.getDescription())
 			.build();
@@ -44,15 +45,15 @@ public class Result {
 
 	public static Result ERROR(ErrorCode errorCode) {
 		return Result.builder()
-			.resultCode(errorCode.getErrorCode())
+			.resultCode(errorCode.getCode())
 			.resultMessage("error")
-			.resultDescription(errorCode.getDescription())
+			.resultDescription(errorCode.getInfo())
 			.build();
 	}
 
 	public static Result ERROR(ErrorCode errorCode, String description) {
 		return Result.builder()
-			.resultCode(errorCode.getErrorCode())
+			.resultCode(errorCode.getCode())
 			.resultMessage("error")
 			.resultDescription(description)
 			.build();
@@ -60,7 +61,7 @@ public class Result {
 
 	public static Result VALIDATION_ERROR(List<String> errors) {
 		return Result.builder()
-			.resultCode(HttpStatus.BAD_REQUEST.value())
+			.resultCode(HttpStatus.BAD_REQUEST)
 			.resultMessage("Validation Error")
 			.resultDescription(String.join(", ", errors))
 			.build();

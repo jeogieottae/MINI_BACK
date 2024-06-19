@@ -57,4 +57,15 @@ public class Member extends BaseEntity {
 	}
 
 
+	public void setEmail(String email) {
+	}
+
+	public void setOauthEmail(String email) {
+	}
+
+	public void setNickname(String s) {
+	}
+
+	public void setPassword(String kakaoOauthPassword) {
+	}
 }

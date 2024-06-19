@@ -21,13 +21,14 @@ public class TokenService {
 		return (String) redisTemplate.opsForValue().get(username);
 	}
 
-	public void deleteRefreshToken(String username) {
+	// 레디스 실행 확인용 (나중에 쓸거임)
+   /*	public void deleteRefreshToken(String username) {
 		redisTemplate.delete(username);
 	}
 
 	public boolean isTokenPresent(String username) {
 		return redisTemplate.hasKey(username);
-	}
+	}*/
 
 	public void blacklistToken(String token) {
 		redisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "true", Duration.ofDays(1)); // 토큰을 하루 동안 블랙리스트에 추가

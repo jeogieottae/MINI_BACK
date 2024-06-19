@@ -3,10 +3,8 @@ import org.springframework.http.HttpStatusCode;
 
 public interface ErrorCode {
 
-	Integer getHttpStatusCode();
+	HttpStatusCode getCode();
 
-	Integer getErrorCode();
-
-	String getDescription();
+	String getInfo();
 
 }

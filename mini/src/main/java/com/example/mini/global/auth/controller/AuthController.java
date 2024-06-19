@@ -39,4 +39,3 @@ public class AuthController {
 		return new ResponseEntity<>("Logged out successfully", HttpStatus.NO_CONTENT);
 	}
 }
-
