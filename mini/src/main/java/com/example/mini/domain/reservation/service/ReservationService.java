@@ -33,8 +33,8 @@ public class ReservationService {
     return buildAddReservationResponse(savedReservation);
   }
 
-  public List<ReservationResponse> getAllReservationsForUser(Long userId) {
-    List<Reservation> reservations = reservationRepository.findByUserId(userId);
+  public List<ReservationResponse> getAllReservationsForUser(Long memberId) {
+    List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
     return reservations.stream()
         .map(this::mapToReservationResponse)
         .collect(Collectors.toList());
