@@ -1,5 +1,6 @@
 package com.example.mini.domain.reservation.service;
 
+import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.model.request.AddReservationRequest;
 import com.example.mini.domain.reservation.model.response.AddReservationResponse;
@@ -8,10 +9,15 @@ import com.example.mini.domain.reservation.model.response.ReservationRoomRespons
 import com.example.mini.domain.reservation.model.response.ReservationAccomodationResponse;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.global.exception.type.ReservationException;
 import com.example.mini.global.exception.error.ReservationErrorCode;
+import com.example.mini.global.redis.RedissonLock;
+import com.example.mini.global.util.SecurityUtil;
+import java.time.LocalDateTime;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +33,26 @@ public class ReservationService {
   @Autowired
   private RoomRepository roomRepository;
 
+  @Autowired
+  private MemberRepository memberRepository;
+
+  @Autowired
+  private RedissonClient redissonClient;
+
+  @RedissonLock(key = "reservation:#{#roomIds.toString() + ':' + #checkIn.toString() + ':' + #checkOut.toString()}")
   public AddReservationResponse addReservation(AddReservationRequest request) {
-    Reservation reservation = buildReservationEntity(request);
+    Long memberId = SecurityUtil.getCurrentUserId();
+
+    List<Long> roomIds = request.getRoomIds();
+    LocalDateTime checkIn = request.getCheckIn();
+    LocalDateTime checkOut = request.getCheckOut();
+    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
+    if (!overlappingReservations.isEmpty()) {
+      throw new ReservationException(ReservationErrorCode.OVERLAPPING_RESERVATION);
+    }
+
+    // Build reservation entity
+    Reservation reservation = buildReservationEntity(request, memberId);
     Reservation savedReservation = reservationRepository.save(reservation);
     return buildAddReservationResponse(savedReservation);
   }
@@ -47,7 +71,7 @@ public class ReservationService {
     return mapToReservationRoomResponse(reservation);
   }
 
-  private Reservation buildReservationEntity(AddReservationRequest request) {
+  private Reservation buildReservationEntity(AddReservationRequest request, Long memberId) {
     List<Room> rooms = roomRepository.findAllById(request.getRoomIds());
     if (rooms.isEmpty()) {
       throw new ReservationException(ReservationErrorCode.NO_ROOMS_AVAILABLE);
@@ -57,7 +81,11 @@ public class ReservationService {
     int totalExtraCharge = calculateTotalExtraCharge(rooms, Integer.parseInt(request.getPeopleNumber()));
     int totalPrice = calculateTotalPrice(rooms, totalExtraCharge);
 
+    Member member = memberRepository.findById(request.getMemberId())
+        .orElseThrow(() -> new ReservationException(ReservationErrorCode.MEMBER_NOT_FOUND));
+
     return Reservation.builder()
+        .member(member)
         .peopleNumber(request.getPeopleNumber())
         .extraCharge(totalExtraCharge)
         .totalPrice(totalPrice)
