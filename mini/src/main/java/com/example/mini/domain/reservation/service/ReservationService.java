@@ -10,6 +10,8 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
+import com.example.mini.global.exception.type.ReservationException;
+import com.example.mini.global.exception.error.ReservationErrorCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +42,7 @@ public class ReservationService {
 
   public ReservationRoomResponse getReservationById(Long reservationId) {
     Reservation reservation = reservationRepository.findById(reservationId)
-        .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + reservationId));
+        .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
     return mapToReservationRoomResponse(reservation);
   }
@@ -48,7 +50,7 @@ public class ReservationService {
   private Reservation buildReservationEntity(AddReservationRequest request) {
     List<Room> rooms = roomRepository.findAllById(request.getRoomIds());
     if (rooms.isEmpty()) {
-      throw new IllegalArgumentException("No rooms found for the provided room IDs");
+      throw new ReservationException(ReservationErrorCode.NO_ROOMS_AVAILABLE);
     }
 
     Accomodation accommodation = rooms.get(0).getAccomodation();
