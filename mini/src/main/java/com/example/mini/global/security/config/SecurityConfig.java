@@ -1,5 +1,7 @@
 package com.example.mini.global.security.config;
 
+import com.example.mini.global.auth.oauth2.service.KakaoMemberDetailsService;
+import com.example.mini.global.auth.oauth2.util.OAuth2SuccessHandler;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -34,12 +36,11 @@ public class SecurityConfig {
 		"/v3/api-docs/**"
 	};
 
-
-
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;  // 추가된 부분
-
+	private final KakaoMemberDetailsService kakaoMemberDetailsService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -50,6 +51,11 @@ public class SecurityConfig {
 				.requestMatchers("/api/protected/**").authenticated()
 				.requestMatchers("/api/auth/**").permitAll()
 				.anyRequest().authenticated())
+			.oauth2Login(oAuth2Login -> {
+				oAuth2Login.userInfoEndpoint(userInfoEndpointConfig ->
+					userInfoEndpointConfig.userService(kakaoMemberDetailsService));
+				oAuth2Login.successHandler(oAuth2SuccessHandler);
+			})
 			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);  // 수정된 부분
 		return http.build();
 	}

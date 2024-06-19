@@ -47,13 +47,18 @@ public class JwtProvider {
 			.compact();
 	}
 
-	public boolean validateToken(String token) {
+	public boolean validateToken(String token, TokenType type) {
 		try {
-			Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token);
+			Key key = type == TokenType.ACCESS ? accessKey : refreshKey;
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	public boolean validateToken(String token) {
+		return validateToken(token, TokenType.ACCESS);
 	}
 
 	public Claims getUserInfoFromToken(String token) {
@@ -71,5 +76,4 @@ public class JwtProvider {
 	public String getEmailFromToken(String token) {
 		return getUserInfoFromToken(token).getSubject();
 	}
-
 }
