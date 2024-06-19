@@ -8,12 +8,13 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum SuccessCode {
 
-	OK(HttpStatus.OK.value(), 200, "성공"),
-	CREATED(HttpStatus.CREATED.value(), 201, "등록 성공"),
-	DELETE(HttpStatus.OK.value(), 202, "삭제 성공"),
+	OK(HttpStatus.OK, 200000, "성공"),
+	CREATED(HttpStatus.CREATED, 201000, "등록 성공"),
+	DELETED(HttpStatus.OK, 200001, "삭제 성공"),
+	;
 	;
 
-	private final Integer HttpStatusCode;
+	private final HttpStatus HttpStatusCode;
 	private final Integer successCode; // 서버 자체 성공 코드
 	private final String description;
 }

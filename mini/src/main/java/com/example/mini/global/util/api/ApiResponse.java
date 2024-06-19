@@ -1,20 +1,24 @@
 package com.example.mini.global.util.api;
 
 import com.example.mini.global.exception.error.ErrorCode;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
 
 	private Result result;
 
 	@Valid
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private T body;
 
 	public static <T> ApiResponse<T> OK(T data) {
@@ -44,15 +48,10 @@ public class ApiResponse<T> {
 		return apiResponse;
 	}
 
-	public static ApiResponse<Object> ERROR(ErrorCode errorCode, String description) {
-		ApiResponse apiResponse = new ApiResponse<Object>();
-		apiResponse.result = Result.ERROR(errorCode, description);
-		return apiResponse;
-	}
-
 	public static ApiResponse<Object> VALIDATION_ERROR(List<String> errors) {
 		ApiResponse<Object> apiResponse = new ApiResponse<>();
 		apiResponse.result = Result.VALIDATION_ERROR(errors);
 		return apiResponse;
 	}
+
 }
