@@ -1,5 +1,6 @@
 package com.example.mini.domain.reservation.entity;
 
+import com.example.mini.domain.member.entity.Member;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.Accomodation;
@@ -43,4 +44,8 @@ public class Reservation extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "accommodation_id")
 	private Accomodation accomodation;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "member_id", nullable = false)
+	private Member member;
 }
