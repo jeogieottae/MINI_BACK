@@ -1,13 +1,13 @@
 package com.example.mini.global.auth.controller;
 
 import com.example.mini.domain.member.model.request.LoginRequest;
-import com.example.mini.domain.member.model.request.LogoutRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.global.auth.service.AuthService;
-import com.example.mini.global.security.jwt.TokenService;
-import java.util.Map;
+import com.example.mini.global.security.jwt.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
 	private final AuthService authService;
-	private final TokenService tokenService;
+	private final JwtProvider jwtProvider;
 
 	@PostMapping("/register")
 	public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
@@ -32,11 +32,11 @@ public class AuthController {
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader, @RequestBody LogoutRequest request) {
-		String email = request.getEmail();
-		String accessToken = authHeader.replace("Bearer ", "");
-		authService.logout(email, accessToken);
-		return ResponseEntity.ok("로그아웃 되었습니다.");
+	public ResponseEntity<String> logout(HttpServletRequest request) {
+		String accessToken = jwtProvider.resolveToken(request);
+
+		authService.logout(accessToken);
+		return new ResponseEntity<>("Logged out successfully", HttpStatus.NO_CONTENT);
 	}
 }
 

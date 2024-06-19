@@ -98,11 +98,12 @@ public class AuthService {
 	}
 
 	@Transactional
-	public void logout(String email, String accessToken) {
-		if (email == null || email.isEmpty()) {
-			throw new IllegalArgumentException("이메일은 필수 입력 항목입니다.");
+	public void logout(String accessToken) {
+		if (accessToken == null || accessToken.isEmpty()) {
+			throw new IllegalArgumentException("유효하지 않은 액세스 토큰입니다.");
 		}
-		tokenService.deleteRefreshToken(email);
+
+		String email = jwtProvider.getEmailFromToken(accessToken);
 		tokenService.blacklistToken(accessToken);
 	}
 }

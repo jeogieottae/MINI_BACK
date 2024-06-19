@@ -67,4 +67,8 @@ public class JwtProvider {
 		}
 		return null;
 	}
+	public String getEmailFromToken(String token) {
+		return getUserInfoFromToken(token).getSubject();
+	}
+
 }

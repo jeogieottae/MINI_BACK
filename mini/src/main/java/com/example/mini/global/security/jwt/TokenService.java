@@ -1,9 +1,10 @@
 package com.example.mini.global.security.jwt;
 
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +25,14 @@ public class TokenService {
 		redisTemplate.delete(username);
 	}
 
+	public boolean isTokenPresent(String username) {
+		return redisTemplate.hasKey(username);
+	}
 
-	// 블랙리스트에 액세스 토큰 추가
 	public void blacklistToken(String token) {
 		redisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "true", Duration.ofDays(1)); // 토큰을 하루 동안 블랙리스트에 추가
 	}
 
-	// 블랙리스트에서 액세스 토큰 확인
 	public boolean isTokenBlacklisted(String token) {
 		return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + token));
 	}
