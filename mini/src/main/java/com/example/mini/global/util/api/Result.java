@@ -1,0 +1,68 @@
+package com.example.mini.global.util.api;
+
+import com.example.mini.global.exception.error.ErrorCode;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Result {
+
+	private Integer resultCode;
+	private String resultMessage;
+	private String resultDescription;
+
+	public static Result OK() {
+		return Result.builder()
+			.resultCode(SuccessCode.OK.getSuccessCode())
+			.resultMessage("성공")
+			.resultDescription(SuccessCode.OK.getDescription())
+			.build();
+	}
+
+	public static Result CREATED() {
+		return Result.builder()
+			.resultCode(SuccessCode.CREATED.getSuccessCode())
+			.resultMessage("등록 성공")
+			.resultDescription(SuccessCode.CREATED.getDescription())
+			.build();
+	}
+
+	public static Result DELETE() {
+		return Result.builder()
+			.resultCode(SuccessCode.DELETE.getSuccessCode())
+			.resultMessage("삭제성공")
+			.resultDescription(SuccessCode.DELETE.getDescription())
+			.build();
+	}
+
+	public static Result ERROR(ErrorCode errorCode) {
+		return Result.builder()
+			.resultCode(errorCode.getErrorCode())
+			.resultMessage("error")
+			.resultDescription(errorCode.getDescription())
+			.build();
+	}
+
+	public static Result ERROR(ErrorCode errorCode, String description) {
+		return Result.builder()
+			.resultCode(errorCode.getErrorCode())
+			.resultMessage("error")
+			.resultDescription(description)
+			.build();
+	}
+
+	public static Result VALIDATION_ERROR(List<String> errors) {
+		return Result.builder()
+			.resultCode(HttpStatus.BAD_REQUEST.value())
+			.resultMessage("Validation Error")
+			.resultDescription(String.join(", ", errors))
+			.build();
+	}
+}

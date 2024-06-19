@@ -17,11 +17,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@SuperBuilder
+
 @Data
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
 
