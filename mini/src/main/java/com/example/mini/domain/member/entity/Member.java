@@ -23,10 +23,10 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class Member extends BaseEntity {
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String email;
 
-	@Column
+	@Column(unique = true)
 	private String oauthEmail;
 
 	@Column(nullable = false)
@@ -42,11 +42,21 @@ public class Member extends BaseEntity {
 	private MemberState state;
 
 
-
 	public void setEmail(String email) {
 	}
 
 	public void setOauthEmail(String email) {
+	}
+
+	@Override
+	public String toString() {
+		return "Member{" +
+			"id=" + getId() +
+			", email='" + email + '\'' +
+			", oauthEmail='" + oauthEmail + '\'' +
+			", name='" + name + '\'' +
+			", state=" + state +
+			'}';
 	}
 
 

@@ -20,7 +20,8 @@ public class KakaoUserInfo {
 
 	public String getEmail() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		TypeReference<Map<String, Object>> typeReferencer = new TypeReference<Map<String, Object>>() {};
+		TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {
+		};
 
 		Object kakaoAccount = attributes.get(KAKAO_ACCOUNT);
 		Map<String, Object> account = objectMapper.convertValue(kakaoAccount, typeReferencer);
@@ -30,12 +31,20 @@ public class KakaoUserInfo {
 
 	public String getNickname() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		TypeReference<Map<String, Object>> typeReferencer = new TypeReference<Map<String, Object>>() {};
+		TypeReference<Map<String, Object>> typeReferencer = new TypeReference<>() {
+		};
 
 		Object kakaoAccount = attributes.get(KAKAO_ACCOUNT);
 		Map<String, Object> account = objectMapper.convertValue(kakaoAccount, typeReferencer);
 		Map<String, Object> profile = objectMapper.convertValue(account.get(PROFILE), typeReferencer);
 
 		return (String) profile.get(NICKNAME);
+	}
+
+	@Override
+	public String toString() {
+		return "KakaoUserInfo{" +
+			"attributes=" + attributes +
+			'}';
 	}
 }
