@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum AuthErrorCode implements ErrorCode {
 	EMAIL_ALREADY_EXISTS(HttpStatus.CONFLICT, 409001, "이미 존재하는 이메일입니다."),
-	NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, 409002, "이미 존재하는 닉네임입니다."),
+	NAME_ALREADY_EXISTS(HttpStatus.CONFLICT, 409002, "이미 존재하는 이름입니다."),
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, 404001, "사용자를 찾을 수 없습니다."),
 	PASSWORD_MISMATCH(HttpStatus.UNAUTHORIZED, 401001, "비밀번호가 일치하지 않습니다."),
 	INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 401002, "유효하지 않은 리프레시 토큰입니다."),

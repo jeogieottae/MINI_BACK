@@ -44,7 +44,7 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 					Member.builder()
 						.email(null)  // 일반 로그인용 이메일은 null로 설정
 						.oauthEmail(kakaoUserInfo.getEmail())
-						.nickname(kakaoUserInfo.getNickname())
+						.name(kakaoUserInfo.getNickname())
 						.build()
 				)
 			);

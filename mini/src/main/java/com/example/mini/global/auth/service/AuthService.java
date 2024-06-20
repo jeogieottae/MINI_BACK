@@ -30,24 +30,18 @@ public class AuthService {
 
 	@Transactional
 	public String register(RegisterRequest request) {
-		log.info("회원가입 시도: 이메일={}, 닉네임={}", request.getEmail(), request.getNickname());
+		log.info("회원가입 시도: 이메일={}, 닉네임={}", request.getEmail(), request.getName());
 		String email = request.getEmail();
 		String password = passwordEncoder.encode(request.getPassword());
-		String nickname = request.getNickname();
 		String name = request.getName();
 
 		if (memberRepository.existsByEmail(email)) {
 			throw new GlobalException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
 		}
 
-		if (memberRepository.existsByNickname(nickname)) {
-			throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
-		}
-
 		Member member = Member.builder()
 			.email(email)
 			.password(password)
-			.nickname(nickname)
 			.name(name)
 			.state(MemberState.ACTIVE)
 			.build();

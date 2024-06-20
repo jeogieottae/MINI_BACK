@@ -10,8 +10,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @RequiredArgsConstructor
 public class KakaoMemberDetails implements OAuth2User {
 
-	// 인증 객체인 Authentication 객체안에 사용자 정보를 담기 위한 클래스
 
+	// 인증 객체인 Authentication 객체안에 사용자 정보를 담기 위한 클래스
 	private final String email;
 	private final List<? extends GrantedAuthority> authorities;
 	private final Map<String, Object> attributes;

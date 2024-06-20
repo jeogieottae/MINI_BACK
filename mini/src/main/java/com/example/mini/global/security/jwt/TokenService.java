@@ -31,7 +31,7 @@ public class TokenService {
 	}*/
 
 	public void blacklistToken(String token) {
-		redisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "true", Duration.ofDays(1)); // 토큰을 하루 동안 블랙리스트에 추가
+		redisTemplate.opsForValue().set(BLACKLIST_PREFIX + token, "true", Duration.ofDays(1)); // 토큰을 하루 동안 블랙리스트에 추가 , 하루 뒤에 Redis에서 제거
 	}
 
 	public boolean isTokenBlacklisted(String token) {

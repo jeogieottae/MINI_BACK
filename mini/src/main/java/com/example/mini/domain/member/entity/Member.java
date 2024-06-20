@@ -35,26 +35,12 @@ public class Member extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false)
-	private String nickname;
-
 	@OneToOne(mappedBy = "member")
 	private Cart cart;
 
 	@Enumerated(EnumType.STRING)
 	private MemberState state;
 
-	public void updatePassword(String password) {
-		this.password = password;
-	}
-
-	public void updateNickName(String nickname) {
-		this.nickname = nickname;
-	}
-
-	public void changeState(MemberState state) {
-		this.state = state;
-	}
 
 
 	public void setEmail(String email) {
@@ -63,9 +49,5 @@ public class Member extends BaseEntity {
 	public void setOauthEmail(String email) {
 	}
 
-	public void setNickname(String s) {
-	}
 
-	public void setPassword(String kakaoOauthPassword) {
-	}
 }
