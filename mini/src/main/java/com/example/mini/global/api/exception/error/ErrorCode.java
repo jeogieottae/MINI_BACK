@@ -1,4 +1,4 @@
-package com.example.mini.global.exception.error;
+package com.example.mini.global.api.exception.error;
 import org.springframework.http.HttpStatusCode;
 
 public interface ErrorCode {

@@ -12,8 +12,8 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
-import com.example.mini.global.exception.error.CartErrorCode;
-import com.example.mini.global.exception.type.CartException;
+import com.example.mini.global.api.exception.error.CartErrorCode;
+import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class CartService {
   public List<CartResponse> getAllCartItems() {
     Long currentUserId = SecurityUtil.getCurrentUserId();
     Member member = memberRepository.findById(currentUserId)
-        .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
     Cart cart = member.getCart();
 
@@ -68,18 +68,18 @@ public class CartService {
 
   public CartItemResponse addCartItem(Long cartId, AddCartItemRequest request) {
     Cart cart = cartRepository.findById(cartId)
-        .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
     Room room = roomRepository.findById(request.getRoomId())
-        .orElseThrow(() -> new CartException(CartErrorCode.ROOM_NOT_FOUND));
+        .orElseThrow(() -> new GlobalException(CartErrorCode.ROOM_NOT_FOUND));
 
     int roomPrice = room.getPrice();
-    int extraPersonCharge = room.getExtra_person_charge();
+    int extraPersonCharge = room.getExtraPersonCharge();
     int totalPeople = request.getPeopleNumber();
 
     int additionalCharge = 0;
-    if (totalPeople > room.getBase_guests()) {
-      additionalCharge = (totalPeople - room.getBase_guests()) * extraPersonCharge;
+    if (totalPeople > room.getBaseGuests()) {
+      additionalCharge = (totalPeople - room.getBaseGuests()) * extraPersonCharge;
     }
 
     int totalPrice = roomPrice + additionalCharge;
@@ -110,7 +110,7 @@ public class CartService {
     List<Long> cartItemIds = request.getCartItemIds();
     cartItemIds.forEach(cartItemId -> {
       CartItem cartItem = cartItemRepository.findById(cartItemId)
-          .orElseThrow(() -> new CartException(CartErrorCode.CART_NOT_FOUND));
+          .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
       cartItemRepository.delete(cartItem);
     });
   }

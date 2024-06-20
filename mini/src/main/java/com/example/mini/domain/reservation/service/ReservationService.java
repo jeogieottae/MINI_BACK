@@ -12,8 +12,8 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
-import com.example.mini.global.exception.type.ReservationException;
-import com.example.mini.global.exception.error.ReservationErrorCode;
+import com.example.mini.global.api.exception.error.ReservationErrorCode;
+import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.redis.RedissonLock;
 import com.example.mini.global.util.SecurityUtil;
 import java.time.LocalDateTime;
@@ -48,7 +48,7 @@ public class ReservationService {
     LocalDateTime checkOut = request.getCheckOut();
     List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
     if (!overlappingReservations.isEmpty()) {
-      throw new ReservationException(ReservationErrorCode.OVERLAPPING_RESERVATION);
+      throw new GlobalException(ReservationErrorCode.OVERLAPPING_RESERVATION);
     }
 
     // Build reservation entity
@@ -66,7 +66,7 @@ public class ReservationService {
 
   public ReservationRoomResponse getReservationById(Long reservationId) {
     Reservation reservation = reservationRepository.findById(reservationId)
-        .orElseThrow(() -> new ReservationException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
     return mapToReservationRoomResponse(reservation);
   }
@@ -74,7 +74,7 @@ public class ReservationService {
   private Reservation buildReservationEntity(AddReservationRequest request, Long memberId) {
     List<Room> rooms = roomRepository.findAllById(request.getRoomIds());
     if (rooms.isEmpty()) {
-      throw new ReservationException(ReservationErrorCode.NO_ROOMS_AVAILABLE);
+      throw new GlobalException(ReservationErrorCode.NO_ROOMS_AVAILABLE);
     }
 
     Accomodation accommodation = rooms.get(0).getAccomodation();
@@ -82,7 +82,7 @@ public class ReservationService {
     int totalPrice = calculateTotalPrice(rooms, totalExtraCharge);
 
     Member member = memberRepository.findById(request.getMemberId())
-        .orElseThrow(() -> new ReservationException(ReservationErrorCode.MEMBER_NOT_FOUND));
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.MEMBER_NOT_FOUND));
 
     return Reservation.builder()
         .member(member)

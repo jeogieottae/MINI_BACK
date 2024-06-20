@@ -1,6 +1,7 @@
-package com.example.mini.global.util.api;
+package com.example.mini.global.api;
 
-import com.example.mini.global.exception.error.ErrorCode;
+import com.example.mini.global.api.exception.error.ErrorCode;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

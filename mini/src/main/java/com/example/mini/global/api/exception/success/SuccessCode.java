@@ -1,4 +1,4 @@
-package com.example.mini.global.util.api;
+package com.example.mini.global.api.exception.success;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
