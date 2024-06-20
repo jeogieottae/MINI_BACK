@@ -1,4 +1,4 @@
-package com.example.mini.domain.accomodation.model;
+package com.example.mini.domain.accomodation.model.request;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Category;

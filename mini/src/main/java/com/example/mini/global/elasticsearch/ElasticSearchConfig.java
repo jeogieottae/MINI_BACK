@@ -1,4 +1,4 @@
-package com.example.mini.global.util.elasticsearch;
+package com.example.mini.global.elasticsearch;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

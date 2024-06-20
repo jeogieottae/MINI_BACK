@@ -1,4 +1,4 @@
-package com.example.mini.domain.accomodation.model;
+package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Room;
 import lombok.*;

@@ -3,7 +3,12 @@ package com.example.mini.domain.accomodation.service;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Category;
 import com.example.mini.domain.accomodation.entity.Room;
-import com.example.mini.domain.accomodation.model.*;
+import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
+import com.example.mini.domain.accomodation.model.AccomodationSearch;
+import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
+import com.example.mini.domain.accomodation.model.response.PagedResponse;
+import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.CategoryRepository;
@@ -22,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

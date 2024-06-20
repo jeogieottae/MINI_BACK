@@ -1,6 +1,10 @@
 package com.example.mini.domain.accomodation.controller;
 
-import com.example.mini.domain.accomodation.model.*;
+import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
+import com.example.mini.domain.accomodation.model.response.PagedResponse;
+import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.util.APIUtil;
 import lombok.RequiredArgsConstructor;

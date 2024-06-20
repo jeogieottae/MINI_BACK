@@ -1,7 +1,6 @@
-package com.example.mini.domain.accomodation.model;
+package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.Category;
 import lombok.*;
 
 import java.time.LocalDateTime;
