@@ -14,8 +14,9 @@ import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.util.SecurityUtil;
+import com.example.mini.global.security.details.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +42,9 @@ public class CartService {
   }
 
   public List<CartResponse> getAllCartItems() {
-    Long currentUserId = SecurityUtil.getCurrentUserId();
+    UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Long currentUserId = userDetails.getMemberId();
+
     Member member = memberRepository.findById(currentUserId)
         .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
