@@ -14,6 +14,6 @@ public enum SuccessCode {
 	;
 
 	private final Integer HttpStatusCode;
-	private final Integer successCode; // 서버 자체 성공 코드
+	private final Integer successCode;
 	private final String description;
 }

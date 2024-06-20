@@ -26,5 +26,4 @@ public class APIUtil {
 			.status(ex.getStatusCode().value())
 			.body(new ErrorResponse(ex.getStatusText()));
 	}
-
 }

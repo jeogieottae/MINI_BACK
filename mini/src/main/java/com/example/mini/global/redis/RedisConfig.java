@@ -1,4 +1,4 @@
-package com.example.mini.global.util.redis;
+package com.example.mini.global.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
