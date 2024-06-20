@@ -6,6 +6,8 @@ import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.domain.member.repository.MemberRepository;
+import com.example.mini.global.exception.error.AuthErrorCode;
+import com.example.mini.global.exception.type.AuthException;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
@@ -35,11 +37,11 @@ public class AuthService {
 		String name = request.getName();
 
 		if (memberRepository.existsByEmail(email)) {
-			throw new IllegalStateException("이미 존재하는 이메일입니다.");
+			throw new AuthException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
 		}
 
 		if (memberRepository.existsByNickname(nickname)) {
-			throw new IllegalStateException("이미 존재하는 닉네임입니다.");
+			throw new AuthException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
 		}
 
 		Member member = Member.builder()
@@ -62,10 +64,10 @@ public class AuthService {
 		String email = request.getEmail();
 		String password = request.getPassword();
 		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new IllegalStateException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
 
 		if (!passwordEncoder.matches(password, member.getPassword())) {
-			throw new IllegalStateException("비밀번호가 일치하지 않습니다.");
+			throw new AuthException(AuthErrorCode.PASSWORD_MISMATCH);
 		}
 
 		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS);
@@ -87,11 +89,11 @@ public class AuthService {
 		String storedRefreshToken = tokenService.getRefreshToken(email);
 
 		if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-			throw new IllegalStateException("유효하지 않은 리프레시 토큰입니다.");
+			throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
 		}
 
 		if (!jwtProvider.validateToken(refreshToken)) {
-			throw new IllegalStateException("유효하지 않은 토큰입니다.");
+			throw new AuthException(AuthErrorCode.INVALID_TOKEN);
 		}
 
 		return jwtProvider.createToken(email, TokenType.ACCESS);
@@ -100,7 +102,7 @@ public class AuthService {
 	@Transactional
 	public void logout(String accessToken) {
 		if (accessToken == null || accessToken.isEmpty()) {
-			throw new IllegalArgumentException("유효하지 않은 액세스 토큰입니다.");
+			throw new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 
 		String email = jwtProvider.getEmailFromToken(accessToken);
