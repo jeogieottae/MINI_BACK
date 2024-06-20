@@ -1,8 +1,6 @@
 package com.example.mini.domain.accomodation.controller;
 
-import com.example.mini.domain.accomodation.model.AccomodationRequestDto;
-import com.example.mini.domain.accomodation.model.AccomodationResponseDto;
-import com.example.mini.domain.accomodation.model.PagedResponse;
+import com.example.mini.domain.accomodation.model.*;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.util.APIUtil;
 import lombok.RequiredArgsConstructor;
@@ -53,4 +51,22 @@ public class AccomodationController {
         PagedResponse<AccomodationResponseDto> response = accomodationService.searchByAccommodationName(keyword, page);
         return APIUtil.OK(response);
     }
+
+    @GetMapping("/{accomodationId}")
+    public ResponseEntity<AccomodationDetailsResponseDto> getAccomodationDetails(
+            @PathVariable Long accomodationId
+    ) {
+        AccomodationDetailsResponseDto response = accomodationService.getAccomodationDetails(accomodationId);
+        return APIUtil.OK(response);
+    }
+
+    @GetMapping("/{accomodationId}/room/{roomId}")
+    public ResponseEntity<RoomResponseDto> getRoomDetail(
+            @PathVariable Long accomodationId,
+            @PathVariable Long roomId
+    ) {
+        RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId);
+        return APIUtil.OK(response);
+    }
+
 }

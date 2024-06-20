@@ -2,13 +2,12 @@ package com.example.mini.domain.accomodation.service;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Category;
-import com.example.mini.domain.accomodation.model.AccomodationRequestDto;
-import com.example.mini.domain.accomodation.model.AccomodationResponseDto;
-import com.example.mini.domain.accomodation.model.AccomodationSearch;
-import com.example.mini.domain.accomodation.model.PagedResponse;
+import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.model.*;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.CategoryRepository;
+import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.global.exception.error.AccomodationErrorCode;
 import com.example.mini.global.exception.type.AccomodationException;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +33,7 @@ public class AccomodationService {
     private final AccomodationRepository accomodationRepository;
     private final CategoryRepository categoryRepository;
     private final AccomodationSearchRepository accomodationSearchRepository;
+    private final RoomRepository roomRepository;
     private final int PageSize = 5; // 페이지 크기
 
     /**
@@ -106,5 +106,30 @@ public class AccomodationService {
         List<Long> idList = searches.stream().map(AccomodationSearch::getId).toList();
         Page<Accomodation> accommodations = accomodationRepository.findByIdList(idList, PageRequest.of(page-1, PageSize));
         return setResponse(accommodations);
+    }
+
+    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId) {
+        Accomodation accomodation = accomodationRepository.findById(accomodationId)
+                .orElseThrow(() -> new AccomodationException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
+        List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
+
+        AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
+        List<RoomResponseDto> roomResponseDtos = rooms.stream().map(RoomResponseDto::toDto).toList();
+
+        return AccomodationDetailsResponseDto.builder()
+                .accomodation(accomodationResponseDto)
+                .rooms(roomResponseDtos)
+                .build();
+    }
+
+    public RoomResponseDto getRoomDetail(Long accomodationId, Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new AccomodationException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
+        log.info("path id: {}", accomodationId);
+        log.info("real id: {}", room.getAccomodation().getId());
+        if(!accomodationId.equals(room.getAccomodation().getId()))
+            throw new AccomodationException(AccomodationErrorCode.WRONG_REQUEST);
+
+        return RoomResponseDto.toDto(room);
     }
 }
