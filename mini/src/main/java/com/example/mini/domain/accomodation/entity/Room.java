@@ -27,16 +27,16 @@ public class Room extends BaseEntity {
 	private String name;
 
 	@Column(nullable = false)
-	private Integer base_guests;
+	private Integer baseGuests;
 
 	@Column(nullable = false)
 	private Integer price;
 
 	@Column(nullable = false)
-	private Integer max_guests;
+	private Integer maxGuests;
 
 	@Column(nullable = false)
-	private Integer extra_person_charge;
+	private Integer extraPersonCharge;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "cart_item_id")

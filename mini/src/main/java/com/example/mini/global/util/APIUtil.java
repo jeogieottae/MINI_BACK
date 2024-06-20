@@ -1,5 +1,8 @@
 package com.example.mini.global.util;
 
+import com.example.mini.global.exception.error.AuthErrorCode;
+import com.example.mini.global.exception.error.ErrorCode;
+import com.example.mini.global.util.api.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -20,11 +23,11 @@ public class APIUtil {
 		return ResponseEntity.ok().build();
 	}
 
-	public static ResponseEntity ERROR(HttpStatusCodeException ex) {
-		log.warn(ex.getStatusText());
-		return ResponseEntity
-			.status(ex.getStatusCode().value())
-			.body(new ErrorResponse(ex.getStatusText()));
-	}
+//	public static ResponseEntity<ApiResponse<Object>> ERROR(HttpStatusCodeException ex) {
+//		log.warn(ex.getStatusText());
+//		return ResponseEntity
+//			.status(ex.getStatusCode().value())
+//			.body(ApiResponse.ERROR(AuthErrorCode.ex.getErrorCode()));
+//	}
 
 }

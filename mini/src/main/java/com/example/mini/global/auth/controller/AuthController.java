@@ -3,19 +3,18 @@ package com.example.mini.global.auth.controller;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
-import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.auth.oauth2.model.KakaoUserInfo;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
+import com.example.mini.global.util.api.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -30,23 +29,23 @@ public class AuthController {
 	private final TokenService tokenService;
 
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
 		String response = authService.register(request);
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(ApiResponse.CREATED(response));
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
 		LoginResponse response = authService.login(request);
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(ApiResponse.OK(response));
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<String> logout(HttpServletRequest request) {
+	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
 		String accessToken = jwtProvider.resolveToken(request);
 
 		authService.logout(accessToken);
-		return new ResponseEntity<>("Logged out successfully", HttpStatus.NO_CONTENT);
+		return ResponseEntity.ok(ApiResponse.DELETE());
 	}
 
 	private KakaoUserInfo getKakaoUserInfo(String kakaoAccessToken) {

@@ -1,10 +1,11 @@
 package com.example.mini.global.exception.error;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 
 public interface ErrorCode {
 
-	HttpStatusCode getCode();
+	HttpStatus getHttpStatus();
 
-	String getInfo();
+	Integer getErrorCode();
 
+	String getDescription();
 }

@@ -7,7 +7,7 @@ import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.exception.error.AuthErrorCode;
-import com.example.mini.global.exception.type.AuthException;
+import com.example.mini.global.exception.type.GlobalException;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
@@ -37,11 +37,11 @@ public class AuthService {
 		String name = request.getName();
 
 		if (memberRepository.existsByEmail(email)) {
-			throw new AuthException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
+			throw new GlobalException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
 		}
 
 		if (memberRepository.existsByNickname(nickname)) {
-			throw new AuthException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
+			throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
 		}
 
 		Member member = Member.builder()
@@ -64,10 +64,10 @@ public class AuthService {
 		String email = request.getEmail();
 		String password = request.getPassword();
 		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new AuthException(AuthErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
 		if (!passwordEncoder.matches(password, member.getPassword())) {
-			throw new AuthException(AuthErrorCode.PASSWORD_MISMATCH);
+			throw new GlobalException(AuthErrorCode.PASSWORD_MISMATCH);
 		}
 
 		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS);
@@ -82,6 +82,7 @@ public class AuthService {
 			.build();
 	}
 
+
 	@Transactional
 	public String createAccessToken(String refreshToken) {
 		Claims claims = jwtProvider.getUserInfoFromToken(refreshToken);
@@ -89,11 +90,11 @@ public class AuthService {
 		String storedRefreshToken = tokenService.getRefreshToken(email);
 
 		if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-			throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+			throw new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN);
 		}
 
 		if (!jwtProvider.validateToken(refreshToken)) {
-			throw new AuthException(AuthErrorCode.INVALID_TOKEN);
+			throw new GlobalException(AuthErrorCode.INVALID_TOKEN);
 		}
 
 		return jwtProvider.createToken(email, TokenType.ACCESS);
@@ -102,10 +103,11 @@ public class AuthService {
 	@Transactional
 	public void logout(String accessToken) {
 		if (accessToken == null || accessToken.isEmpty()) {
-			throw new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 
 		String email = jwtProvider.getEmailFromToken(accessToken);
+
 		tokenService.blacklistToken(accessToken);
 	}
 }
