@@ -32,33 +32,32 @@ public class JwtProvider {
 		this.refreshKey = Keys.hmacShaKeyFor(refreshKeyBytes);
 	}
 
-	public String createToken(String email, TokenType type) {
+	public String createToken(String email, TokenType type, boolean isOauth) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + type.getExpireTime());
 
 		Key key = type == TokenType.ACCESS ? accessKey : refreshKey;
 
+		Claims claims = Jwts.claims().setSubject(email);
+		if (isOauth) {
+			claims.put("oauth", true); // oauth 구분 클레임
+		}
+
 		return Jwts.builder()
-			.setSubject(email)
-			.claim("type", type)
+			.setClaims(claims)
 			.setIssuedAt(now)
 			.setExpiration(validity)
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();
 	}
 
-	public boolean validateToken(String token, TokenType type) {
+	public boolean validateToken(String token) {
 		try {
-			Key key = type == TokenType.ACCESS ? accessKey : refreshKey;
-			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+			Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
-	}
-
-	public boolean validateToken(String token) {
-		return validateToken(token, TokenType.ACCESS);
 	}
 
 	public Claims getUserInfoFromToken(String token) {

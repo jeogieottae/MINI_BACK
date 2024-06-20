@@ -64,8 +64,8 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.PASSWORD_MISMATCH);
 		}
 
-		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS);
-		String refreshToken = jwtProvider.createToken(member.getEmail(), TokenType.REFRESH);
+		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS, false); // 일반 로그인
+		String refreshToken = jwtProvider.createToken(member.getEmail(), TokenType.REFRESH, false); // 일반 로그인
 		tokenService.saveRefreshToken(email, refreshToken);
 
 		log.info("로그인 성공: 이메일={}", member.getEmail());
@@ -75,7 +75,6 @@ public class AuthService {
 			.refreshToken(refreshToken)
 			.build();
 	}
-
 
 	@Transactional
 	public String createAccessToken(String refreshToken) {
@@ -91,7 +90,7 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.INVALID_TOKEN);
 		}
 
-		return jwtProvider.createToken(email, TokenType.ACCESS);
+		return jwtProvider.createToken(email, TokenType.ACCESS, false); // 일반 로그인
 	}
 
 	@Transactional

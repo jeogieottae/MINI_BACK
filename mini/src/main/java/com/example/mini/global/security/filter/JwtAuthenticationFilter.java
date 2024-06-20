@@ -50,7 +50,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (jwtProvider.validateToken(token)) {
 				Claims claims = jwtProvider.getUserInfoFromToken(token);
 				log.info("토큰 유효: 사용자 이메일={}", claims.getSubject());
-				UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
+				UserDetails userDetails;
+				if (claims.containsKey("oauth")) {
+					userDetails = userDetailsService.loadUserByOauthEmail(claims.getSubject());
+				} else {
+					userDetails = userDetailsService.loadUserByEmail(claims.getSubject());
+				}
 				Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			} else {

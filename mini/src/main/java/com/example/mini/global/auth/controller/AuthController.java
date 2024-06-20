@@ -71,10 +71,10 @@ public class AuthController {
 		String email = kakaoUserInfo.getEmail();
 
 		// 사용자 정보를 기반으로 JWT 토큰 생성
-		String jwtToken = jwtProvider.createToken(email, TokenType.ACCESS);
+		String jwtToken = jwtProvider.createToken(email, TokenType.ACCESS, true);
 
 		// 리프레시 토큰 생성 및 저장
-		String refreshToken = jwtProvider.createToken(email, TokenType.REFRESH);
+		String refreshToken = jwtProvider.createToken(email, TokenType.REFRESH, true);
 		tokenService.saveRefreshToken(email, refreshToken);
 
 		return ResponseEntity.ok(new LoginResponse(jwtToken, refreshToken));

@@ -40,8 +40,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 			.orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
 		// JWT 생성
-		String accessToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.ACCESS);
-		String refreshToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.REFRESH);
+		String accessToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.ACCESS, true);
+		String refreshToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.REFRESH, true);
 		tokenService.saveRefreshToken(member.getOauthEmail(), refreshToken);
 
 		// 리다이렉트 URL 생성

@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 
 @Service
@@ -27,6 +28,7 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 	private final MemberRepository memberRepository;
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;
+	private final HttpServletResponse response;
 
 	@Transactional
 	@Override
@@ -63,11 +65,13 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
 		// JWT 생성 및 Redis에 저장
-		String accessToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.ACCESS);
-		String refreshToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.REFRESH);
+		String accessToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.ACCESS, true); // OAuth 로그인
+		String refreshToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.REFRESH, true); // OAuth 로그인
 		tokenService.saveRefreshToken(member.getOauthEmail(), refreshToken);
 
-		// 필요한 경우, 토큰을 응답에 포함하거나 프론트엔드로 전달하는 추가 로직을 구현합니다.
+		// JWT를 응답 헤더에 포함시킵니다.
+		response.setHeader("Authorization", "Bearer " + accessToken);
+		response.setHeader("Refresh-Token", refreshToken);
 
 		return kakaoMemberDetails;
 	}
