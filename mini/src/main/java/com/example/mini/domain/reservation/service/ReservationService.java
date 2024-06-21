@@ -1,162 +1,106 @@
 package com.example.mini.domain.reservation.service;
 
-import com.example.mini.domain.member.repository.MemberRepository;
-import com.example.mini.domain.reservation.entity.Reservation;
-import com.example.mini.domain.reservation.model.request.AddReservationRequest;
-import com.example.mini.domain.reservation.model.response.AddReservationResponse;
-import com.example.mini.domain.reservation.model.response.ReservationResponse;
-import com.example.mini.domain.reservation.model.response.ReservationRoomResponse;
-import com.example.mini.domain.reservation.model.response.ReservationAccomodationResponse;
-import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.member.entity.Member;
-import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.reservation.model.request.ReservationRequest;
+import com.example.mini.domain.reservation.model.response.ReservationResponse;
+import com.example.mini.domain.reservation.entity.Reservation;
+import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
+import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
+import com.example.mini.domain.member.repository.MemberRepository;
+import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.redis.RedissonLock;
-import java.time.LocalDateTime;
-import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.example.mini.global.security.details.UserDetailsImpl;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class ReservationService {
 
-  @Autowired
-  private ReservationRepository reservationRepository;
+  private final ReservationRepository reservationRepository;
+  private final RoomRepository roomRepository;
+  private final MemberRepository memberRepository;
 
-  @Autowired
-  private RoomRepository roomRepository;
+  public ReservationResponse createConfirmedReservation(Long memberId, ReservationRequest request) {
+    Member member = getMember(memberId);
 
-  @Autowired
-  private MemberRepository memberRepository;
+    Room room = roomRepository.findById(request.getRoomId())
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.ROOM_NOT_FOUND));
 
-  @Autowired
-  private RedissonClient redissonClient;
-
-  @RedissonLock(key = "reservation:#{#roomIds.toString() + ':' + #checkIn.toString() + ':' + #checkOut.toString()}")
-  public AddReservationResponse addReservation(AddReservationRequest request) {
-//    Long memberId = SecurityUtil.getCurrentUserId();
-
-//    List<Long> roomIds = request.getRoomIds();
-//    LocalDateTime checkIn = request.getCheckIn();
-//    LocalDateTime checkOut = request.getCheckOut();
-//    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
-//    if (!overlappingReservations.isEmpty()) {
-//      throw new GlobalException(ReservationErrorCode.OVERLAPPING_RESERVATION);
-//    }
-
-    // Build reservation entity
-//    Reservation reservation = buildReservationEntity(request, memberId);
-//    Reservation savedReservation = reservationRepository.save(reservation);
-//    return buildAddReservationResponse(savedReservation);
-    return null;
-  }
-
-//  public List<ReservationResponse> getAllReservationsForUser(Long memberId) {
-//    List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
-//    return reservations.stream()
-//        .map(this::mapToReservationResponse)
-//        .collect(Collectors.toList());
-//  }
-//
-//  public ReservationRoomResponse getReservationById(Long reservationId) {
-//    Reservation reservation = reservationRepository.findById(reservationId)
-//        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
-//
-//    return mapToReservationRoomResponse(reservation);
-//  }
-
-  private Reservation buildReservationEntity(AddReservationRequest request, Long memberId) {
-    List<Room> rooms = roomRepository.findAllById(request.getRoomIds());
-    if (rooms.isEmpty()) {
-      throw new GlobalException(ReservationErrorCode.NO_ROOMS_AVAILABLE);
+    int totalPeople = request.getPeopleNumber();
+    if (totalPeople > room.getMaxGuests()) {
+      throw new GlobalException(ReservationErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
-    Accomodation accommodation = rooms.get(0).getAccomodation();
-    int totalExtraCharge = calculateTotalExtraCharge(rooms, request.getPeopleNumber());
-    int totalPrice = calculateTotalPrice(rooms, totalExtraCharge);
+    int additionalCharge = 0;
+    if (totalPeople > room.getBaseGuests()) {
+      additionalCharge = (totalPeople - room.getBaseGuests()) * room.getExtraPersonCharge();
+    }
+    
+    int finalPrice = room.getPrice() + additionalCharge;
 
-    Member member = memberRepository.findById(request.getMemberId())
-        .orElseThrow(() -> new GlobalException(ReservationErrorCode.MEMBER_NOT_FOUND));
-
-    return Reservation.builder()
-        .member(member)
+    Reservation reservation = Reservation.builder()
         .peopleNumber(request.getPeopleNumber())
-        .extraCharge(totalExtraCharge)
-        .totalPrice(totalPrice)
+        .extraCharge(additionalCharge)
+        .totalPrice(finalPrice)
         .checkIn(request.getCheckIn())
         .checkOut(request.getCheckOut())
-        .room(rooms.get(0))
-        .accomodation(accommodation)
+        .accomodation(room.getAccomodation())
+        .member(member)
+        .room(room)
+        .status(ReservationStatus.CONFIRMED)
+        .build();
+
+    reservationRepository.save(reservation);
+
+    return ReservationResponse.builder()
+        .roomId(room.getId())
+        .accommodationName(room.getAccomodation().getName())
+        .roomName(room.getName())
+        .baseGuests(room.getBaseGuests())
+        .maxGuests(room.getMaxGuests())
+        .checkIn(reservation.getCheckIn())
+        .checkOut(reservation.getCheckOut())
+        .peopleNumber(reservation.getPeopleNumber())
+        .totalPrice(reservation.getTotalPrice())
         .build();
   }
 
-//  private AddReservationResponse buildAddReservationResponse(Reservation reservation) {
-//    return AddReservationResponse.builder()
-//        .id(reservation.getId())
-//        .peopleNumber(reservation.getPeopleNumber())
-//        .extraCharge(reservation.getExtraCharge())
-//        .totalPrice(reservation.getTotalPrice())
-//        .checkIn(reservation.getCheckIn())
-//        .checkOut(reservation.getCheckOut())
-//        .roomId(reservation.getRoom().getId())
-//        .build();
-//  }
-
-//  private ReservationResponse mapToReservationResponse(Reservation reservation) {
-//    Long roomId = reservation.getRoom().getId();
-//
-//    Accomodation accommodation = reservation.getAccomodation();
-//    ReservationAccomodationResponse accomodationResponse = mapToReservationAccomodationResponse(accommodation);
-//
-//    return ReservationResponse.builder()
-//        .id(reservation.getId())
-//        .totalPrice(reservation.getTotalPrice())
-//        .checkIn(reservation.getCheckIn())
-//        .checkOut(reservation.getCheckOut())
-//        .roomId(roomId)
-//        .accomodationName(accomodationResponse.getName())
-//        .accomodationAddress(accomodationResponse.getAddress())
-//        .build();
-//  }
-
-//  private ReservationRoomResponse mapToReservationRoomResponse(Reservation reservation) {
-//    Room room = reservation.getRoom();
-//
-//    return ReservationRoomResponse.builder()
-//        .id(reservation.getId())
-//        .peopleNumber(reservation.getPeopleNumber())
-//        .room(room)
-//        .extraCharge(reservation.getExtraCharge())
-//        .build();
-//  }
-
-  private int calculateTotalExtraCharge(List<Room> rooms, int peopleNumber) {
-    int totalExtraCharge = 0;
-    for (Room room : rooms) {
-      int extraGuests = peopleNumber - room.getBaseGuests();
-      if (extraGuests > 0) {
-        totalExtraCharge += extraGuests * room.getExtraPersonCharge();
-      }
-    }
-    return totalExtraCharge;
+  private Member getMember(Long memberId) {
+    return memberRepository.findById(memberId)
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.MEMBER_NOT_FOUND));
   }
 
-  private int calculateTotalPrice(List<Room> rooms, int totalExtraCharge) {
-    int totalPrice = rooms.stream().mapToInt(Room::getPrice).sum();
-    return totalPrice + totalExtraCharge;
-  }
+//
+//  @Transactional(readOnly = true)
+//  public List<ReservationResponse> getConfirmedReservations() {
+//    List<Reservation> confirmedReservations = reservationRepository.findByStatus(ReservationStatus.CONFIRMED);
+//    List<ReservationResponse> reservationResponses = new ArrayList<>();
+//
+//    for (Reservation reservation : confirmedReservations) {
+//      reservationResponses.add(new ReservationResponse(
+//          reservation.getId(),
+//          reservation.getCheckIn(),
+//          reservation.getCheckOut(),
+//          reservation.getPeopleNumber(),
+//          reservation.getTotalPrice(),
+//          reservation.getStatus()
+//      ));
+//    }
+//
+//    return reservationResponses;
+//  }
 
-  private ReservationAccomodationResponse mapToReservationAccomodationResponse(Accomodation accommodation) {
-    return ReservationAccomodationResponse.builder()
-        .id(accommodation.getId())
-        .name(accommodation.getName())
-        .address(accommodation.getAddress())
-        .build();
-  }
 }

@@ -2,6 +2,7 @@ package com.example.mini.domain.cart.controller;
 
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
+import com.example.mini.domain.cart.model.request.ReservationStatusRequest;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
@@ -36,6 +37,15 @@ public class CartController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
+  // 장바구니 품목 확정
+  @PutMapping("/items")
+  public ResponseEntity<Void> confirmCartItem(
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @RequestBody ReservationStatusRequest request
+  ) {
+    cartService.confirmCartItem(userDetails.getMemberId(), request.getId());
+    return ResponseEntity.ok().build();
+  }
 
   //장바구니 품목 삭제
   @DeleteMapping("/items")

@@ -4,12 +4,14 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
+import com.example.mini.domain.cart.model.request.ReservationStatusRequest;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.reservation.entity.Reservation;
+import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
@@ -47,19 +49,21 @@ public class CartService {
     List<CartResponse> cartResponses = new ArrayList<>();
 
     for (Reservation reservation : cart.getReservationList()) {
-      Room room = reservation.getRoom();
-      CartResponse cartResponse = new CartResponse(
-          room.getId(),
-          room.getAccomodation().getName(),
-          room.getName(),
-          room.getBaseGuests(),
-          room.getMaxGuests(),
-          reservation.getCheckIn(),
-          reservation.getCheckOut(),
-          reservation.getPeopleNumber(),
-          reservation.getTotalPrice()
-      );
-      cartResponses.add(cartResponse);
+      if (reservation.getStatus() == ReservationStatus.PENDING) {
+        Room room = reservation.getRoom();
+        CartResponse cartResponse = new CartResponse(
+            room.getId(),
+            room.getAccomodation().getName(),
+            room.getName(),
+            room.getBaseGuests(),
+            room.getMaxGuests(),
+            reservation.getCheckIn(),
+            reservation.getCheckOut(),
+            reservation.getPeopleNumber(),
+            reservation.getTotalPrice()
+        );
+        cartResponses.add(cartResponse);
+      }
     }
 
     return cartResponses;
@@ -118,6 +122,7 @@ public class CartService {
         .accomodation(room.getAccomodation())
         .member(member)
         .room(room)
+        .status(ReservationStatus.PENDING)
         .build();
 
     cart.getReservationList().add(reservation);
@@ -142,11 +147,40 @@ public class CartService {
         throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
       }
 
+      if (reservation.getStatus() != ReservationStatus.PENDING) {
+        throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
+      }
+
       cart.getReservationList().remove(reservation);
 
       reservationRepository.delete(reservation);
     }
 
     cartRepository.save(cart);
+  }
+
+  @Transactional
+  public void confirmCartItem(Long memberId, Long reservationId) {
+    Member member = getMember(memberId);
+
+    Cart cart = cartRepository.findByMember(member)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
+
+    Reservation reservation = reservationRepository.findById(reservationId)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+
+    if (!reservation.getMember().getId().equals(memberId)) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
+    }
+
+    if (!cart.getReservationList().contains(reservation)) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
+    }
+
+    if (reservation.getStatus() != ReservationStatus.PENDING) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
+    }
+
+    reservationRepository.updateReservationStatus(reservationId, ReservationStatus.CONFIRMED);
   }
 }
