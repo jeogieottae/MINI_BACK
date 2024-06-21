@@ -7,9 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class AddCartItemRequest {
 
+  private Long roomId;
+  private int peopleNumber;
   private LocalDateTime checkIn;
   private LocalDateTime checkOut;
-  private Integer peopleNumber;
-  private Integer price;
-  private Long roomId;
 }

@@ -6,9 +6,11 @@ import com.example.mini.domain.cart.model.response.CartItemResponse;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,18 +22,26 @@ public class CartController {
 
   private final CartService cartService;
 
-  @GetMapping("/{cartId}/items")
-  public ResponseEntity<List<CartResponse>> getAllCartItems(@PathVariable Long cartId) {
-    List<CartResponse> cartResponses = cartService.getAllCartItems();
-    return ResponseEntity.ok((List<CartResponse>) ApiResponse.OK(cartResponses));
+  //장바구니 보기
+  @GetMapping("/items")
+  public ResponseEntity getAllCartItems(
+      @AuthenticationPrincipal UserDetailsImpl userDetails
+  ) {
+    return ResponseEntity.ok().body(cartService.getAllCartItems(userDetails.getMemberId()));
   }
 
-  @PostMapping("/{cartId}/items")
-  public ResponseEntity<ApiResponse<CartItemResponse>> addCartItem(@PathVariable Long cartId, @RequestBody AddCartItemRequest request) {
-    CartItemResponse cartItemResponse = cartService.addCartItem(cartId, request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.CREATED(cartItemResponse));
+  //장바구니 품목 추가
+  @PostMapping("/items")
+  public ResponseEntity addCartItem(
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @RequestBody AddCartItemRequest request
+  ) {
+    cartService.addCartItem(userDetails.getMemberId(), request);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
+
+  //장바구니 품목 삭제
   @DeleteMapping("/items")
   public ResponseEntity<ApiResponse<Object>> deleteCartItem(@RequestBody DeleteCartItemRequest request) {
     cartService.deleteCartItem(request);

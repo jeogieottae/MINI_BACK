@@ -12,10 +12,13 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CartResponse {
 
-  private Long id;
-  private Long cartItemId;
+  private Long roomId;
+  private String accommodationName;
+  private String roomName;
+  private Integer baseGuests;
+  private Integer maxGuests;
   private LocalDateTime checkIn;
   private LocalDateTime checkOut;
   private Integer peopleNumber;
-  private Integer price;
+  private Integer totalPrice;
 }

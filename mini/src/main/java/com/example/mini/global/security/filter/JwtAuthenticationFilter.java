@@ -1,6 +1,7 @@
 package com.example.mini.global.security.filter;
 
 
+import com.example.mini.global.security.details.UserDetailsImpl;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
@@ -29,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-		throws ServletException, IOException {
+			throws ServletException, IOException {
 		String token = jwtProvider.resolveToken(request);
 
 		if (token != null) {
@@ -43,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (jwtProvider.validateToken(token)) {
 				Claims claims = jwtProvider.getUserInfoFromToken(token);
 				log.info("토큰 유효: 사용자 이메일={}", claims.getSubject());
-				UserDetails userDetails = userDetailsService.loadUserByUsername(claims.getSubject());
+				UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(claims.getSubject());
 				Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			} else {

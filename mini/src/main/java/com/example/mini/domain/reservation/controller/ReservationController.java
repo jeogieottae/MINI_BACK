@@ -6,7 +6,6 @@ import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.model.response.ReservationRoomResponse;
 import com.example.mini.domain.reservation.service.ReservationService;
 import com.example.mini.global.api.ApiResponse;
-import com.example.mini.global.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,14 +28,15 @@ public class ReservationController {
 
   @GetMapping
   public ResponseEntity<ApiResponse<List<ReservationResponse>>> getAllReservationsForCurrentUser() {
-    Long currentUserId = SecurityUtil.getCurrentUserId();
-    List<ReservationResponse> reservations = reservationService.getAllReservationsForUser(currentUserId);
-    return ResponseEntity.ok(ApiResponse.OK(reservations));
+//    Long currentUserId = SecurityUtil.getCurrentUserId();
+//    List<ReservationResponse> reservations = reservationService.getAllReservationsForUser(currentUserId);
+//    return ResponseEntity.ok(ApiResponse.OK(reservations));
+  return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/{reservationId}")
-  public ResponseEntity<ApiResponse<ReservationRoomResponse>> getReservationById(@PathVariable Long reservationId) {
-    ReservationRoomResponse reservation = reservationService.getReservationById(reservationId);
-    return ResponseEntity.ok(ApiResponse.OK(reservation));
-  }
+//  @GetMapping("/{reservationId}")
+//  public ResponseEntity<ApiResponse<ReservationRoomResponse>> getReservationById(@PathVariable Long reservationId) {
+//    ReservationRoomResponse reservation = reservationService.getReservationById(reservationId);
+//    return ResponseEntity.ok(ApiResponse.OK(reservation));
+//  }
 }

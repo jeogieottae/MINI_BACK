@@ -1,5 +1,6 @@
 package com.example.mini.domain.accomodation.entity;
 
+import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.entity.CartItem;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.reservation.entity.Reservation;
@@ -49,5 +50,9 @@ public class Room extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "reservation_id")
 	private Reservation reservation;
+
+	@ManyToMany(fetch = FetchType.LAZY)
+	private List<Cart> cart;
+
 
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public class ReservationRoomResponse {
 
   private Long id;
-  private String peopleNumber;
+  private Integer peopleNumber;
   private List<Room> rooms;
   private Integer extraCharge;
 }

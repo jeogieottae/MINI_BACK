@@ -1,5 +1,6 @@
 package com.example.mini.domain.reservation.entity;
 
+import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.accomodation.entity.Room;
@@ -23,7 +24,7 @@ import lombok.experimental.SuperBuilder;
 public class Reservation extends BaseEntity {
 
 	@Column(nullable = false)
-	private String peopleNumber;
+	private Integer peopleNumber;
 
 	@Column(nullable = false)
 	private Integer extraCharge;
@@ -37,12 +38,15 @@ public class Reservation extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDateTime checkOut;
 
-	@OneToMany
-	@JoinColumn(name = "room_id")
-	private List<Room> roomList;
+	@ManyToMany(fetch = FetchType.LAZY)
+	private List<Cart> cart;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "accommodation_id")
+	@JoinColumn(name = "room_id", nullable = false)
+	private Room room;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "accomodation_id")
 	private Accomodation accomodation;
 
 	@ManyToOne(fetch = FetchType.LAZY)

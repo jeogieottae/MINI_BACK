@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 public class AddReservationResponse {
   private Long id;
-  private String peopleNumber;
+  private Integer peopleNumber;
   private Integer extraCharge;
   private Integer totalPrice;
   private LocalDateTime checkIn;

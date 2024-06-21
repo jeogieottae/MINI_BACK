@@ -15,7 +15,6 @@ import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.redis.RedissonLock;
-import com.example.mini.global.util.SecurityUtil;
 import java.time.LocalDateTime;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,35 +40,36 @@ public class ReservationService {
 
   @RedissonLock(key = "reservation:#{#roomIds.toString() + ':' + #checkIn.toString() + ':' + #checkOut.toString()}")
   public AddReservationResponse addReservation(AddReservationRequest request) {
-    Long memberId = SecurityUtil.getCurrentUserId();
+//    Long memberId = SecurityUtil.getCurrentUserId();
 
-    List<Long> roomIds = request.getRoomIds();
-    LocalDateTime checkIn = request.getCheckIn();
-    LocalDateTime checkOut = request.getCheckOut();
-    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
-    if (!overlappingReservations.isEmpty()) {
-      throw new GlobalException(ReservationErrorCode.OVERLAPPING_RESERVATION);
-    }
+//    List<Long> roomIds = request.getRoomIds();
+//    LocalDateTime checkIn = request.getCheckIn();
+//    LocalDateTime checkOut = request.getCheckOut();
+//    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
+//    if (!overlappingReservations.isEmpty()) {
+//      throw new GlobalException(ReservationErrorCode.OVERLAPPING_RESERVATION);
+//    }
 
     // Build reservation entity
-    Reservation reservation = buildReservationEntity(request, memberId);
-    Reservation savedReservation = reservationRepository.save(reservation);
-    return buildAddReservationResponse(savedReservation);
+//    Reservation reservation = buildReservationEntity(request, memberId);
+//    Reservation savedReservation = reservationRepository.save(reservation);
+//    return buildAddReservationResponse(savedReservation);
+    return null;
   }
 
-  public List<ReservationResponse> getAllReservationsForUser(Long memberId) {
-    List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
-    return reservations.stream()
-        .map(this::mapToReservationResponse)
-        .collect(Collectors.toList());
-  }
-
-  public ReservationRoomResponse getReservationById(Long reservationId) {
-    Reservation reservation = reservationRepository.findById(reservationId)
-        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
-
-    return mapToReservationRoomResponse(reservation);
-  }
+//  public List<ReservationResponse> getAllReservationsForUser(Long memberId) {
+//    List<Reservation> reservations = reservationRepository.findByMemberId(memberId);
+//    return reservations.stream()
+//        .map(this::mapToReservationResponse)
+//        .collect(Collectors.toList());
+//  }
+//
+//  public ReservationRoomResponse getReservationById(Long reservationId) {
+//    Reservation reservation = reservationRepository.findById(reservationId)
+//        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+//
+//    return mapToReservationRoomResponse(reservation);
+//  }
 
   private Reservation buildReservationEntity(AddReservationRequest request, Long memberId) {
     List<Room> rooms = roomRepository.findAllById(request.getRoomIds());
@@ -78,7 +78,7 @@ public class ReservationService {
     }
 
     Accomodation accommodation = rooms.get(0).getAccomodation();
-    int totalExtraCharge = calculateTotalExtraCharge(rooms, Integer.parseInt(request.getPeopleNumber()));
+    int totalExtraCharge = calculateTotalExtraCharge(rooms, request.getPeopleNumber());
     int totalPrice = calculateTotalPrice(rooms, totalExtraCharge);
 
     Member member = memberRepository.findById(request.getMemberId())
@@ -91,51 +91,50 @@ public class ReservationService {
         .totalPrice(totalPrice)
         .checkIn(request.getCheckIn())
         .checkOut(request.getCheckOut())
-        .roomList(rooms)
+        .room(rooms.get(0))
         .accomodation(accommodation)
         .build();
   }
 
-  private AddReservationResponse buildAddReservationResponse(Reservation reservation) {
-    return AddReservationResponse.builder()
-        .id(reservation.getId())
-        .peopleNumber(reservation.getPeopleNumber())
-        .extraCharge(reservation.getExtraCharge())
-        .totalPrice(reservation.getTotalPrice())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .roomIds(reservation.getRoomList().stream().map(Room::getId).collect(Collectors.toList()))
-        .build();
-  }
+//  private AddReservationResponse buildAddReservationResponse(Reservation reservation) {
+//    return AddReservationResponse.builder()
+//        .id(reservation.getId())
+//        .peopleNumber(reservation.getPeopleNumber())
+//        .extraCharge(reservation.getExtraCharge())
+//        .totalPrice(reservation.getTotalPrice())
+//        .checkIn(reservation.getCheckIn())
+//        .checkOut(reservation.getCheckOut())
+//        .roomId(reservation.getRoom().getId())
+//        .build();
+//  }
 
-  private ReservationResponse mapToReservationResponse(Reservation reservation) {
-    List<Long> roomIds = reservation.getRoomList().stream().map(Room::getId).collect(Collectors.toList());
+//  private ReservationResponse mapToReservationResponse(Reservation reservation) {
+//    Long roomId = reservation.getRoom().getId();
+//
+//    Accomodation accommodation = reservation.getAccomodation();
+//    ReservationAccomodationResponse accomodationResponse = mapToReservationAccomodationResponse(accommodation);
+//
+//    return ReservationResponse.builder()
+//        .id(reservation.getId())
+//        .totalPrice(reservation.getTotalPrice())
+//        .checkIn(reservation.getCheckIn())
+//        .checkOut(reservation.getCheckOut())
+//        .roomId(roomId)
+//        .accomodationName(accomodationResponse.getName())
+//        .accomodationAddress(accomodationResponse.getAddress())
+//        .build();
+//  }
 
-    Accomodation accommodation = reservation.getAccomodation();
-    ReservationAccomodationResponse accomodationResponse = mapToReservationAccomodationResponse(accommodation);
-
-    return ReservationResponse.builder()
-        .id(reservation.getId())
-        .totalPrice(reservation.getTotalPrice())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .roomIds(roomIds)
-        .accomodationName(accomodationResponse.getName())
-        .accomodationAddress(accomodationResponse.getAddress())
-        .build();
-  }
-
-  private ReservationRoomResponse mapToReservationRoomResponse(Reservation reservation) {
-    List<Long> roomIds = reservation.getRoomList().stream().map(Room::getId).collect(Collectors.toList());
-    List<Room> rooms = roomRepository.findAllById(roomIds);
-
-    return ReservationRoomResponse.builder()
-        .id(reservation.getId())
-        .peopleNumber(reservation.getPeopleNumber())
-        .rooms(rooms)
-        .extraCharge(reservation.getExtraCharge())
-        .build();
-  }
+//  private ReservationRoomResponse mapToReservationRoomResponse(Reservation reservation) {
+//    Room room = reservation.getRoom();
+//
+//    return ReservationRoomResponse.builder()
+//        .id(reservation.getId())
+//        .peopleNumber(reservation.getPeopleNumber())
+//        .room(room)
+//        .extraCharge(reservation.getExtraCharge())
+//        .build();
+//  }
 
   private int calculateTotalExtraCharge(List<Room> rooms, int peopleNumber) {
     int totalExtraCharge = 0;

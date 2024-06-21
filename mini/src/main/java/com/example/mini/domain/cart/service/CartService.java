@@ -5,27 +5,24 @@ import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.entity.CartItem;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
-import com.example.mini.domain.cart.model.response.CartItemResponse;
 import com.example.mini.domain.cart.repository.CartItemRepository;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
+import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.security.details.UserDetailsImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.ArrayList;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class CartService {
 
   private final MemberRepository memberRepository;
@@ -33,80 +30,94 @@ public class CartService {
   private final CartItemRepository cartItemRepository;
   private final RoomRepository roomRepository;
 
-  @Autowired
-  public CartService(MemberRepository memberRepository, CartRepository cartRepository, CartItemRepository cartItemRepository, RoomRepository roomRepository) {
-    this.memberRepository = memberRepository;
-    this.cartRepository = cartRepository;
-    this.cartItemRepository = cartItemRepository;
-    this.roomRepository = roomRepository;
-  }
+  @Transactional
+  public List<CartResponse> getAllCartItems(Long memberId) {
+    Member member = getMember(memberId);
+    Cart cart = cartRepository.findByMember(member).orElse(null);
 
-  public List<CartResponse> getAllCartItems() {
-    UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    Long currentUserId = userDetails.getMemberId();
+    if (cart == null) {
+      cart = Cart.builder()
+          .member(member)
+          .roomList(new ArrayList<>())
+          .reservationList(new ArrayList<>())
+          .build();
+      cartRepository.save(cart);
+      return new ArrayList<>();
+    }
 
-    Member member = memberRepository.findById(currentUserId)
-        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
+    List<CartResponse> cartResponses = new ArrayList<>();
 
-    Cart cart = member.getCart();
-
-    List<CartItem> cartItems = cart.getCartItem();
-
-    List<CartResponse> cartResponses = cartItems.stream()
-        .map(this::mapToCartResponse)
-        .collect(Collectors.toList());
+    for (Reservation reservation : cart.getReservationList()) {
+      Room room = reservation.getRoom();
+      CartResponse cartResponse = new CartResponse(
+          room.getId(),
+          room.getAccomodation().getName(),
+          room.getName(),
+          room.getBaseGuests(),
+          room.getMaxGuests(),
+          reservation.getCheckIn(),
+          reservation.getCheckOut(),
+          reservation.getPeopleNumber(),
+          reservation.getTotalPrice()
+      );
+      cartResponses.add(cartResponse);
+    }
 
     return cartResponses;
   }
 
-  private CartResponse mapToCartResponse(CartItem cartItem) {
-    CartResponse cartResponse = new CartResponse();
-    cartResponse.setId(cartItem.getId());
-    cartResponse.setCheckIn(cartItem.getCheckIn());
-    cartResponse.setCheckOut(cartItem.getCheckOut());
-    cartResponse.setPeopleNumber(cartItem.getPeopleNumber());
-    cartResponse.setPrice(cartItem.getPrice());
-    return cartResponse;
+  private Member getMember(Long memberId){
+    return memberRepository.findById(memberId)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.MEMBER_NOT_FOUND));
   }
 
-  public CartItemResponse addCartItem(Long cartId, AddCartItemRequest request) {
-    Cart cart = cartRepository.findById(cartId)
-        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
+
+  /**
+   * request.getRoomId() 중복되는 것 고쳐야 할것.
+   *
+   * @return
+   */
+  @Transactional
+  public ArrayList<Object> addCartItem(Long memberId, AddCartItemRequest request) {
+    Member member = getMember(memberId);
 
     Room room = roomRepository.findById(request.getRoomId())
-        .orElseThrow(() -> new GlobalException(CartErrorCode.ROOM_NOT_FOUND));
+        .orElseThrow(
+            () -> new GlobalException(CartErrorCode.ROOM_NOT_FOUND)
+        );
 
-    int roomPrice = room.getPrice();
-    int extraPersonCharge = room.getExtraPersonCharge();
+
     int totalPeople = request.getPeopleNumber();
-
     int additionalCharge = 0;
     if (totalPeople > room.getBaseGuests()) {
-      additionalCharge = (totalPeople - room.getBaseGuests()) * extraPersonCharge;
+      additionalCharge = (totalPeople - room.getBaseGuests()) * room.getExtraPersonCharge();
     }
 
-    int totalPrice = roomPrice + additionalCharge;
+    int finalPrice = room.getPrice() + additionalCharge;
 
-    CartItem cartItem = CartItem.builder()
+    Reservation reservation = Reservation.builder()
+        .peopleNumber(request.getPeopleNumber())
+        .extraCharge(additionalCharge)
+        .totalPrice(finalPrice)
         .checkIn(request.getCheckIn())
         .checkOut(request.getCheckOut())
-        .peopleNumber(request.getPeopleNumber())
-        .price(totalPrice)
-        .roomList(Collections.singletonList(room))
-        .cart(cart)
+        .accomodation(room.getAccomodation())
+        .member(member)
+        .room(room)
         .build();
 
-    cartItem = cartItemRepository.save(cartItem);
+    Cart cart = cartRepository.findByMember(member).orElse(null);
 
-    CartItemResponse response = new CartItemResponse();
-    response.setId(cartItem.getId());
-    response.setCheckIn(cartItem.getCheckIn());
-    response.setCheckOut(cartItem.getCheckOut());
-    response.setPeopleNumber(cartItem.getPeopleNumber());
-    response.setPrice(cartItem.getPrice());
-    response.setRoomId(room.getId());
+    if (cart == null) {
+      cart = Cart.builder()
+          .member(member)
+          .reservationList(new ArrayList<>())
+          .build();
+    }
 
-    return response;
+    cart.getReservationList().add(reservation);
+    cartRepository.save(cart);
+    return new ArrayList<>();
   }
 
   public void deleteCartItem(DeleteCartItemRequest request) {
