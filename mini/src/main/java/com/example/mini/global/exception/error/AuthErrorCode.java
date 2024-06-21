@@ -10,7 +10,8 @@ public enum AuthErrorCode implements ErrorCode {
 	INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 401002, "유효하지 않은 리프레시 토큰입니다."),
 	INVALID_TOKEN(HttpStatus.UNAUTHORIZED, 401003, "유효하지 않은 토큰입니다."),
 	INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 401004, "유효하지 않은 액세스 토큰입니다."),
-	BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, 401005, "블랙리스트에 등록된 토큰입니다.");
+	BLACKLISTED_TOKEN(HttpStatus.UNAUTHORIZED, 401005, "블랙리스트에 등록된 토큰입니다."),
+	REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, 401006, "리프레쉬 토큰을 찾을 수 없습니다");
 
 	private final HttpStatus HttpStatusCode;
 	private final Integer errorCode; // 서버 자체 성공 코드

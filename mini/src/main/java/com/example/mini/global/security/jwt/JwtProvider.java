@@ -1,11 +1,13 @@
 package com.example.mini.global.security.jwt;
 
+import com.example.mini.global.util.cookies.CookieUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Date;
@@ -51,28 +53,30 @@ public class JwtProvider {
 			.compact();
 	}
 
-	public boolean validateToken(String token) {
+	public boolean validateToken(String token, TokenType type) {
 		try {
-			Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token);
+			Key key = type == TokenType.ACCESS ? accessKey : refreshKey;
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
 	}
 
-	public Claims getUserInfoFromToken(String token) {
-		return Jwts.parserBuilder().setSigningKey(accessKey).build().parseClaimsJws(token).getBody();
+	public Claims getUserInfoFromToken(String token, TokenType type) {
+		Key key = type == TokenType.ACCESS ? accessKey : refreshKey;
+		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 	}
 
 	public String resolveToken(HttpServletRequest request) {
-		String bearerToken = request.getHeader("Authorization");
-		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-			return bearerToken.substring(7);
+		Cookie accessTokenCookie = CookieUtil.getCookie(request, "accessToken");
+		if (accessTokenCookie != null) {
+			return accessTokenCookie.getValue();
 		}
 		return null;
 	}
 
-	public String getEmailFromToken(String token) {
-		return getUserInfoFromToken(token).getSubject();
+	public String getEmailFromToken(String token, TokenType type) {
+		return getUserInfoFromToken(token, type).getSubject();
 	}
 }

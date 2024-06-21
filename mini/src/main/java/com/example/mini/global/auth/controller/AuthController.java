@@ -1,11 +1,9 @@
 package com.example.mini.global.auth.controller;
 
-import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
-import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.auth.oauth2.model.KakaoUserInfo;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.exception.error.AuthErrorCode;
@@ -14,9 +12,13 @@ import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.api.ApiResponse;
+import com.example.mini.global.util.cookies.CookieUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -27,12 +29,12 @@ import org.springframework.web.client.RestTemplate;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
 	private final AuthService authService;
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;
-	private final MemberRepository memberRepository;
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
@@ -41,17 +43,41 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request) {
-		LoginResponse response = authService.login(request);
-		return ResponseEntity.ok(ApiResponse.OK(response));
+	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+		LoginResponse loginResponse = authService.login(request);
+
+		CookieUtil.addCookie(response, "accessToken", loginResponse.getAccessToken(), TokenType.ACCESS.getExpireTime() / 1000);
+		CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), TokenType.REFRESH.getExpireTime() / 1000);
+
+		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder().state(loginResponse.getState()).build()));
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request) {
+	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response) {
 		String accessToken = jwtProvider.resolveToken(request);
 
 		authService.logout(accessToken);
+
+		CookieUtil.deleteCookie(response, "accessToken");
+		CookieUtil.deleteCookie(response, "refreshToken");
+
 		return ResponseEntity.ok(ApiResponse.DELETE());
+	}
+
+	@PostMapping("/token/refresh")
+	public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+		Cookie refreshTokenCookie = CookieUtil.getCookie(request, "refreshToken");
+		if (refreshTokenCookie == null) {
+			throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
+		}
+
+		String newAccessToken = authService.createAccessToken(refreshTokenCookie.getValue());
+
+		CookieUtil.addCookie(response, "accessToken", newAccessToken, TokenType.ACCESS.getExpireTime() / 1000);
+
+		log.info("재발급된 Access 토큰을 쿠키에 저장: NewAccessToken={}", newAccessToken);
+
+		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
 
 	private KakaoUserInfo getKakaoUserInfo(String kakaoAccessToken) {
@@ -72,17 +98,25 @@ public class AuthController {
 	}
 
 	@GetMapping("/login/kakao")
-	public ResponseEntity<LoginResponse> loginKakao(@RequestParam(name = "accessToken") String kakaoAccessToken) {
+	public ResponseEntity<ApiResponse<LoginResponse>> loginKakao(@RequestParam(name = "accessToken") String kakaoAccessToken, HttpServletResponse response) {
 		KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(kakaoAccessToken);
 		String email = kakaoUserInfo.getEmail();
 
 		// 사용자 정보를 기반으로 JWT 토큰 생성
-		String jwtToken = jwtProvider.createToken(email, TokenType.ACCESS, true);
+		String accessToken = jwtProvider.createToken(email, TokenType.ACCESS, true);
 
 		// 리프레시 토큰 생성 및 저장
 		String refreshToken = jwtProvider.createToken(email, TokenType.REFRESH, true);
 		tokenService.saveRefreshToken(email, refreshToken);
 
-		return ResponseEntity.ok(new LoginResponse(jwtToken, refreshToken));
+		// 쿠키에 저장
+		CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000);
+		CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000);
+
+		// 로그를 통해 쿠키가 설정되었는지 확인
+		log.info("AccessToken 쿠키 설정: {}", accessToken);
+		log.info("RefreshToken 쿠키 설정: {}", refreshToken);
+
+		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder().state(MemberState.ACTIVE).build()));
 	}
 }

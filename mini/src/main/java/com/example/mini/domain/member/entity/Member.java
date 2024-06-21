@@ -36,12 +36,9 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private MemberState state;
 
-
 	public void setEmail(String email) {
 	}
 
-	public void setOauthEmail(String email) {
-	}
 
 	@Override
 	public String toString() {

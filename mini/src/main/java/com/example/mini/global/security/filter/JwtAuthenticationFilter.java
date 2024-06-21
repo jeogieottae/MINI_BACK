@@ -4,6 +4,7 @@ import com.example.mini.global.exception.error.AuthErrorCode;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
+import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.api.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
@@ -47,8 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 
-			if (jwtProvider.validateToken(token)) {
-				Claims claims = jwtProvider.getUserInfoFromToken(token);
+			// Access Token 검증
+			if (jwtProvider.validateToken(token, TokenType.ACCESS)) {
+				Claims claims = jwtProvider.getUserInfoFromToken(token, TokenType.ACCESS);
 				log.info("토큰 유효: 사용자 이메일={}", claims.getSubject());
 				UserDetails userDetails;
 				if (claims.containsKey("oauth")) {

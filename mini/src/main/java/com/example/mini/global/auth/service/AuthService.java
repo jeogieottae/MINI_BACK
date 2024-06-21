@@ -70,7 +70,7 @@ public class AuthService {
 
 		member.setState(MemberState.ACTIVE);
 
-		log.info("로그인 성공: 이메일={}", member.getEmail());
+		log.info("로그인 성공: 이메일={}, AccessToken={}, RefreshToken={}", member.getEmail(), accessToken, refreshToken);
 		return LoginResponse.builder()
 			.state(member.getState())
 			.accessToken(accessToken)
@@ -80,7 +80,7 @@ public class AuthService {
 
 	@Transactional
 	public String createAccessToken(String refreshToken) {
-		Claims claims = jwtProvider.getUserInfoFromToken(refreshToken);
+		Claims claims = jwtProvider.getUserInfoFromToken(refreshToken, TokenType.REFRESH);
 		String email = claims.getSubject();
 		String storedRefreshToken = tokenService.getRefreshToken(email);
 
@@ -88,11 +88,13 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.INVALID_REFRESH_TOKEN);
 		}
 
-		if (!jwtProvider.validateToken(refreshToken)) {
+		if (!jwtProvider.validateToken(refreshToken, TokenType.REFRESH)) {
 			throw new GlobalException(AuthErrorCode.INVALID_TOKEN);
 		}
 
-		return jwtProvider.createToken(email, TokenType.ACCESS, false); // 일반 로그인
+		String newAccessToken = jwtProvider.createToken(email, TokenType.ACCESS, false); // 일반 로그인
+		log.info("Access 토큰 재발급: 이메일={}, NewAccessToken={}", email, newAccessToken);
+		return newAccessToken;
 	}
 
 	@Transactional
@@ -101,12 +103,13 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 
-		String email = jwtProvider.getEmailFromToken(accessToken);
+		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
 		Member member = memberRepository.findByEmail(email)
-				.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+			.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
 		member.setState(MemberState.INACTIVE);
 
 		tokenService.blacklistToken(accessToken);
+		log.info("로그아웃 성공: 이메일={}", email);
 	}
 }
