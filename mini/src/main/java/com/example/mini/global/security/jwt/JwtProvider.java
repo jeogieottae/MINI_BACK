@@ -32,15 +32,19 @@ public class JwtProvider {
 		this.refreshKey = Keys.hmacShaKeyFor(refreshKeyBytes);
 	}
 
-	public String createToken(String email, TokenType type) {
+	public String createToken(String email, TokenType type, boolean isOauth) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + type.getExpireTime());
 
 		Key key = type == TokenType.ACCESS ? accessKey : refreshKey;
 
+		Claims claims = Jwts.claims().setSubject(email);
+		if (isOauth) {
+			claims.put("oauth", true); // oauth 구분 클레임
+		}
+
 		return Jwts.builder()
-			.setSubject(email)
-			.claim("type", type)
+			.setClaims(claims)
 			.setIssuedAt(now)
 			.setExpiration(validity)
 			.signWith(key, SignatureAlgorithm.HS256)
@@ -71,5 +75,4 @@ public class JwtProvider {
 	public String getEmailFromToken(String token) {
 		return getUserInfoFromToken(token).getSubject();
 	}
-
 }

@@ -23,10 +23,10 @@ import lombok.experimental.SuperBuilder;
 @EqualsAndHashCode(callSuper = true)
 public class Member extends BaseEntity {
 
-	@Column(nullable = false)
+	@Column(nullable = true)
 	private String email;
 
-	@Column
+	@Column(unique = true)
 	private String oauthEmail;
 
 	@Column(nullable = false)
@@ -35,25 +35,28 @@ public class Member extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false)
-	private String nickname;
-
 	@OneToOne(mappedBy = "member")
 	private Cart cart;
 
 	@Enumerated(EnumType.STRING)
 	private MemberState state;
 
-	public void updatePassword(String password) {
-		this.password = password;
+
+	public void setEmail(String email) {
 	}
 
-	public void updateNickName(String nickname) {
-		this.nickname = nickname;
+	public void setOauthEmail(String email) {
 	}
 
-	public void changeState(MemberState state) {
-		this.state = state;
+	@Override
+	public String toString() {
+		return "Member{" +
+			"id=" + getId() +
+			", email='" + email + '\'' +
+			", oauthEmail='" + oauthEmail + '\'' +
+			", name='" + name + '\'' +
+			", state=" + state +
+			'}';
 	}
 
 

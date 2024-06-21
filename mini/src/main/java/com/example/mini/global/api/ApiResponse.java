@@ -17,6 +17,7 @@ public class ApiResponse<T> {
 	private Result result;
 
 	@Valid
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private T body;
 
 	public static <T> ApiResponse<T> OK(T data) {
@@ -43,12 +44,6 @@ public class ApiResponse<T> {
 	public static ApiResponse<Object> ERROR(ErrorCode errorCode) {
 		ApiResponse apiResponse = new ApiResponse<Object>();
 		apiResponse.result = Result.ERROR(errorCode);
-		return apiResponse;
-	}
-
-	public static ApiResponse<Object> ERROR(ErrorCode errorCode, String description) {
-		ApiResponse apiResponse = new ApiResponse<Object>();
-		apiResponse.result = Result.ERROR(errorCode, description);
 		return apiResponse;
 	}
 
