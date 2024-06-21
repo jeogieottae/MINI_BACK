@@ -36,13 +36,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 		OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 		KakaoUserInfo kakaoUserInfo = new KakaoUserInfo(oAuth2User.getAttributes());
 
-		Member member = memberRepository.findByOauthEmail(kakaoUserInfo.getEmail())
+		Member member = memberRepository.findByEmail(kakaoUserInfo.getEmail())
 			.orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
 		// JWT 생성
-		String accessToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.ACCESS, true);
-		String refreshToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.REFRESH, true);
-		tokenService.saveRefreshToken(member.getOauthEmail(), refreshToken);
+		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS, true);
+		String refreshToken = jwtProvider.createToken(member.getEmail(), TokenType.REFRESH, true);
+		tokenService.saveRefreshToken(member.getEmail(), refreshToken);
 
 		// 리다이렉트 URL 생성
 		String redirectURI = String.format(REDIRECT_URI, accessToken, refreshToken);

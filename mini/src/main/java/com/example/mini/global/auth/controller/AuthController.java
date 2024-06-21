@@ -1,10 +1,15 @@
 package com.example.mini.global.auth.controller;
 
+import com.example.mini.domain.member.entity.Member;
+import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.auth.oauth2.model.KakaoUserInfo;
 import com.example.mini.global.auth.service.AuthService;
+import com.example.mini.global.exception.error.AuthErrorCode;
+import com.example.mini.global.exception.type.GlobalException;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
@@ -27,6 +32,7 @@ public class AuthController {
 	private final AuthService authService;
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;
+	private final MemberRepository memberRepository;
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {

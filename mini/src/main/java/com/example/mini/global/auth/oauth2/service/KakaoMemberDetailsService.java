@@ -1,9 +1,12 @@
 package com.example.mini.global.auth.oauth2.service;
 
 import com.example.mini.domain.member.entity.Member;
+import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.auth.oauth2.model.KakaoMemberDetails;
 import com.example.mini.global.auth.oauth2.model.KakaoUserInfo;
+import com.example.mini.global.exception.error.AuthErrorCode;
+import com.example.mini.global.exception.type.GlobalException;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
@@ -44,11 +47,10 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 		log.info("Kakao User Info: {}", kakaoUserInfo);
 
 		// 데이터베이스에서 카카오 이메일로 사용자를 조회하거나 없다면, 새 사용자로 등록
-		Member member = memberRepository.findByOauthEmail(kakaoUserInfo.getEmail())
+		Member member = memberRepository.findByEmail(kakaoUserInfo.getEmail())
 			.orElseGet(() -> {
 				Member newMember = Member.builder()
 					.email(kakaoUserInfo.getEmail())
-					.oauthEmail(kakaoUserInfo.getEmail())
 					.name(kakaoUserInfo.getNickname())
 					.password("default_password")
 					.build();
@@ -58,12 +60,15 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 				return savedMember;
 			});
 
+		// status 변경
+		member.setState(MemberState.ACTIVE);
+
 		// 기본 권한을 설정
 		SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_USER");
 		log.info("Granted Authority: ROLE_USER");
 
 		// KakaoMemberDetails 객체를 생성
-		KakaoMemberDetails kakaoMemberDetails = new KakaoMemberDetails(String.valueOf(member.getOauthEmail()),
+		KakaoMemberDetails kakaoMemberDetails = new KakaoMemberDetails(String.valueOf(member.getEmail()),
 			Collections.singletonList(authority),
 			oAuth2User.getAttributes());
 		log.info("Created KakaoMemberDetails: {}", kakaoMemberDetails);
@@ -75,9 +80,9 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 		log.info("SecurityContext updated with Authentication: {}", authentication);
 
 		// JWT 생성 및 Redis에 저장
-		String accessToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.ACCESS, true);
-		String refreshToken = jwtProvider.createToken(member.getOauthEmail(), TokenType.REFRESH, true);
-		tokenService.saveRefreshToken(member.getOauthEmail(), refreshToken);
+		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS, true);
+		String refreshToken = jwtProvider.createToken(member.getEmail(), TokenType.REFRESH, true);
+		tokenService.saveRefreshToken(member.getEmail(), refreshToken);
 		log.info("Generated and saved JWT tokens: AccessToken={}, RefreshToken={}", accessToken, refreshToken);
 
 /*		// 토큰 정보를 KakaoMemberDetails에 추가

@@ -43,7 +43,7 @@ public class AuthService {
 			.email(email)
 			.password(password)
 			.name(name)
-			.state(MemberState.ACTIVE)
+			.state(MemberState.INACTIVE)
 			.build();
 
 		memberRepository.save(member);
@@ -52,7 +52,7 @@ public class AuthService {
 		return "회원가입이 성공적으로 완료되었습니다.";
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public LoginResponse login(LoginRequest request) {
 		log.info("로그인 시도: 이메일={}", request.getEmail());
 		String email = request.getEmail();
@@ -67,6 +67,8 @@ public class AuthService {
 		String accessToken = jwtProvider.createToken(member.getEmail(), TokenType.ACCESS, false); // 일반 로그인
 		String refreshToken = jwtProvider.createToken(member.getEmail(), TokenType.REFRESH, false); // 일반 로그인
 		tokenService.saveRefreshToken(email, refreshToken);
+
+		member.setState(MemberState.ACTIVE);
 
 		log.info("로그인 성공: 이메일={}", member.getEmail());
 		return LoginResponse.builder()
@@ -100,6 +102,10 @@ public class AuthService {
 		}
 
 		String email = jwtProvider.getEmailFromToken(accessToken);
+		Member member = memberRepository.findByEmail(email)
+				.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+		member.setState(MemberState.INACTIVE);
 
 		tokenService.blacklistToken(accessToken);
 	}
