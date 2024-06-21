@@ -6,7 +6,7 @@ import com.example.mini.domain.accomodation.model.response.AccomodationResponseD
 import com.example.mini.domain.accomodation.model.response.PagedResponse;
 import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.service.AccomodationService;
-import com.example.mini.global.util.APIUtil;
+import com.example.mini.global.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -21,56 +21,56 @@ public class AccomodationController {
     private final AccomodationService accomodationService;
 
     @GetMapping("")
-    public ResponseEntity<PagedResponse<AccomodationResponseDto>> getAllAccommodations(
+    public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponseDto>>> getAllAccommodations(
             @RequestParam(value="page", required = false, defaultValue = "1") int page
     ) {
         PagedResponse<AccomodationResponseDto> response = accomodationService.getAllAccommodations(page);
-        return APIUtil.OK(response);
+        return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
     @GetMapping("/category")
-    public ResponseEntity<PagedResponse<AccomodationResponseDto>> getCategory(
+    public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponseDto>>> getCategory(
             @RequestParam(value = "region", required = true) String region,
             @RequestParam(value= "page", required = false, defaultValue = "1") int page
     ) {
         PagedResponse<AccomodationResponseDto> response = accomodationService.getAccommodationsByCategory(region, page);
 
-        return APIUtil.OK(response);
+        return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
     // 데이터 삽입 테스트
     @PostMapping("")
-    public ResponseEntity<AccomodationResponseDto> saveTest(
+    public ResponseEntity<ApiResponse<AccomodationResponseDto>> saveTest(
             @RequestBody AccomodationRequestDto requestDto
     ) {
-        AccomodationResponseDto dto = accomodationService.saveAccomodation(requestDto);
-        return APIUtil.OK(dto);
+        AccomodationResponseDto response = accomodationService.saveAccomodation(requestDto);
+        return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<PagedResponse<AccomodationResponseDto>> searchByAccommodationName(
+    public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponseDto>>> searchByAccommodationName(
             @RequestParam(value = "name", required = true) String keyword,
             @RequestParam(value= "page", required = false, defaultValue = "1") int page
     ) {
         PagedResponse<AccomodationResponseDto> response = accomodationService.searchByAccommodationName(keyword, page);
-        return APIUtil.OK(response);
+        return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
     @GetMapping("/{accomodationId}")
-    public ResponseEntity<AccomodationDetailsResponseDto> getAccomodationDetails(
+    public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(
             @PathVariable Long accomodationId
     ) {
         AccomodationDetailsResponseDto response = accomodationService.getAccomodationDetails(accomodationId);
-        return APIUtil.OK(response);
+        return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
     @GetMapping("/{accomodationId}/room/{roomId}")
-    public ResponseEntity<RoomResponseDto> getRoomDetail(
+    public ResponseEntity<ApiResponse<RoomResponseDto>> getRoomDetail(
             @PathVariable Long accomodationId,
             @PathVariable Long roomId
     ) {
         RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId);
-        return APIUtil.OK(response);
+        return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
 }
