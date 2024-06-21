@@ -13,8 +13,8 @@ import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.CategoryRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
-import com.example.mini.global.exception.error.AccomodationErrorCode;
-import com.example.mini.global.exception.type.AccomodationException;
+import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -50,6 +50,7 @@ public class AccomodationService {
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(Sort.Order.asc("name"));
         Page<Accomodation> accommodations = accomodationRepository.findAll(PageRequest.of(page-1, PageSize, Sort.by(sorts)));
+        checkPageException(accommodations);
         return setResponse(accommodations);
     }
 
@@ -62,7 +63,11 @@ public class AccomodationService {
      */
     public PagedResponse<AccomodationResponseDto> getAccommodationsByCategory(String categoryName, int page) {
         Long categoryId = categoryRepository.findByName(categoryName);
+        if (categoryId == null) {
+            throw new GlobalException(AccomodationErrorCode.INVALID_CATEGORY_CODE_REQUEST);
+        }
         Page<Accomodation> accommodations = accomodationRepository.findByCategoryId(categoryId, PageRequest.of(page-1, PageSize));
+        checkPageException(accommodations);
         return setResponse(accommodations);
     }
 
@@ -72,7 +77,7 @@ public class AccomodationService {
      * @param accommodations    변환할 객체
      * @return                  숙소 정보 목록을 포함한 응답 객체
      */
-    PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
+    private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
         List<AccomodationResponseDto> content = accommodations.getContent().stream()
                 .map(AccomodationResponseDto::toDto)
                 .toList();
@@ -109,12 +114,19 @@ public class AccomodationService {
         List<AccomodationSearch> searches = accomodationSearchRepository.findAccommodationsByName(keyword);
         List<Long> idList = searches.stream().map(AccomodationSearch::getId).toList();
         Page<Accomodation> accommodations = accomodationRepository.findByIdList(idList, PageRequest.of(page-1, PageSize));
+        checkPageException(accommodations);
         return setResponse(accommodations);
     }
 
+    /**
+     * 숙소 상세정보 조회
+     *
+     * @param accomodationId    숙소 id
+     * @return                  숙소 정보 및 객실 목록을 포함한 응답 객체
+     */
     public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
-                .orElseThrow(() -> new AccomodationException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
 
         AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
@@ -126,14 +138,25 @@ public class AccomodationService {
                 .build();
     }
 
+    /**
+     * 객실 상세정보 조회
+     *
+     * @param accomodationId    숙소 id
+     * @param roomId            객실 id
+     * @return                  객실 정보 객체
+     */
     public RoomResponseDto getRoomDetail(Long accomodationId, Long roomId) {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new AccomodationException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
-        log.info("path id: {}", accomodationId);
-        log.info("real id: {}", room.getAccomodation().getId());
+                .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         if(!accomodationId.equals(room.getAccomodation().getId()))
-            throw new AccomodationException(AccomodationErrorCode.WRONG_REQUEST);
-
+            throw new GlobalException(AccomodationErrorCode.INVALID_ROOM_REQUEST);
         return RoomResponseDto.toDto(room);
+    }
+
+    // 공통 에러처리
+    private void checkPageException(Page<Accomodation> accommodations) {
+        if (accommodations.getContent().isEmpty()) {
+            throw new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND);
+        }
     }
 }

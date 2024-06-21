@@ -23,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 public class Reservation extends BaseEntity {
 
 	@Column(nullable = false)
-	private String peopleNumber;
+	private Integer peopleNumber;
 
 	@Column(nullable = false)
 	private Integer extraCharge;
