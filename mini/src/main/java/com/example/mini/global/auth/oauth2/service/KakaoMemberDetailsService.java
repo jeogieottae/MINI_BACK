@@ -8,6 +8,8 @@ import com.example.mini.global.auth.oauth2.model.KakaoUserInfo;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
+import com.example.mini.global.util.cookies.CookieUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Slf4j
 @Service
@@ -34,7 +38,7 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 	@Transactional
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		log.info("loauUser 메서드 실행");
+		log.info("loadUser 메서드 실행");
 
 		// DefaultOAuth2UserService의 기본 구현을 호출하여 OAuth2User를 로드
 		OAuth2User oAuth2User = super.loadUser(userRequest);
@@ -83,9 +87,14 @@ public class KakaoMemberDetailsService extends DefaultOAuth2UserService {
 		tokenService.saveRefreshToken(member.getEmail(), refreshToken);
 		log.info("JWT 토큰 저장 : AccessToken={}, RefreshToken={}", accessToken, refreshToken);
 
-/*		// 토큰 정보를 KakaoMemberDetails에 추가
-		kakaoMemberDetails.setAccessToken(accessToken);
-		kakaoMemberDetails.setRefreshToken(refreshToken);*/
+		// 쿠키에 저장
+		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+		if (response != null) {
+			CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000);
+			CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000);
+			log.info("AccessToken 쿠키 설정: {}", accessToken);
+			log.info("RefreshToken 쿠키 설정: {}", refreshToken);
+		}
 
 		return kakaoMemberDetails;
 	}
