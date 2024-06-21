@@ -2,8 +2,6 @@ package com.example.mini.domain.cart.controller;
 
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
-import com.example.mini.domain.cart.model.response.CartItemResponse;
-import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
@@ -12,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/cart")
@@ -43,8 +39,11 @@ public class CartController {
 
   //장바구니 품목 삭제
   @DeleteMapping("/items")
-  public ResponseEntity<ApiResponse<Object>> deleteCartItem(@RequestBody DeleteCartItemRequest request) {
-    cartService.deleteCartItem(request);
+  public ResponseEntity<ApiResponse<Object>> deleteCartItem(
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @RequestBody DeleteCartItemRequest request
+  ) {
+    cartService.deleteCartItem(userDetails.getMemberId(), request);
     return ResponseEntity.ok(ApiResponse.DELETE());
   }
 }

@@ -2,16 +2,15 @@ package com.example.mini.domain.cart.service;
 
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
-import com.example.mini.domain.cart.entity.CartItem;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
-import com.example.mini.domain.cart.repository.CartItemRepository;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.reservation.entity.Reservation;
+import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class CartService {
 
   private final MemberRepository memberRepository;
   private final CartRepository cartRepository;
-  private final CartItemRepository cartItemRepository;
+  private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
 
   @Transactional
@@ -66,17 +65,11 @@ public class CartService {
     return cartResponses;
   }
 
-  private Member getMember(Long memberId){
+  private Member getMember(Long memberId) {
     return memberRepository.findById(memberId)
         .orElseThrow(() -> new GlobalException(CartErrorCode.MEMBER_NOT_FOUND));
   }
 
-
-  /**
-   * request.getRoomId() 중복되는 것 고쳐야 할것.
-   *
-   * @return
-   */
   @Transactional
   public ArrayList<Object> addCartItem(Long memberId, AddCartItemRequest request) {
     Member member = getMember(memberId);
@@ -85,7 +78,6 @@ public class CartService {
         .orElseThrow(
             () -> new GlobalException(CartErrorCode.ROOM_NOT_FOUND)
         );
-
 
     int totalPeople = request.getPeopleNumber();
     int additionalCharge = 0;
@@ -120,12 +112,28 @@ public class CartService {
     return new ArrayList<>();
   }
 
-  public void deleteCartItem(DeleteCartItemRequest request) {
-    List<Long> cartItemIds = request.getCartItemIds();
-    cartItemIds.forEach(cartItemId -> {
-      CartItem cartItem = cartItemRepository.findById(cartItemId)
-          .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
-      cartItemRepository.delete(cartItem);
-    });
+  @Transactional
+  public void deleteCartItem(Long memberId, DeleteCartItemRequest request) {
+    Member member = getMember(memberId);
+
+    List<Long> reservationIds = request.getReservationIds();
+
+    Cart cart = cartRepository.findByMember(member)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
+
+    for (Long reservationId : reservationIds) {
+      Reservation reservation = reservationRepository.findById(reservationId)
+          .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+
+      if (!cart.getReservationList().contains(reservation)) {
+        throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
+      }
+
+      cart.getReservationList().remove(reservation);
+
+      reservationRepository.delete(reservation);
+    }
+
+    cartRepository.save(cart);
   }
 }

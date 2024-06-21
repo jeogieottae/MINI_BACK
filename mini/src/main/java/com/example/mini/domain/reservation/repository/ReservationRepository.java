@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-  List<Reservation> findByMemberId(Long memberId);
 
 //  @Query("SELECT r FROM Reservation r " +
 //      "JOIN r.roomList rl " +
@@ -24,4 +23,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 //      @Param("checkIn") LocalDateTime checkIn,
 //      @Param("checkOut") LocalDateTime checkOut
 //  );
+
 }

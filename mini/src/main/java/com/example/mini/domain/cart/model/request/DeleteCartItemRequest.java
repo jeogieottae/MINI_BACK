@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class DeleteCartItemRequest {
-  private List<Long> cartItemIds;
+  private List<Long> reservationIds;
 }
