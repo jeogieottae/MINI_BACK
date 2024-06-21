@@ -15,42 +15,49 @@ import org.springframework.http.HttpStatusCode;
 @AllArgsConstructor
 @Builder
 public class Result {
-
-	private Integer resultCode;
+	private HttpStatusCode resultCode;
 	private String resultMessage;
-
+	private String resultDescription;
 	public static Result OK() {
 		return Result.builder()
-			.resultCode(SuccessCode.OK.getSuccessCode())
-			.resultMessage(SuccessCode.OK.getDescription())
-			.build();
+				.resultCode(HttpStatus.OK)
+				.resultMessage("성공")
+				.resultDescription(SuccessCode.OK.getDescription())
+				.build();
 	}
-
 	public static Result CREATED() {
 		return Result.builder()
-			.resultCode(SuccessCode.CREATED.getSuccessCode())
-			.resultMessage(SuccessCode.CREATED.getDescription())
-			.build();
+				.resultCode(HttpStatus.CREATED)
+				.resultMessage("등록 성공")
+				.resultDescription(SuccessCode.CREATED.getDescription())
+				.build();
 	}
-
 	public static Result DELETE() {
 		return Result.builder()
-			.resultCode(SuccessCode.DELETED.getSuccessCode())
-			.resultMessage(SuccessCode.DELETED.getDescription())
-			.build();
+				.resultCode(HttpStatus.OK)
+				.resultMessage("삭제성공")
+				.resultDescription(SuccessCode.DELETE.getDescription())
+				.build();
 	}
-
 	public static Result ERROR(ErrorCode errorCode) {
 		return Result.builder()
-			.resultCode(errorCode.getErrorCode())
-			.resultMessage(errorCode.getDescription())
-			.build();
+				.resultCode(errorCode.getCode())
+				.resultMessage("error")
+				.resultDescription(errorCode.getInfo())
+				.build();
 	}
-
+	public static Result ERROR(ErrorCode errorCode, String description) {
+		return Result.builder()
+				.resultCode(errorCode.getCode())
+				.resultMessage("error")
+				.resultDescription(description)
+				.build();
+	}
 	public static Result VALIDATION_ERROR(List<String> errors) {
 		return Result.builder()
-			.resultCode(HttpStatus.BAD_REQUEST.value())
-			.resultMessage(String.join(", ", errors))
-			.build();
+				.resultCode(HttpStatus.BAD_REQUEST)
+				.resultMessage("Validation Error")
+				.resultDescription(String.join(", ", errors))
+				.build();
 	}
 }
