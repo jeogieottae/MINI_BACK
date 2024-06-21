@@ -36,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	// Oauth 이메일로 정보 조회
 	public UserDetails loadUserByOauthEmail(String oauthEmail) throws UsernameNotFoundException {
 		log.info("사용자 정보 조회: oauthEmail={}", oauthEmail);
-		Member member = memberRepository.findByOauthEmail(oauthEmail)
+		Member member = memberRepository.findByEmail(oauthEmail)
 			.orElseThrow(() -> new UsernameNotFoundException("User not found with oauthEmail: " + oauthEmail));
 		return new UserDetailsImpl(member);
 	}
