@@ -8,7 +8,9 @@ public enum CartErrorCode implements ErrorCode {
   ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "객실을 찾을 수 없습니다."),
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다"),
   RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다"),
-  RESERVATION_NOT_IN_CART(HttpStatus.NOT_FOUND, "해당 예약이 장바구니 안에 없습니다");
+  RESERVATION_NOT_IN_CART(HttpStatus.NOT_FOUND, "해당 예약이 장바구니 안에 없습니다"),
+  EXCEEDS_MAX_GUESTS(HttpStatus.CONFLICT, "예약 인원이 최대 인원을 초과합니다"),
+  DUPLICATE_RESERVATION(HttpStatus.CONFLICT, "이미 존재하는 장바구니 항목입니다");
 
   private final HttpStatus code;
   private final String info;

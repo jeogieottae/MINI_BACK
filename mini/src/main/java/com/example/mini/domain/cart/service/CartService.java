@@ -80,6 +80,28 @@ public class CartService {
         );
 
     int totalPeople = request.getPeopleNumber();
+
+    if (totalPeople > room.getMaxGuests()) {
+      throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
+    }
+
+    Cart cart = cartRepository.findByMember(member).orElse(null);
+
+    if (cart != null) {
+      for (Reservation existingReservation : cart.getReservationList()) {
+        if (existingReservation.getRoom().getId().equals(room.getId()) &&
+            existingReservation.getCheckIn().equals(request.getCheckIn()) &&
+            existingReservation.getCheckOut().equals(request.getCheckOut())) {
+          throw new GlobalException(CartErrorCode.DUPLICATE_RESERVATION);
+        }
+      }
+    } else {
+      cart = Cart.builder()
+          .member(member)
+          .reservationList(new ArrayList<>())
+          .build();
+    }
+
     int additionalCharge = 0;
     if (totalPeople > room.getBaseGuests()) {
       additionalCharge = (totalPeople - room.getBaseGuests()) * room.getExtraPersonCharge();
@@ -97,15 +119,6 @@ public class CartService {
         .member(member)
         .room(room)
         .build();
-
-    Cart cart = cartRepository.findByMember(member).orElse(null);
-
-    if (cart == null) {
-      cart = Cart.builder()
-          .member(member)
-          .reservationList(new ArrayList<>())
-          .build();
-    }
 
     cart.getReservationList().add(reservation);
     cartRepository.save(cart);
