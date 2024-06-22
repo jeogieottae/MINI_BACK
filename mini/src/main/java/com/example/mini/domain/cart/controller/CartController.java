@@ -1,11 +1,13 @@
 package com.example.mini.domain.cart.controller;
 
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.model.request.ReservationStatusRequest;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +22,7 @@ public class CartController {
   private final CartService cartService;
 
   //장바구니 보기
-  @GetMapping("/items")
+  @GetMapping
   public ResponseEntity getAllCartItems(
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
@@ -28,7 +30,7 @@ public class CartController {
   }
 
   //장바구니 품목 추가
-  @PostMapping("/items")
+  @PostMapping
   public ResponseEntity addCartItem(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @RequestBody AddCartItemRequest request
@@ -38,17 +40,17 @@ public class CartController {
   }
 
   // 장바구니 품목 확정
-  @PutMapping("/items")
-  public ResponseEntity<Void> confirmCartItem(
+  @PutMapping
+  public ResponseEntity<Void> confirmCartItems(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @RequestBody ReservationStatusRequest request
+      @RequestBody ConfirmCartItemRequest request
   ) {
-    cartService.confirmCartItem(userDetails.getMemberId(), request.getId());
+    cartService.confirmCartItems(userDetails.getMemberId(), request.getReservationIds());
     return ResponseEntity.ok().build();
   }
 
   //장바구니 품목 삭제
-  @DeleteMapping("/items")
+  @DeleteMapping
   public ResponseEntity<ApiResponse<Object>> deleteCartItem(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @RequestBody DeleteCartItemRequest request

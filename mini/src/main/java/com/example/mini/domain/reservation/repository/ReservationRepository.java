@@ -29,10 +29,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       @Param("checkOut") LocalDateTime checkOut
   );
 
-  List<Reservation> findByMemberIdAndStatus(Long memberId, ReservationStatus status);
-
-  Optional<Reservation> findByIdAndMemberIdAndStatus(Long reservationId, Long memberId, ReservationStatus status);
-
   @Modifying
   @Query("UPDATE Reservation r SET r.status = :status WHERE r.id = :id")
   void updateReservationStatus(@Param("id") Long id, @Param("status") ReservationStatus status);

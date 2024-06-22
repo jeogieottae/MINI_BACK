@@ -51,6 +51,20 @@ public class ReservationService {
     
     int finalPrice = room.getPrice() + additionalCharge;
 
+    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
+      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
+    }
+
+    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(
+        List.of(room.getId()), request.getCheckIn(), request.getCheckOut()
+    );
+
+    for (Reservation overlappingReservation : overlappingReservations) {
+      if (overlappingReservation.getStatus() == ReservationStatus.CONFIRMED) {
+        throw new GlobalException(ReservationErrorCode.CONFLICTING_RESERVATION);
+      }
+    }
+
     Reservation reservation = Reservation.builder()
         .peopleNumber(request.getPeopleNumber())
         .extraCharge(additionalCharge)

@@ -9,7 +9,9 @@ public enum ReservationErrorCode implements ErrorCode {
   MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원을 찾을 수 없습니다."),
   OVERLAPPING_RESERVATION(HttpStatus.BAD_REQUEST, "중복된 예약이 있습니다."),
   ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "객실을 찾을 수 없습니다."),
-  EXCEEDS_MAX_GUESTS(HttpStatus.CONFLICT, "예약 인원이 최대 인원을 초과합니다");
+  EXCEEDS_MAX_GUESTS(HttpStatus.CONFLICT, "예약 인원이 최대 인원을 초과합니다"),
+  INVALID_CHECKOUT_DATE(HttpStatus.CONFLICT, "체크아웃 시간이 체크인 시간을 앞설 수 없습니다."),
+  CONFLICTING_RESERVATION(HttpStatus.CONFLICT, "해당 기간에는 예약하실 수 없습니다");
 
   private final HttpStatus code;
   private final String info;

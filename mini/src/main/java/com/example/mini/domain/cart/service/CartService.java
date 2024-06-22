@@ -3,6 +3,7 @@ package com.example.mini.domain.cart.service;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.model.request.ReservationStatusRequest;
 import com.example.mini.domain.cart.repository.CartRepository;
@@ -89,6 +90,20 @@ public class CartService {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
+    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
+      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
+    }
+
+    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(
+        List.of(room.getId()), request.getCheckIn(), request.getCheckOut()
+    );
+
+    for (Reservation overlappingReservation : overlappingReservations) {
+      if (overlappingReservation.getStatus() == ReservationStatus.CONFIRMED) {
+        throw new GlobalException(CartErrorCode.CONFLICTING_RESERVATION);
+      }
+    }
+
     Cart cart = cartRepository.findByMember(member).orElse(null);
 
     if (cart != null) {
@@ -160,27 +175,29 @@ public class CartService {
   }
 
   @Transactional
-  public void confirmCartItem(Long memberId, Long reservationId) {
+  public void confirmCartItems(Long memberId, List<Long> reservationIds) {
     Member member = getMember(memberId);
 
     Cart cart = cartRepository.findByMember(member)
         .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
-    Reservation reservation = reservationRepository.findById(reservationId)
-        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+    for (Long reservationId : reservationIds) {
+      Reservation reservation = reservationRepository.findById(reservationId)
+          .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
 
-    if (!reservation.getMember().getId().equals(memberId)) {
-      throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
+      if (!reservation.getMember().getId().equals(memberId)) {
+        throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
+      }
+
+      if (!cart.getReservationList().contains(reservation)) {
+        throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
+      }
+
+      if (reservation.getStatus() != ReservationStatus.PENDING) {
+        throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
+      }
+
+      reservationRepository.updateReservationStatus(reservationId, ReservationStatus.CONFIRMED);
     }
-
-    if (!cart.getReservationList().contains(reservation)) {
-      throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
-    }
-
-    if (reservation.getStatus() != ReservationStatus.PENDING) {
-      throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
-    }
-
-    reservationRepository.updateReservationStatus(reservationId, ReservationStatus.CONFIRMED);
   }
 }
