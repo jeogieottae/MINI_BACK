@@ -49,7 +49,7 @@ public class CartController {
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @RequestBody ConfirmCartItemRequest request
   ) {
-    cartService.confirmCartItems(userDetails.getMemberId(), request.getReservationIds());
+    cartService.confirmCartItems(userDetails.getMemberId(), request);
     return ResponseEntity.ok().build();
   }
 

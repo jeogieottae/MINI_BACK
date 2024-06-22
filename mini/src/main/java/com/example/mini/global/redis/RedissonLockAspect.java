@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.redisson.api.RLock;
+import org.redisson.api.RQueue;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,5 +36,16 @@ public class RedissonLockAspect {
     } else {
       throw new RuntimeException("키 " + lockKey + "에 대한 락을 획득할 수 없습니다.");
     }
+  }
+
+  @Around("@annotation(redissonQueue)")
+  public Object redissonQueue(ProceedingJoinPoint joinPoint, RedissonQueue redissonQueue) throws Throwable {
+    String queueName = redissonQueue.queueName();
+    Object data = joinPoint.proceed();
+
+    RQueue<Object> queue = redissonClient.getQueue(queueName);
+    queue.add(data);
+
+    return data;
   }
 }

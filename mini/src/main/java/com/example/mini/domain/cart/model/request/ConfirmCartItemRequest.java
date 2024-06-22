@@ -1,9 +1,12 @@
 package com.example.mini.domain.cart.model.request;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
 public class ConfirmCartItemRequest {
-  private List<Long> reservationIds;
+  private Long reservationId;
+  private Long roomId;
+  private LocalDateTime checkIn;
+  private LocalDateTime checkOut;
 }

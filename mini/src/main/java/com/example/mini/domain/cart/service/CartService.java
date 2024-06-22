@@ -3,6 +3,7 @@ package com.example.mini.domain.cart.service;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
@@ -11,9 +12,11 @@ import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
+import com.example.mini.domain.reservation.model.request.ReservationRequest;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.redis.RedissonLock;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -175,30 +178,43 @@ public class CartService {
     cartRepository.save(cart);
   }
 
+  @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   @Transactional
-  public void confirmCartItems(Long memberId, List<Long> reservationIds) {
+  public void confirmCartItems(Long memberId, ConfirmCartItemRequest request) {
     Member member = getMember(memberId);
 
     Cart cart = cartRepository.findByMember(member)
         .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
-    for (Long reservationId : reservationIds) {
-      Reservation reservation = reservationRepository.findById(reservationId)
-          .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
-
-      if (!reservation.getMember().getId().equals(memberId)) {
-        throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
-      }
-
-      if (!cart.getReservationList().contains(reservation)) {
-        throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
-      }
-
-      if (reservation.getStatus() != ReservationStatus.PENDING) {
-        throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
-      }
-
-      reservationRepository.updateReservationStatus(reservationId, ReservationStatus.CONFIRMED);
+    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
+      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
     }
+
+    Reservation reservation = reservationRepository.findById(request.getReservationId())
+        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+
+    if (!reservation.getRoom().getId().equals(request.getRoomId())) {
+      throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
+    }
+
+    if (!reservation.getCheckIn().isEqual(request.getCheckIn()) ||
+        !reservation.getCheckOut().isEqual(request.getCheckOut())) {
+      throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
+    }
+
+
+    if (!reservation.getMember().getId().equals(memberId)) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
+    }
+
+    if (!cart.getReservationList().contains(reservation)) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
+    }
+
+    if (reservation.getStatus() != ReservationStatus.PENDING) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
+    }
+
+    reservationRepository.updateReservationStatus(request.getReservationId(), ReservationStatus.CONFIRMED);
   }
 }

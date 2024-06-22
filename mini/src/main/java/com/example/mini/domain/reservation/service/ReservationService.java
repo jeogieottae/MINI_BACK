@@ -14,6 +14,7 @@ import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.redis.RedissonLock;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class ReservationService {
   private final RoomRepository roomRepository;
   private final MemberRepository memberRepository;
 
+  @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   public ReservationResponse createConfirmedReservation(Long memberId, ReservationRequest request) {
     Member member = getMember(memberId);
 
