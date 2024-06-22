@@ -1,10 +1,7 @@
 package com.example.mini.domain.reservation.repository;
 
-import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
-import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
-import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

@@ -1,7 +1,6 @@
 package com.example.mini.domain.reservation.service;
 
 import com.example.mini.domain.accomodation.entity.Room;
-import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
 import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
