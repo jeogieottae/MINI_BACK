@@ -3,10 +3,14 @@ package com.example.mini.domain.cart.controller;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
+import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,10 +25,12 @@ public class CartController {
 
   //장바구니 보기
   @GetMapping
-  public ResponseEntity getAllCartItems(
-      @AuthenticationPrincipal UserDetailsImpl userDetails
+  public ResponseEntity<ApiResponse<Page<CartResponse>>> getAllCartItems(
+      @AuthenticationPrincipal UserDetailsImpl userDetails,
+      @PageableDefault(size = 10) Pageable pageable
   ) {
-    return ResponseEntity.ok().body(cartService.getAllCartItems(userDetails.getMemberId()));
+    Page<CartResponse> cartItems = cartService.getAllCartItems(userDetails.getMemberId(), pageable);
+    return ResponseEntity.ok(ApiResponse.OK(cartItems));
   }
 
   //장바구니 품목 추가

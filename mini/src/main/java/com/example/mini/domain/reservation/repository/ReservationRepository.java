@@ -5,6 +5,8 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +29,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       @Param("roomIds") List<Long> roomIds,
       @Param("checkIn") LocalDateTime checkIn,
       @Param("checkOut") LocalDateTime checkOut
+  );
+
+  @Query("SELECT r FROM Reservation r " +
+      "WHERE r.member.id = :memberId " +
+      "AND r.status = :status " +
+      "ORDER BY r.checkIn ASC")
+  Page<Reservation> findReservationsByMemberId(
+      @Param("memberId") Long memberId,
+      @Param("status") ReservationStatus status,
+      Pageable pageable
   );
 
   @Modifying

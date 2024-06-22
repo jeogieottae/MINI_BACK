@@ -16,6 +16,9 @@ import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -31,7 +34,7 @@ public class CartService {
   private final RoomRepository roomRepository;
 
   @Transactional
-  public List<CartResponse> getAllCartItems(Long memberId) {
+  public Page<CartResponse> getAllCartItems(Long memberId, Pageable pageable) {
     Member member = getMember(memberId);
     Cart cart = cartRepository.findByMember(member).orElse(null);
 
@@ -42,30 +45,30 @@ public class CartService {
           .reservationList(new ArrayList<>())
           .build();
       cartRepository.save(cart);
-      return new ArrayList<>();
+      return Page.empty(pageable);
     }
+
+    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(member.getId(), ReservationStatus.PENDING, pageable);
 
     List<CartResponse> cartResponses = new ArrayList<>();
 
-    for (Reservation reservation : cart.getReservationList()) {
-      if (reservation.getStatus() == ReservationStatus.PENDING) {
-        Room room = reservation.getRoom();
-        CartResponse cartResponse = new CartResponse(
-            room.getId(),
-            room.getAccomodation().getName(),
-            room.getName(),
-            room.getBaseGuests(),
-            room.getMaxGuests(),
-            reservation.getCheckIn(),
-            reservation.getCheckOut(),
-            reservation.getPeopleNumber(),
-            reservation.getTotalPrice()
-        );
-        cartResponses.add(cartResponse);
-      }
+    for (Reservation reservation : reservations.getContent()) {
+      Room room = reservation.getRoom();
+      CartResponse cartResponse = new CartResponse(
+          room.getId(),
+          room.getAccomodation().getName(),
+          room.getName(),
+          room.getBaseGuests(),
+          room.getMaxGuests(),
+          reservation.getCheckIn(),
+          reservation.getCheckOut(),
+          reservation.getPeopleNumber(),
+          reservation.getTotalPrice()
+      );
+      cartResponses.add(cartResponse);
     }
 
-    return cartResponses;
+    return new PageImpl<>(cartResponses, pageable, reservations.getTotalElements());
   }
 
   private Member getMember(Long memberId) {

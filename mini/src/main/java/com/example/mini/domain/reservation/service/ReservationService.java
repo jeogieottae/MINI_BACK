@@ -17,6 +17,8 @@ import com.example.mini.global.api.exception.GlobalException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -93,11 +95,9 @@ public class ReservationService {
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.MEMBER_NOT_FOUND));
   }
 
-  public List<ReservationSummaryResponse> getAllReservations(Long memberId) {
-    List<Reservation> reservations = reservationRepository.findByMemberIdAndStatus(memberId, ReservationStatus.CONFIRMED);
-    return reservations.stream()
-        .map(this::mapToSummaryResponse)
-        .collect(Collectors.toList());
+  public Page<ReservationSummaryResponse> getAllReservations(Long memberId, Pageable pageable) {
+    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, ReservationStatus.CONFIRMED, pageable);
+    return reservations.map(this::mapToSummaryResponse);
   }
 
   private ReservationSummaryResponse mapToSummaryResponse(Reservation reservation) {
