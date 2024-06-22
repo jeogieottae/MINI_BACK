@@ -1,7 +1,10 @@
 package com.example.mini.domain.reservation.repository;
 
+import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
+import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
+import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -32,4 +35,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   @Modifying
   @Query("UPDATE Reservation r SET r.status = :status WHERE r.id = :id")
   void updateReservationStatus(@Param("id") Long id, @Param("status") ReservationStatus status);
+
+  Optional<Reservation> findByIdAndMemberId(Long reservationId, Long memberId);
+  List<Reservation> findByMemberIdAndStatus(Long memberId, ReservationStatus status);
 }

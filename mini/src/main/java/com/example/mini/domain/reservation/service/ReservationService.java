@@ -4,23 +4,20 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
+import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
 import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
+import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.security.details.UserDetailsImpl;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +45,7 @@ public class ReservationService {
     if (totalPeople > room.getBaseGuests()) {
       additionalCharge = (totalPeople - room.getBaseGuests()) * room.getExtraPersonCharge();
     }
-    
+
     int finalPrice = room.getPrice() + additionalCharge;
 
     if (!request.getCheckOut().isAfter(request.getCheckIn())) {
@@ -97,24 +94,53 @@ public class ReservationService {
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.MEMBER_NOT_FOUND));
   }
 
-//
-//  @Transactional(readOnly = true)
-//  public List<ReservationResponse> getConfirmedReservations() {
-//    List<Reservation> confirmedReservations = reservationRepository.findByStatus(ReservationStatus.CONFIRMED);
-//    List<ReservationResponse> reservationResponses = new ArrayList<>();
-//
-//    for (Reservation reservation : confirmedReservations) {
-//      reservationResponses.add(new ReservationResponse(
-//          reservation.getId(),
-//          reservation.getCheckIn(),
-//          reservation.getCheckOut(),
-//          reservation.getPeopleNumber(),
-//          reservation.getTotalPrice(),
-//          reservation.getStatus()
-//      ));
-//    }
-//
-//    return reservationResponses;
-//  }
+  public List<ReservationSummaryResponse> getAllReservations(Long memberId) {
+    List<Reservation> reservations = reservationRepository.findByMemberIdAndStatus(memberId, ReservationStatus.CONFIRMED);
+    return reservations.stream()
+        .map(this::mapToSummaryResponse)
+        .collect(Collectors.toList());
+  }
 
+  private ReservationSummaryResponse mapToSummaryResponse(Reservation reservation) {
+    return new ReservationSummaryResponse(
+        reservation.getRoom().getAccomodation().getName(),
+        reservation.getRoom().getAccomodation().getAddress(),
+        reservation.getRoom().getName(),
+        reservation.getTotalPrice(),
+        reservation.getPeopleNumber(),
+        reservation.getCheckIn(),
+        reservation.getCheckOut()
+    );
+  }
+
+  public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
+    Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+    return mapToDetailResponse(reservation);
+  }
+
+  private ReservationDetailResponse mapToDetailResponse(Reservation reservation) {
+    int roomPrice = reservation.getRoom().getPrice();
+    int baseGuests = reservation.getRoom().getBaseGuests();
+    int totalGuests = reservation.getPeopleNumber();
+    int extraPersonCharge = reservation.getRoom().getExtraPersonCharge();
+
+    int extraCharge = 0;
+
+    if (totalGuests > baseGuests) {
+      extraCharge = (totalGuests - baseGuests) * extraPersonCharge;
+    }
+
+    boolean parkingAvailable = reservation.getRoom().getAccomodation().getParkingAvailable();
+    boolean cookingAvailable = reservation.getRoom().getAccomodation().getCookingAvailable();
+
+    return new ReservationDetailResponse(
+        roomPrice,
+        baseGuests,
+        extraCharge,
+        parkingAvailable,
+        cookingAvailable
+    );
+  }
 }

@@ -1,7 +1,10 @@
 package com.example.mini.domain.reservation.controller;
 
+import com.example.mini.domain.reservation.model.request.ReservationDetailRequest;
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
+import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
 import com.example.mini.domain.reservation.model.response.ReservationResponse;
+import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
 import com.example.mini.domain.reservation.service.ReservationService;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import java.util.List;
@@ -30,10 +33,18 @@ public class ReservationController {
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
-//  @GetMapping
-//  public ResponseEntity<List<ReservationResponse>> getConfirmedReservations() {
-//    List<ReservationResponse> reservations = reservationService.getConfirmedReservations();
-//    return ResponseEntity.ok(reservations);
-//  }
+  @GetMapping
+  public ResponseEntity<List<ReservationSummaryResponse>> getAllReservations(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    Long memberId = userDetails.getMemberId();
+    List<ReservationSummaryResponse> reservations = reservationService.getAllReservations(memberId);
+    return ResponseEntity.ok(reservations);
+  }
 
+  @GetMapping("/detail")
+  public ResponseEntity<ReservationDetailResponse> getReservationDetail(@RequestBody ReservationDetailRequest request,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    Long memberId = userDetails.getMemberId();
+    ReservationDetailResponse reservationDetail = reservationService.getReservationDetail(request.getReservationId(), memberId);
+    return ResponseEntity.ok(reservationDetail);
+  }
 }
