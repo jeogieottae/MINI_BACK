@@ -30,6 +30,8 @@ public class RedissonLockAspect {
     if (isLocked) {
       try {
         return joinPoint.proceed();
+      } catch (Exception e) {
+        throw new RuntimeException("락 처리 중 오류 발생: " + e.getMessage(), e);
       } finally {
         lock.unlock();
       }
@@ -41,7 +43,12 @@ public class RedissonLockAspect {
   @Around("@annotation(redissonQueue)")
   public Object redissonQueue(ProceedingJoinPoint joinPoint, RedissonQueue redissonQueue) throws Throwable {
     String queueName = redissonQueue.queueName();
-    Object data = joinPoint.proceed();
+    Object data;
+    try {
+      data = joinPoint.proceed();
+    } catch (Exception e) {
+      throw new RuntimeException("큐 처리 중 오류 발생: " + e.getMessage(), e);
+    }
 
     RQueue<Object> queue = redissonClient.getQueue(queueName);
     queue.add(data);
