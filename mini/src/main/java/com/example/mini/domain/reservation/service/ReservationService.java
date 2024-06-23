@@ -81,7 +81,7 @@ public class ReservationService {
 
     return ReservationResponse.builder()
         .roomId(room.getId())
-        .accommodationName(room.getAccomodation().getName())
+        .accomodationName(room.getAccomodation().getName())
         .roomName(room.getName())
         .baseGuests(room.getBaseGuests())
         .maxGuests(room.getMaxGuests())

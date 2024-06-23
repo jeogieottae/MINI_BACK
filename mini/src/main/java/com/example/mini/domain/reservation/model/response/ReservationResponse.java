@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 public class ReservationResponse {
   private Long roomId;
-  private String accommodationName;
+  private String accomodationName;
   private String roomName;
   private Integer baseGuests;
   private Integer maxGuests;
@@ -16,4 +16,5 @@ public class ReservationResponse {
   private LocalDateTime checkOut;
   private Integer peopleNumber;
   private Integer totalPrice;
+
 }

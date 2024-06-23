@@ -95,7 +95,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testGetAllCartItems_shouldReturnCartItems() {
+  public void testGetAllCartItemsShouldReturnCartItems() {
     // Given
     Pageable pageable = PageRequest.of(0, 10);
     Page<Reservation> reservations = new PageImpl<>(List.of(reservation), pageable, 1);
@@ -117,7 +117,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testAddCartItem_withValidRequest_shouldAddCartItem() {
+  public void testAddCartItemWithValidRequestShouldAddCartItem() {
     // Given
     AddCartItemRequest request = new AddCartItemRequest();
     request.setRoomId(room.getId());
@@ -139,7 +139,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testDeleteCartItem_withValidRequest_shouldDeleteCartItem() {
+  public void testDeleteCartItemWithValidRequestShouldDeleteCartItem() {
     // Given
     DeleteCartItemRequest request = new DeleteCartItemRequest();
     request.setReservationIds(List.of(reservation.getId()));
@@ -156,7 +156,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmCartItems_withInvalidDates_shouldThrowException() {
+  public void testConfirmCartItemsWithInvalidDatesShouldThrowException() {
     // Given
     ConfirmCartItemRequest request = new ConfirmCartItemRequest();
     request.setReservationId(reservation.getId());
@@ -171,7 +171,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmCartItems_withReservationMismatch_shouldThrowException() {
+  public void testConfirmCartItemsWithReservationMismatchShouldThrowException() {
     // Given
     ConfirmCartItemRequest request = new ConfirmCartItemRequest();
     request.setReservationId(reservation.getId());
@@ -191,7 +191,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmCartItems_withValidRequest_shouldConfirmReservation()
+  public void testConfirmCartItemsWithValidRequestShouldConfirmReservation()
       throws InterruptedException {
     // Given
     ConfirmCartItemRequest request = new ConfirmCartItemRequest();
