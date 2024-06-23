@@ -30,7 +30,8 @@ jobs:
       run: chmod +x mini/gradlew
 
     - name: Build with Gradle Wrapper
-      run: mini/gradlew build
+      working-directory: mini
+      run: ./gradlew build
 
   dependency-submission:
 
