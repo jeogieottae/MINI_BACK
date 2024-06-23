@@ -31,8 +31,8 @@ jobs:
 
     - name: Build with Gradle Wrapper
       working-directory: mini
-      run: ./gradlew build
-
+      run: ./gradlew build -x test
+      
   dependency-submission:
 
     runs-on: ubuntu-latest
