@@ -17,6 +17,7 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.redis.RedissonLock;
+import com.example.mini.global.redis.RedissonQueue;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -196,6 +197,7 @@ public class CartService {
   }
 
   @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
+  @RedissonQueue(queueName = "confirmedReservations")
   private void confirmReservationItem(Member member, Cart cart, ConfirmItem item) {
     if (!item.getCheckOut().isAfter(item.getCheckIn())) {
       throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);

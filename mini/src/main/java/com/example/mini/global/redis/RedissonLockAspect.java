@@ -1,5 +1,7 @@
 package com.example.mini.global.redis;
 
+import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.RedissonErrorCode;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -31,12 +33,12 @@ public class RedissonLockAspect {
       try {
         return joinPoint.proceed();
       } catch (Exception e) {
-        throw new RuntimeException("락 처리 중 오류 발생: " + e.getMessage(), e);
+        throw new GlobalException(RedissonErrorCode.KEY_INTERRUPTED);
       } finally {
         lock.unlock();
       }
     } else {
-      throw new RuntimeException("키 " + lockKey + "에 대한 락을 획득할 수 없습니다.");
+      throw new GlobalException(RedissonErrorCode.KEY_NOT_GAIN);
     }
   }
 
@@ -47,11 +49,15 @@ public class RedissonLockAspect {
     try {
       data = joinPoint.proceed();
     } catch (Exception e) {
-      throw new RuntimeException("큐 처리 중 오류 발생: " + e.getMessage(), e);
+      throw new GlobalException(RedissonErrorCode.QUEUE_ERROR);
     }
 
     RQueue<Object> queue = redissonClient.getQueue(queueName);
-    queue.add(data);
+    try {
+      queue.add(data);
+    } catch (Exception e) {
+      throw new GlobalException(RedissonErrorCode.QUEUE_DATA_NOT_ADDED);
+    }
 
     return data;
   }
