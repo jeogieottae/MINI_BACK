@@ -4,6 +4,7 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest.ConfirmItem;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
@@ -15,9 +16,13 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.RedissonErrorCode;
 import com.example.mini.global.redis.RedissonLock;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -34,6 +39,7 @@ public class CartService {
   private final CartRepository cartRepository;
   private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
+  private final RedissonClient redissonClient;
 
   @Transactional
   public Page<CartResponse> getAllCartItems(Long memberId, Pageable pageable) {
@@ -177,7 +183,6 @@ public class CartService {
     cartRepository.save(cart);
   }
 
-  @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   @Transactional
   public void confirmCartItems(Long memberId, ConfirmCartItemRequest request) {
     Member member = getMember(memberId);
@@ -185,24 +190,30 @@ public class CartService {
     Cart cart = cartRepository.findByMember(member)
         .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
-    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
+    for (ConfirmItem item : request.getConfirmItems()) {
+      confirmReservationItem(member, cart, item);
+    }
+  }
+
+  @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
+  private void confirmReservationItem(Member member, Cart cart, ConfirmItem item) {
+    if (!item.getCheckOut().isAfter(item.getCheckIn())) {
       throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
     }
 
-    Reservation reservation = reservationRepository.findById(request.getReservationId())
+    Reservation reservation = reservationRepository.findById(item.getReservationId())
         .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
 
-    if (!reservation.getRoom().getId().equals(request.getRoomId())) {
+    if (!reservation.getRoom().getId().equals(item.getRoomId())) {
       throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
     }
 
-    if (!reservation.getCheckIn().isEqual(request.getCheckIn()) ||
-        !reservation.getCheckOut().isEqual(request.getCheckOut())) {
+    if (!reservation.getCheckIn().isEqual(item.getCheckIn()) ||
+        !reservation.getCheckOut().isEqual(item.getCheckOut())) {
       throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
     }
 
-
-    if (!reservation.getMember().getId().equals(memberId)) {
+    if (!reservation.getMember().getId().equals(member.getId())) {
       throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
     }
 
@@ -214,6 +225,6 @@ public class CartService {
       throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
     }
 
-    reservationRepository.updateReservationStatus(request.getReservationId(), ReservationStatus.CONFIRMED);
+    reservationRepository.updateReservationStatus(item.getReservationId(), ReservationStatus.CONFIRMED);
   }
 }

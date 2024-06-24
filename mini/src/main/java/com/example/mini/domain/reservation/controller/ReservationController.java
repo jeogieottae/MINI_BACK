@@ -8,7 +8,6 @@ import com.example.mini.domain.reservation.model.response.ReservationSummaryResp
 import com.example.mini.domain.reservation.service.ReservationService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
