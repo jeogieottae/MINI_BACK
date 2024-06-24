@@ -98,7 +98,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/login/kakao")
-	public ResponseEntity<ApiResponse<LoginResponse>> loginKakao(@RequestParam(name = "accessToken") String kakaoAccessToken, HttpServletResponse response) {
+	public ResponseEntity<ApiResponse<LoginResponse>> loginKakao(@RequestParam(name = "accessToken") String kakaoAccessToken) {
 		KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(kakaoAccessToken);
 		String email = kakaoUserInfo.getEmail();
 
@@ -109,14 +109,7 @@ public class AuthController {
 		String refreshToken = jwtProvider.createToken(email, TokenType.REFRESH, true);
 		tokenService.saveRefreshToken(email, refreshToken);
 
-		// 쿠키에 저장
-		CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000);
-		CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000);
-
-		// 로그를 통해 쿠키가 설정되었는지 확인
-		log.info("AccessToken 쿠키 설정: {}", accessToken);
-		log.info("RefreshToken 쿠키 설정: {}", refreshToken);
-
 		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder().state(MemberState.ACTIVE).build()));
 	}
+
 }
