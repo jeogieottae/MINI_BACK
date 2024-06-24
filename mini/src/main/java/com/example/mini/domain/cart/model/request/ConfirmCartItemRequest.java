@@ -12,6 +12,7 @@ public class ConfirmCartItemRequest {
   public static class ConfirmItem {
     private Long reservationId;
     private Long roomId;
+    private int peopleNumber;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
   }

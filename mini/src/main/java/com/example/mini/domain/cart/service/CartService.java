@@ -16,12 +16,11 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.api.exception.error.RedissonErrorCode;
 import com.example.mini.global.redis.RedissonLock;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -56,7 +55,8 @@ public class CartService {
       return Page.empty(pageable);
     }
 
-    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(member.getId(), ReservationStatus.PENDING, pageable);
+    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
+        member.getId(), ReservationStatus.PENDING, pageable);
 
     List<CartResponse> cartResponses = new ArrayList<>();
 
@@ -208,11 +208,6 @@ public class CartService {
       throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
     }
 
-    if (!reservation.getCheckIn().isEqual(item.getCheckIn()) ||
-        !reservation.getCheckOut().isEqual(item.getCheckOut())) {
-      throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
-    }
-
     if (!reservation.getMember().getId().equals(member.getId())) {
       throw new GlobalException(CartErrorCode.RESERVATION_NOT_BELONGS_TO_USER);
     }
@@ -220,11 +215,23 @@ public class CartService {
     if (!cart.getReservationList().contains(reservation)) {
       throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
     }
-
-    if (reservation.getStatus() != ReservationStatus.PENDING) {
-      throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
+    List<Long> roomIds = Collections.singletonList(item.getRoomId());
+    LocalDateTime checkIn = item.getCheckIn();
+    LocalDateTime checkOut = item.getCheckOut();
+    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
+    for (Reservation overlappingReservation : overlappingReservations) {
+      if (!overlappingReservation.getId().equals(reservation.getId())) {
+        throw new GlobalException(CartErrorCode.CONFLICTING_RESERVATION);
+      }
     }
 
-    reservationRepository.updateReservationStatus(item.getReservationId(), ReservationStatus.CONFIRMED);
+    if (item.getPeopleNumber() > reservation.getRoom().getMaxGuests()) {
+      throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
+    }
+
+    reservationRepository.updateReservationDetails(item.getPeopleNumber(), item.getCheckIn(),
+        item.getCheckOut());
+    reservationRepository.updateReservationStatus(item.getReservationId(),
+        ReservationStatus.CONFIRMED);
   }
 }

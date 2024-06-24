@@ -45,6 +45,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   @Query("UPDATE Reservation r SET r.status = :status WHERE r.id = :id")
   void updateReservationStatus(@Param("id") Long id, @Param("status") ReservationStatus status);
 
+  @Modifying
+  @Query("UPDATE Reservation r SET " +
+      "r.peopleNumber = :peopleNumber, " +
+      "r.checkIn = :checkIn, " +
+      "r.checkOut = :checkOut ")
+  void updateReservationDetails(
+      @Param("peopleNumber") int peopleNumber,
+      @Param("checkIn") LocalDateTime checkIn,
+      @Param("checkOut") LocalDateTime checkOut
+  );
+
   Optional<Reservation> findByIdAndMemberId(Long reservationId, Long memberId);
-  List<Reservation> findByMemberIdAndStatus(Long memberId, ReservationStatus status);
 }
