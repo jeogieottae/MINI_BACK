@@ -218,6 +218,7 @@ public class CartService {
     List<Long> roomIds = Collections.singletonList(item.getRoomId());
     LocalDateTime checkIn = item.getCheckIn();
     LocalDateTime checkOut = item.getCheckOut();
+
     List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
     for (Reservation overlappingReservation : overlappingReservations) {
       if (!overlappingReservation.getId().equals(reservation.getId())) {
@@ -230,7 +231,7 @@ public class CartService {
     }
 
     reservationRepository.updateReservationDetails(item.getPeopleNumber(), item.getCheckIn(),
-        item.getCheckOut());
+        item.getCheckOut(), item.getReservationId());
     reservationRepository.updateReservationStatus(item.getReservationId(),
         ReservationStatus.CONFIRMED);
   }

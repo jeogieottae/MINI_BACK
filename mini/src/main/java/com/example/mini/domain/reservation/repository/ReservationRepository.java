@@ -49,11 +49,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   @Query("UPDATE Reservation r SET " +
       "r.peopleNumber = :peopleNumber, " +
       "r.checkIn = :checkIn, " +
-      "r.checkOut = :checkOut ")
+      "r.checkOut = :checkOut " +
+      "WHERE r.id = :id")
   void updateReservationDetails(
       @Param("peopleNumber") int peopleNumber,
       @Param("checkIn") LocalDateTime checkIn,
-      @Param("checkOut") LocalDateTime checkOut
+      @Param("checkOut") LocalDateTime checkOut,
+      @Param("id") Long id
   );
 
   Optional<Reservation> findByIdAndMemberId(Long reservationId, Long memberId);
