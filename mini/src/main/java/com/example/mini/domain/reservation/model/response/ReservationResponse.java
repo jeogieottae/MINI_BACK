@@ -1,12 +1,13 @@
 package com.example.mini.domain.reservation.model.response;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ReservationResponse {
+public class ReservationResponse implements Serializable {
   private Long roomId;
   private String accomodationName;
   private String roomName;

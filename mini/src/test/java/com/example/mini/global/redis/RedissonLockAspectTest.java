@@ -71,36 +71,6 @@ public class RedissonLockAspectTest {
     verify(mockLock, never()).unlock();
   }
 
-  @Test
-  public void testRedissonQueueSuccessful() throws Throwable {
-    // Given
-    RedissonQueue redissonQueueAnnotation = createMockRedissonQueueAnnotation();
-    when(redissonClient.getQueue(any(String.class))).thenReturn(mockQueue);
-    Object expectedResult = "Test Result";
-    when(joinPoint.proceed()).thenReturn(expectedResult);
-
-    // When
-    Object result = redissonLockAspect.redissonQueue(joinPoint, redissonQueueAnnotation);
-
-    // Then
-    assertEquals(expectedResult, result);
-    verify(mockQueue, times(1)).add(any());
-  }
-
-  @Test
-  public void testRedissonQueueQueueError() throws Throwable {
-    // Given
-    RedissonQueue redissonQueueAnnotation = createMockRedissonQueueAnnotation();
-    RuntimeException testException = new RuntimeException("Test Exception");
-    doThrow(testException).when(joinPoint).proceed();
-
-    // When
-    GlobalException exception = assertThrows(GlobalException.class, () -> redissonLockAspect.redissonQueue(joinPoint, redissonQueueAnnotation));
-
-    // Then
-    assertEquals(RedissonErrorCode.QUEUE_ERROR, exception.getErrorCode());
-  }
-
   private RedissonLock createMockRedissonLockAnnotation() {
     return new RedissonLock() {
       @Override
@@ -129,19 +99,4 @@ public class RedissonLockAspectTest {
       }
     };
   }
-
-  private RedissonQueue createMockRedissonQueueAnnotation() {
-    return new RedissonQueue() {
-      @Override
-      public Class<? extends java.lang.annotation.Annotation> annotationType() {
-        return RedissonQueue.class;
-      }
-
-      @Override
-      public String queueName() {
-        return "testQueue";
-      }
-    };
-  }
 }
-

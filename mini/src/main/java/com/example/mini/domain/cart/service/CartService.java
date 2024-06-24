@@ -17,12 +17,10 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.redis.RedissonLock;
-import com.example.mini.global.redis.RedissonQueue;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RedissonClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +37,6 @@ public class CartService {
   private final CartRepository cartRepository;
   private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
-  private final RedissonClient redissonClient;
 
   @Transactional
   public Page<CartResponse> getAllCartItems(Long memberId, Pageable pageable) {
@@ -197,8 +194,7 @@ public class CartService {
   }
 
   @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
-  @RedissonQueue(queueName = "confirmedReservations")
-  private void confirmReservationItem(Member member, Cart cart, ConfirmItem item) {
+  public void confirmReservationItem(Member member, Cart cart, ConfirmItem item) {
     if (!item.getCheckOut().isAfter(item.getCheckIn())) {
       throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
     }

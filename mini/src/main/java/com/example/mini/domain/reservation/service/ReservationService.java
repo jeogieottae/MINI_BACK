@@ -15,9 +15,7 @@ import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.redis.RedissonLock;
-import com.example.mini.global.redis.RedissonQueue;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,7 +32,6 @@ public class ReservationService {
   private final MemberRepository memberRepository;
 
   @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
-  @RedissonQueue(queueName = "confirmedReservations")
   public ReservationResponse createConfirmedReservation(Long memberId, ReservationRequest request) {
     Member member = getMember(memberId);
 
