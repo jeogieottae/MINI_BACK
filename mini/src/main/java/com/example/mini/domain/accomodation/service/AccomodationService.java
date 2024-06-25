@@ -1,8 +1,8 @@
 package com.example.mini.domain.accomodation.service;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.Category;
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
 import com.example.mini.domain.accomodation.model.AccomodationSearch;
 import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
@@ -11,7 +11,6 @@ import com.example.mini.domain.accomodation.model.response.PagedResponse;
 import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
-import com.example.mini.domain.accomodation.repository.CategoryRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
@@ -26,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,7 +33,6 @@ import java.util.Optional;
 public class AccomodationService {
 
     private final AccomodationRepository accomodationRepository;
-    private final CategoryRepository categoryRepository;
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
     private final int PageSize = 5; // 페이지 크기
@@ -62,11 +59,8 @@ public class AccomodationService {
      * @return              숙소 정보 목록을 포함한 응답 객체
      */
     public PagedResponse<AccomodationResponseDto> getAccommodationsByCategory(String categoryName, int page) {
-        Long categoryId = categoryRepository.findByName(categoryName);
-        if (categoryId == null) {
-            throw new GlobalException(AccomodationErrorCode.INVALID_CATEGORY_CODE_REQUEST);
-        }
-        Page<Accomodation> accommodations = accomodationRepository.findByCategoryId(categoryId, PageRequest.of(page-1, PageSize));
+        AccomodationCategory category = AccomodationCategory.fromName(categoryName);
+        Page<Accomodation> accommodations = accomodationRepository.findByCategoryName(category, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
         return setResponse(accommodations);
     }
@@ -86,7 +80,6 @@ public class AccomodationService {
 
     // elastic 데이터 삽입 테스트
     public AccomodationResponseDto saveAccomodation(AccomodationRequestDto requestDto) {
-        Optional<Category> category = categoryRepository.findById(5L);
         Accomodation accomodation = Accomodation.builder()
                 .name(requestDto.getName())
                 .description(requestDto.getDescription())
@@ -96,7 +89,7 @@ public class AccomodationService {
                 .cookingAvailable(true)
                 .checkIn(LocalDateTime.now())
                 .checkOut(LocalDateTime.now())
-                .category(category.get())
+                .category(AccomodationCategory.JEJU)
                 .build();
         Accomodation saved = accomodationRepository.save(accomodation);
         AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());

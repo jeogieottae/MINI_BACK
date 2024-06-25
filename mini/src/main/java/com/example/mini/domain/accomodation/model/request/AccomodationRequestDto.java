@@ -1,10 +1,7 @@
 package com.example.mini.domain.accomodation.model.request;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.Category;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -23,7 +20,7 @@ public class AccomodationRequestDto {
 //    private LocalDateTime checkOut;
 //    private Long categoryId;
 
-    public Accomodation toEntity(Category category) {
+    public Accomodation toEntity() {
         return Accomodation.builder()
                 .name(name)
                 .description(description)

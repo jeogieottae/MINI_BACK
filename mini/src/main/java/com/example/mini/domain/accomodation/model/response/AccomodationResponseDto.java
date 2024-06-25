@@ -1,6 +1,7 @@
 package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,7 +22,7 @@ public class AccomodationResponseDto {
     private Boolean cookingAvailable;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
-    private Long categoryId;
+    private AccomodationCategory categoryId;
 
     public static AccomodationResponseDto toDto(Accomodation accomodation) {
         return AccomodationResponseDto.builder()
@@ -34,7 +35,7 @@ public class AccomodationResponseDto {
                 .cookingAvailable(accomodation.getCookingAvailable())
                 .checkIn(accomodation.getCheckIn())
                 .checkOut(accomodation.getCheckOut())
-                .categoryId(accomodation.getCategory().getId())
+                .categoryId(accomodation.getCategory())
                 .build();
     }
 }
