@@ -18,12 +18,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -44,9 +42,7 @@ public class AccomodationService {
      * @return      숙소 정보 목록을 포함한 응답 객체
      */
     public PagedResponse<AccomodationResponseDto> getAllAccommodations(int page) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        sorts.add(Sort.Order.asc("name"));
-        Page<Accomodation> accommodations = accomodationRepository.findAll(PageRequest.of(page-1, PageSize, Sort.by(sorts)));
+        Page<Accomodation> accommodations = accomodationRepository.findAll(PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
         return setResponse(accommodations);
     }
@@ -63,38 +59,6 @@ public class AccomodationService {
         Page<Accomodation> accommodations = accomodationRepository.findByCategoryName(category, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
         return setResponse(accommodations);
-    }
-
-    /**
-     * Entity → Dto 변환 및 응답 객체로 변환하는 메서드
-     *
-     * @param accommodations    변환할 객체
-     * @return                  숙소 정보 목록을 포함한 응답 객체
-     */
-    private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
-        List<AccomodationResponseDto> content = accommodations.getContent().stream()
-                .map(AccomodationResponseDto::toDto)
-                .toList();
-        return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
-    }
-
-    // elastic 데이터 삽입 테스트
-    public AccomodationResponseDto saveAccomodation(AccomodationRequestDto requestDto) {
-        Accomodation accomodation = Accomodation.builder()
-                .name(requestDto.getName())
-                .description(requestDto.getDescription())
-                .postalCode(123445)
-                .address("서귀포시 --- ---")
-                .parkingAvailable(true)
-                .cookingAvailable(true)
-                .checkIn(LocalDateTime.now())
-                .checkOut(LocalDateTime.now())
-                .category(AccomodationCategory.JEJU)
-                .build();
-        Accomodation saved = accomodationRepository.save(accomodation);
-        AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
-        accomodationSearchRepository.save(search);
-        return AccomodationResponseDto.toDto(saved);
     }
 
     /**
@@ -146,10 +110,46 @@ public class AccomodationService {
         return RoomResponseDto.toDto(room);
     }
 
-    // 공통 에러처리
+    /**
+     * Entity → Dto 변환 및 응답 객체로 변환하는 메서드
+     *
+     * @param accommodations    변환할 객체
+     * @return                  숙소 정보 목록을 포함한 응답 객체
+     */
+    private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
+        List<AccomodationResponseDto> content = accommodations.getContent().stream()
+                .map(AccomodationResponseDto::toDto)
+                .toList();
+        return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
+    }
+
+    /**
+     * 페이지네이션 공통 에러처리
+     *
+     * @param accommodations    검증할 객체
+     */
     private void checkPageException(Page<Accomodation> accommodations) {
-        if (accommodations.getContent().isEmpty()) {
+        if (accommodations.getContent().isEmpty() || accommodations.isEmpty()) {
             throw new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND);
         }
+    }
+
+    // elastic 데이터 삽입 테스트
+    public AccomodationResponseDto saveAccomodation(AccomodationRequestDto requestDto) {
+        Accomodation accomodation = Accomodation.builder()
+                .name(requestDto.getName())
+                .description(requestDto.getDescription())
+                .postalCode(123445)
+                .address("서귀포시 --- ---")
+                .parkingAvailable(true)
+                .cookingAvailable(true)
+                .checkIn(LocalDateTime.now())
+                .checkOut(LocalDateTime.now())
+                .category(AccomodationCategory.JEJU)
+                .build();
+        Accomodation saved = accomodationRepository.save(accomodation);
+        AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
+        accomodationSearchRepository.save(search);
+        return AccomodationResponseDto.toDto(saved);
     }
 }
