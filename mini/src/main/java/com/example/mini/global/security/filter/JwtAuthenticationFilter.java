@@ -1,19 +1,24 @@
 package com.example.mini.global.security.filter;
 
+import com.example.mini.global.auth.oauth2.model.UserInfo;
 import com.example.mini.global.exception.error.AuthErrorCode;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.api.ApiResponse;
+import com.example.mini.global.util.cookies.CookieUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -21,6 +26,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
+import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,9 +40,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
+
+		Cookie googleCookie = CookieUtil.getCookie(request, "google_token");
+		String googleToken = googleCookie != null ? googleCookie.getValue() : null;
+
+		Cookie kakaoCookie = CookieUtil.getCookie(request, "kakao_token");
+		String kakaoToken = kakaoCookie != null ? kakaoCookie.getValue() : null;
+
 		String token = jwtProvider.resolveToken(request);
 
-		if (token != null) {
+		log.info("google 토큰: {}", googleToken);
+		log.info("kakao 토큰: {}", kakaoToken);
+		log.info("일반 토큰: {}", token);
+
+		// 받은 토큰이 유효한지 확인
+		if (googleToken != null) {
+			log.info("google 토큰 유효성 확인: {}", googleToken);
+			processToken(googleToken, "google", request);
+		} else if (kakaoToken != null) {
+			log.info("kakao 토큰 유효성 확인: {}", kakaoToken);
+			processToken(kakaoToken, "kakao", request);
+		} else if (token != null) {
 			if (tokenService.isTokenBlacklisted(token)) {
 				log.warn("블랙리스트에 등록된 토큰: {}", token);
 				AuthErrorCode blacklistedToken = AuthErrorCode.BLACKLISTED_TOKEN;
@@ -52,12 +77,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			if (jwtProvider.validateToken(token, TokenType.ACCESS)) {
 				Claims claims = jwtProvider.getUserInfoFromToken(token, TokenType.ACCESS);
 				log.info("토큰 유효: 사용자 이메일={}", claims.getSubject());
+
 				UserDetails userDetails;
-				if (claims.containsKey("oauth")) {
-					userDetails = userDetailsService.loadUserByOauthEmail(claims.getSubject());
-				} else {
-					userDetails = userDetailsService.loadUserByEmail(claims.getSubject());
-				}
+				userDetails = userDetailsService.loadUserByEmail(claims.getSubject());
+
 				Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			} else {
@@ -75,4 +98,76 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		filterChain.doFilter(request, response);
 	}
+
+	private void processToken(String token, String provider, HttpServletRequest request) {
+		TokenInfo tokenInfo = validateAndGetTokenInfo(token, provider);
+		if (tokenInfo != null && tokenInfo.isValid()) {
+			UserDetails userDetails = userDetailsService.loadUserByOauthEmail(tokenInfo.getEmail());
+			Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+			SecurityContextHolder.getContext().setAuthentication(auth);
+		}
+	}
+
+	private TokenInfo validateAndGetTokenInfo(String token, String provider) {
+		String apiUrl;
+		Function<Map<String, Object>, TokenInfo> infoExtractor;
+
+		if (provider.equals("google")) {
+			apiUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
+			infoExtractor = attributes -> new TokenInfo(
+					attributes.containsKey("email"),
+					(String) attributes.get("email")
+			);
+		} else if (provider.equals("kakao")) {
+			apiUrl = "https://kapi.kakao.com/v2/user/me";
+			infoExtractor = attributes -> {
+				UserInfo userInfo = new UserInfo(attributes);
+				return new TokenInfo(userInfo.getEmail() != null, userInfo.getEmail());
+			};
+		} else {
+			return null; // 지원하지 않는 제공자
+		}
+
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setBearerAuth(token);
+		HttpEntity<String> entity = new HttpEntity<>("", headers);
+
+		try {
+			ResponseEntity<Map> response = restTemplate.exchange(
+					apiUrl,
+					HttpMethod.GET,
+					entity,
+					Map.class
+			);
+
+			if (response.getStatusCode() == HttpStatus.OK) {
+				Map<String, Object> attributes = response.getBody();
+				return infoExtractor.apply(attributes);
+			}
+		} catch (Exception e) {
+			log.info("JwtAuthenticationFiller: 토큰으로 이메일 가져오기 실패");
+		}
+
+		return null;
+	}
+
+	private static class TokenInfo {
+		private final boolean valid;
+		private final String email;
+
+		TokenInfo(boolean valid, String email) {
+			this.valid = valid;
+			this.email = email;
+		}
+
+		public boolean isValid() {
+			return valid;
+		}
+
+		public String getEmail() {
+			return email;
+		}
+	}
+
 }

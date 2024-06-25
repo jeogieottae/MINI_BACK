@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
-public class KakaoUserInfo {
+public class UserInfo {
 
 	public static final String KAKAO_ACCOUNT = "kakao_account";
 	public static final String EMAIL = "email";
@@ -14,7 +14,7 @@ public class KakaoUserInfo {
 
 	private Map<String, Object> attributes;
 
-	public KakaoUserInfo(Map<String, Object> attributes) {
+	public UserInfo(Map<String, Object> attributes) {
 		this.attributes = attributes;
 	}
 

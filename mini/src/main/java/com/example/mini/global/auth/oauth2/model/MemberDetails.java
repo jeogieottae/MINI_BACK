@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 @RequiredArgsConstructor
 @Getter
 @Setter
-public class KakaoMemberDetails implements OAuth2User {
+public class MemberDetails implements OAuth2User {
 
 	private final String email;
 	private final List<? extends GrantedAuthority> authorities;
