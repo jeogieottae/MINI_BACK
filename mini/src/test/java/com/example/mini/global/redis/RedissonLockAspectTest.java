@@ -3,100 +3,176 @@ package com.example.mini.global.redis;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.RedissonErrorCode;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.redisson.api.RLock;
-import org.redisson.api.RQueue;
 import org.redisson.api.RedissonClient;
 
 import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 
-@ExtendWith(MockitoExtension.class)
+@Testcontainers
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(properties = {
+    "spring.data.redis.host=localhost",
+    "spring.data.redis.port=6379"
+})
 public class RedissonLockAspectTest {
 
-  @Mock
+  @Container
+  public static GenericContainer<?> redisContainer = new GenericContainer<>("redis:latest")
+      .withExposedPorts(6379);
+
+  @Autowired
   private RedissonClient redissonClient;
 
-  @InjectMocks
+  @Autowired
   private RedissonLockAspect redissonLockAspect;
 
-  @Mock
-  private ProceedingJoinPoint joinPoint;
+  @BeforeEach
+  void setUp() {
+    String redisUrl =
+        "redis://" + redisContainer.getHost() + ":" + redisContainer.getFirstMappedPort();
+  }
 
-  @Mock
-  private RLock mockLock;
-
-  @Mock
-  private RQueue<Object> mockQueue;
 
   @Test
-  public void testRedissonLocSuccessful() throws Throwable {
+  void testRedissonLockSuccessfulLockAndUnlock() throws Throwable {
     // Given
-    RedissonLock redissonLockAnnotation = createMockRedissonLockAnnotation();
-    when(redissonClient.getLock(any(String.class))).thenReturn(mockLock);
-    when(mockLock.tryLock(anyLong(), anyLong(), any(TimeUnit.class))).thenReturn(true);
-    Object expectedResult = "Test Result";
-    when(joinPoint.proceed()).thenReturn(expectedResult);
+    String lockKey = "testKey";
+    long waitTime = 5L;
+    long leaseTime = 1L;
+    TimeUnit timeUnit = TimeUnit.SECONDS;
 
     // When
-    Object result = redissonLockAspect.redissonLock(joinPoint, redissonLockAnnotation);
+    RLock lock = redissonClient.getLock(lockKey);
+    lock.lock(); // 직접 lock을 획득하는 코드
 
     // Then
-    assertEquals(expectedResult, result);
-    verify(mockLock, times(1)).tryLock(anyLong(), anyLong(), any(TimeUnit.class));
-    verify(mockLock, times(1)).unlock();
+    assertTrue(lock.isLocked(), "잠금이 성공적으로 획득되어야 합니다");
+    assertTrue(lock.isHeldByCurrentThread(), "현재 스레드에서 잠금이 보유되어야 합니다");
+
+    lock.unlock();
+    assertFalse(lock.isLocked(), "잠금이 성공적으로 해제되어야 합니다");
   }
 
   @Test
-  public void testRedissonLockLockNotAcquired() throws Throwable {
+  void testRedissonLockFailedToAcquireLock() throws Throwable {
     // Given
-    RedissonLock redissonLockAnnotation = createMockRedissonLockAnnotation();
-    when(redissonClient.getLock(any(String.class))).thenReturn(mockLock);
-    when(mockLock.tryLock(anyLong(), anyLong(), any(TimeUnit.class))).thenReturn(false);
+    String lockKey = "testKey";
+    long waitTime = 0L;
+    long leaseTime = 1L;
+    TimeUnit timeUnit = TimeUnit.SECONDS;
 
     // When
-    GlobalException exception = assertThrows(GlobalException.class, () -> redissonLockAspect.redissonLock(joinPoint, redissonLockAnnotation));
+    RLock lock = redissonClient.getLock(lockKey);
+    lock.lock();
+
+    ProceedingJoinPoint pjp = mock(ProceedingJoinPoint.class);
+
+    doThrow(new GlobalException(RedissonErrorCode.KEY_NOT_GAIN)).when(pjp).proceed();
 
     // Then
-    assertEquals(RedissonErrorCode.KEY_NOT_GAIN, exception.getErrorCode());
-    verify(mockLock, times(1)).tryLock(anyLong(), anyLong(), any(TimeUnit.class));
-    verify(mockLock, never()).unlock();
+    try {
+      assertThrows(GlobalException.class, () -> {
+        redissonLockAspect.redissonLock(pjp, new RedissonLock() {
+          @Override
+          public Class<? extends java.lang.annotation.Annotation> annotationType() {
+            return RedissonLock.class;
+          }
+
+          @Override
+          public String key() {
+            return lockKey;
+          }
+
+          @Override
+          public TimeUnit timeUnit() {
+            return timeUnit;
+          }
+
+          @Override
+          public long waitTime() {
+            return waitTime;
+          }
+
+          @Override
+          public long leaseTime() {
+            return leaseTime;
+          }
+        });
+      });
+    } finally {
+      lock.unlock();
+    }
   }
 
-  private RedissonLock createMockRedissonLockAnnotation() {
-    return new RedissonLock() {
-      @Override
-      public Class<? extends java.lang.annotation.Annotation> annotationType() {
-        return RedissonLock.class;
-      }
+  @Test
+  void testRedissonLockInterruptedWhileWaitingForLock() throws Throwable {
+    // Given
+    String lockKey = "testKey";
+    long waitTime = 5L;
+    long leaseTime = 1L;
+    TimeUnit timeUnit = TimeUnit.SECONDS;
 
-      @Override
-      public String key() {
-        return "testLockKey";
-      }
+    Thread currentThread = Thread.currentThread();
 
-      @Override
-      public TimeUnit timeUnit() {
-        return TimeUnit.SECONDS;
+    // When
+    Thread interruptingThread = new Thread(() -> {
+      try {
+        Thread.sleep(1000); // 1초 후 인터럽트
+        currentThread.interrupt();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
+    });
 
-      @Override
-      public long waitTime() {
-        return 5L;
-      }
+    interruptingThread.start();
 
-      @Override
-      public long leaseTime() {
-        return 1L;
-      }
-    };
+    ProceedingJoinPoint pjp = mock(ProceedingJoinPoint.class);
+
+    doThrow(new InterruptedException()).when(pjp).proceed();
+
+    // Then
+    assertThrows(GlobalException.class, () -> {
+      redissonLockAspect.redissonLock(pjp, new RedissonLock() {
+        @Override
+        public Class<? extends java.lang.annotation.Annotation> annotationType() {
+          return RedissonLock.class;
+        }
+
+        @Override
+        public String key() {
+          return lockKey;
+        }
+
+        @Override
+        public TimeUnit timeUnit() {
+          return timeUnit;
+        }
+
+        @Override
+        public long waitTime() {
+          return waitTime;
+        }
+
+        @Override
+        public long leaseTime() {
+          return leaseTime;
+        }
+      });
+    });
+
+    Thread.interrupted();
   }
 }

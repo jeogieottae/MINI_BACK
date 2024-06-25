@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,9 +39,15 @@ public class RedissonLockAspect {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new GlobalException(RedissonErrorCode.KEY_INTERRUPTED);
+    } catch (RedisException e) {
+      throw new GlobalException(RedissonErrorCode.REDIS_ERROR);
     } finally {
       if (isLocked) {
-        lock.unlock();
+        try {
+          lock.unlock();
+        } catch (RedisException e) {
+          throw new GlobalException(RedissonErrorCode.REDIS_ERROR);
+        }
       }
     }
   }
