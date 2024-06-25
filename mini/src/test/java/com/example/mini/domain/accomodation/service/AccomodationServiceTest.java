@@ -1,214 +1,164 @@
-//package com.example.mini.domain.accomodation.service;
-//
-//import com.example.mini.domain.accomodation.entity.Accomodation;
-//import com.example.mini.domain.accomodation.entity.Room;
-//import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
-//import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
-//import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
-//import com.example.mini.domain.accomodation.model.response.PagedResponse;
-//import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
-//import com.example.mini.domain.accomodation.repository.AccomodationRepository;
-//import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
-//import com.example.mini.domain.accomodation.repository.RoomRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.PageRequest;
-//
-//import java.time.LocalDateTime;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.Mockito.*;
-//
-//class AccomodationServiceTest {
-//
-//    @Mock
-//    private AccomodationRepository accomodationRepository;
-//
-//    @Mock
-//    private CategoryRepository categoryRepository;
-//
-//    @Mock
-//    private AccomodationSearchRepository accomodationSearchRepository;
-//
-//    @Mock
-//    private RoomRepository roomRepository;
-//
-//    @InjectMocks
-//    private AccomodationService accomodationService;
-//
-//    private List<Category> categories;
-//    private List<Accomodation> accomodations;
-//    private List<Room> rooms;
-//
-//    @BeforeEach
-//    public void setup() {
-//        MockitoAnnotations.initMocks(this);
-//
-//        categories = new ArrayList<>();
-//        categories.add(Category.builder()
-//                .id(1L)
-//                .name("서울")
-//                .build());
-//        categories.add(Category.builder()
-//                .id(2L)
-//                .name("경기")
-//                .build());
-//        categories.add(Category.builder()
-//                .id(3L)
-//                .name("인천")
-//                .build());
-//
-//        accomodations = new ArrayList<>();
-//        accomodations.add(Accomodation.builder()
-//                .name("accomodation 1")
-//                .description("accomodation description")
-//                .postalCode(123)
-//                .address("accomodation 1 address")
-//                .parkingAvailable(true)
-//                .cookingAvailable(true)
-//                .checkIn(LocalDateTime.now())
-//                .checkOut(LocalDateTime.now())
-//                .category(AccomodationCategory.SEOUL)
-//                .build());
-//
-//        accomodations.add(Accomodation.builder()
-//                .name("accomodation 2")
-//                .description("accomodation description")
-//                .postalCode(456)
-//                .address("accomodation 2 address")
-//                .parkingAvailable(true)
-//                .cookingAvailable(true)
-//                .checkIn(LocalDateTime.now())
-//                .checkOut(LocalDateTime.now())
-//                .category(AccomodationCategory.BUSAN)
-//                .build());
-//        Page<Accomodation> page = new PageImpl<>(accomodations);
-//
-//        rooms = new ArrayList<>();
-//        rooms.add(Room.builder()
-//                .id(1L)
-//                .name("room 1")
-//                .accomodation(accomodations.get(0))
-//                .baseGuests(2)
-//                .maxGuests(4)
-//                .price(60000)
-//                .extraPersonCharge(10000)
-//                .build());
-//
-//        rooms.add(Room.builder()
-//                .id(2L)
-//                .name("room 2")
-//                .accomodation(accomodations.get(0))
-//                .baseGuests(2)
-//                .maxGuests(4)
-//                .price(60000)
-//                .extraPersonCharge(10000)
-//                .build());
-//
-//        rooms.add(Room.builder()
-//                .id(3L)
-//                .name("room 3")
-//                .accomodation(accomodations.get(1))
-//                .baseGuests(2)
-//                .maxGuests(4)
-//                .price(60000)
-//                .extraPersonCharge(10000)
-//                .build());
-//
-//        rooms.add(Room.builder()
-//                .id(4L)
-//                .name("room 3")
-//                .accomodation(accomodations.get(1))
-//                .baseGuests(2)
-//                .maxGuests(4)
-//                .price(60000)
-//                .extraPersonCharge(10000)
-//                .build());
-//
-//    }
-//
-//
-//    @Test
-//    void testGetAllAccommodations() {
-//        // Mock data
-//        Page<Accomodation> page = new PageImpl<>(accomodations);
-//
-//        // Mock repository behavior
-//        when(accomodationRepository.findAll(any(PageRequest.class))).thenReturn(page);
-//
-//        // Call service method
-//        PagedResponse<AccomodationResponseDto> response = accomodationService.getAllAccommodations(1);
-//
-//        // Assertions
-//        assertEquals(1, response.getTotalPages());
-//        assertEquals(2, response.getTotalElements());
-//        assertEquals(2, response.getContent().size());
-//        assertEquals("accomodation 1", response.getContent().get(0).getName());
-//        assertEquals("accomodation 2", response.getContent().get(1).getName());
-//    }
-//
-//    @Test
-//    void testGetAccommodationsByCategory() {
-//        // Mock data
-//        Page<Accomodation> page = new PageImpl<>(accomodations);
-//
-//        // Mock repository behavior
-//        when(categoryRepository.findByName("서울")).thenReturn(AccomodationCategory.SEOUL);
-//        when(accomodationRepository.findByCategoryId(eq(AccomodationCategory.SEOUL.getName()), any(PageRequest.class))).thenReturn(page);
-//
-//        // Call service method
-//        PagedResponse<AccomodationResponseDto> response = accomodationService.getAccommodationsByCategory("서울", 1);
-//
-//        // Assertions
-//        assertEquals(1, response.getTotalPages());
-//        assertEquals(2, response.getTotalElements());
-//        assertEquals(2, response.getContent().size());
-//        assertEquals("accomodation 1", response.getContent().get(0).getName());
-//        assertEquals("accomodation 2", response.getContent().get(1).getName());
-//    }
-//
-//    @Test
-//    void testSearchByAccommodationName() {
-//    }
-//
-//    @Test
-//    void testGetAccommodationDetails() {
-//        Long accomodationId = 1L;
-//        // Mock repository behavior
-//        when(accomodationRepository.findById(accomodationId)).thenReturn(Optional.of(accomodations.get(0)));
-//        when(roomRepository.findByAccomodationId(accomodationId)).thenReturn(rooms);
-//
-//        // Call service method
-//        AccomodationDetailsResponseDto response = accomodationService.getAccomodationDetails(accomodationId);
-//
-//        // Assertions
-//        assertNotNull(response);
-//        assertEquals("accomodation 1", response.getAccomodation().getName());
-//        assertEquals(4, response.getRooms().size());
-//        assertEquals("room 1", response.getRooms().get(0).getName());
-//    }
-//
-//    @Test
-//    void testGetRoomDetail() {
-//        Long accomodationId = 1L;
-//        Long roomId = 1L;
-//
-//        // Mock repository behavior
-//        when(roomRepository.findById(roomId)).thenReturn(Optional.of(rooms.get(0)));
-//
-//        // Call service method
-//        RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId);
-//
-//        // Assertions
-//        assertNotNull(response);
-//        assertEquals("room 1", response.getName());
-//    }
-//}
+package com.example.mini.domain.accomodation.service;
+
+import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
+import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
+import com.example.mini.domain.accomodation.model.response.PagedResponse;
+import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
+import com.example.mini.domain.accomodation.repository.AccomodationRepository;
+import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
+import com.example.mini.domain.accomodation.repository.RoomRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.*;
+
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class AccomodationServiceTest {
+
+    @Mock
+    private AccomodationRepository accomodationRepository;
+
+    @Mock
+    private AccomodationSearchRepository accomodationSearchRepository;
+
+    @Mock
+    private RoomRepository roomRepository;
+
+    @InjectMocks
+    private AccomodationService accomodationService;
+
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void testGetAllAccommodations() {
+        Pageable pageable = PageRequest.of(0, 5);
+
+        Accomodation accomodation1 = Accomodation.builder()
+                .name("숙소 이름 1")
+                .build();
+        Accomodation accomodation2 = Accomodation.builder()
+                .name("숙소 이름 2")
+                .build();
+
+        List<Accomodation> accomodations = Arrays.asList(accomodation1, accomodation2);
+        Page<Accomodation> page = new PageImpl<>(accomodations, pageable, accomodations.size());
+
+        // When
+        when(accomodationRepository.findAll(pageable)).thenReturn(page);
+
+        // Then
+        PagedResponse<AccomodationResponseDto> result = accomodationService.getAllAccommodations(1);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals("숙소 이름 1", result.getContent().get(0).getName());
+
+        verify(accomodationRepository).findAll(pageable);
+    }
+
+    @Test
+    void testGetAccommodationsByCategory() {
+        Pageable pageable = PageRequest.of(0, 5);
+        AccomodationCategory category = AccomodationCategory.SEOUL;
+        Accomodation accomodation1 = Accomodation.builder()
+                .name("숙소 이름 1")
+                .category(AccomodationCategory.SEOUL)
+                .build();
+        Accomodation accomodation2 = Accomodation.builder()
+                .name("숙소 이름 2")
+                .category(AccomodationCategory.SEOUL)
+                .build();
+
+        List<Accomodation> accomodations = Arrays.asList(accomodation1, accomodation2);
+        Page<Accomodation> page = new PageImpl<>(accomodations, pageable, accomodations.size());
+
+        // When
+        when(accomodationRepository.findByCategoryName(category, pageable)).thenReturn(page);
+
+        // Then
+        PagedResponse<AccomodationResponseDto> response = accomodationService.getAccommodationsByCategory("서울", 1);
+        assertEquals(1, response.getTotalPages());
+        assertEquals(2, response.getTotalElements());
+        assertEquals(2, response.getContent().size());
+        assertEquals("숙소 이름 1", response.getContent().get(0).getName());
+        assertEquals("숙소 이름 2", response.getContent().get(1).getName());
+
+        verify(accomodationRepository).findByCategoryName(category, pageable);
+    }
+
+    @Test
+    void testSearchByAccommodationName() {
+    }
+
+    @Test
+    void testGetAccommodationDetails() {
+        Accomodation accomodation = Accomodation.builder()
+                .name("accommodation name")
+                .build();
+        Room room1 = Room.builder()
+                .name("room 1")
+                .baseGuests(2)
+                .price(100000)
+                .maxGuests(4)
+                .extraPersonCharge(20000)
+                .build();
+        Room room2 = Room.builder()
+                .name("room 2")
+                .baseGuests(4)
+                .price(150000)
+                .maxGuests(6)
+                .extraPersonCharge(10000)
+                .build();
+        List<Room> rooms = Arrays.asList(room1, room2);
+
+        // When
+        when(accomodationRepository.findById(any())).thenReturn(Optional.ofNullable(accomodation));
+        when(roomRepository.findByAccomodationId(any())).thenReturn(rooms);
+
+
+        // Then
+        AccomodationDetailsResponseDto response = accomodationService.getAccomodationDetails(any());
+        assertEquals("accommodation name", response.getAccomodation().getName());
+        assertEquals(2, response.getRooms().size());
+        assertEquals("room 1", response.getRooms().get(0).getName());
+
+        verify(accomodationRepository).findById(any());
+        verify(roomRepository).findByAccomodationId(any());
+    }
+
+    @Test
+    void testGetRoomDetail() {
+        Accomodation accomodation = Accomodation.builder()
+                .id(1L)
+                .name("accommodation name")
+                .build();
+        Room room = Room.builder()
+                .name("room")
+                .baseGuests(2)
+                .price(100000)
+                .maxGuests(4)
+                .extraPersonCharge(20000)
+                .accomodation(accomodation)
+                .build();
+
+        // When
+        when(roomRepository.findById(any())).thenReturn(Optional.ofNullable(room));
+
+        // Then
+        RoomResponseDto response = accomodationService.getRoomDetail(1L, any());
+        assertEquals("room", response.getName());
+
+        verify(roomRepository).findById(any());
+    }
+}
