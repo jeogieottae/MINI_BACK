@@ -23,7 +23,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 	// oauth 로그인 성공 시 JWT 생성 후 클라이언트로 리다이렉트
 
-	private static final String REDIRECT_URI = "http://localhost:8080/login/oauth2/code/kakao?accessToken=%s&refreshToken=%s";
+	private static final String REDIRECT_URI = "http://localhost:8080/api/protected/home";
 
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;

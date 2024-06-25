@@ -111,5 +111,6 @@ public class AuthService {
 
 		tokenService.blacklistToken(accessToken);
 		log.info("로그아웃 성공: 이메일={}", email);
+		log.info("로그아웃 성공: 엑세스토큰={}", accessToken);
 	}
 }

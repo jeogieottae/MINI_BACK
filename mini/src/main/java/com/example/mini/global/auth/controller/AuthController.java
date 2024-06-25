@@ -61,6 +61,9 @@ public class AuthController {
 		CookieUtil.deleteCookie(response, "accessToken");
 		CookieUtil.deleteCookie(response, "refreshToken");
 
+		// 세션 무효화
+		request.getSession().invalidate();
+
 		return ResponseEntity.ok(ApiResponse.DELETE());
 	}
 

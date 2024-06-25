@@ -35,6 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		throws ServletException, IOException {
 		String token = jwtProvider.resolveToken(request);
 
+
 		if (token != null) {
 			if (tokenService.isTokenBlacklisted(token)) {
 				log.warn("블랙리스트에 등록된 토큰: {}", token);

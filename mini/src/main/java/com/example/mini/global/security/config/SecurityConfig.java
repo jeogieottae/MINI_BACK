@@ -50,7 +50,7 @@ public class SecurityConfig {
 				.requestMatchers(swagger).permitAll()
 				.requestMatchers("/api/protected/**").authenticated()
 				.requestMatchers("/api/auth/**").permitAll()
-				.anyRequest().authenticated())
+				.anyRequest().authenticated()) //todo 인증되지 않은 사용자도 접근 가능한 api 추가
 			.oauth2Login(oAuth2Login -> {
 				oAuth2Login.userInfoEndpoint(userInfoEndpointConfig ->
 					userInfoEndpointConfig.userService(kakaoMemberDetailsService));
