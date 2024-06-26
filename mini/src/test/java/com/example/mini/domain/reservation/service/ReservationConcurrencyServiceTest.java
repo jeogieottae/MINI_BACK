@@ -3,6 +3,7 @@ package com.example.mini.domain.reservation.service;
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
 import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,8 @@ public class ReservationConcurrencyServiceTest {
     redissonClient = Redisson.create(config);
   }
 
+  private ConcurrentHashMap<Long, Boolean> reservationStatus = new ConcurrentHashMap<>();
+
   @Test
   public void testConcurrentReservationCreation() throws InterruptedException, ExecutionException, TimeoutException {
     int numThreads = 100;
@@ -56,9 +59,21 @@ public class ReservationConcurrencyServiceTest {
     request.setCheckOut(checkOut);
     request.setPeopleNumber(peopleNumber);
 
+    AtomicInteger createdReservations = new AtomicInteger(0);
+
     for (int i = 0; i < numThreads; i++) {
       final long memberId = i + 1;
-      completionService.submit(() -> reservationService.createConfirmedReservation(memberId, request));
+      completionService.submit(() -> {
+        ReservationResponse response = reservationService.createConfirmedReservation(memberId, request);
+
+        reservationStatus.put(memberId, response != null);
+
+        if (response != null && checkIn.equals(response.getCheckIn())) {
+          createdReservations.incrementAndGet();
+        }
+
+        return response;
+      });
     }
 
     for (int i = 0; i < numThreads; i++) {
@@ -69,5 +84,7 @@ public class ReservationConcurrencyServiceTest {
       } catch (ExecutionException | TimeoutException e) {
       }
     }
+
+    assertEquals(createdReservations.get(), reservationStatus.size());
   }
 }
