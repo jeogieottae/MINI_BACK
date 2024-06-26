@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ "test-release" ]  # 배포 브랜치를 test-release로 변경
+    branches: [ "test-release" ]  
   pull_request:
     branches: [ "test-release" ]
 
@@ -26,23 +26,29 @@ jobs:
       run: chmod +x mini/gradlew
 
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
 
     - name: Build with Gradle Wrapper
       working-directory: mini
       run: ./gradlew build -x test
-      
-    # mysql 
+
     - name: Make application-database.yml
       run: |
         mkdir -p ./mini/src/main/resources
         echo "${{ secrets.DATABASE }}" > ./mini/src/main/resources/application-database.yml
-        
-    # redis
+
     - name: Make application-redis.yml
       run: |
         mkdir -p ./mini/src/main/resources
         echo "${{ secrets.REDIS }}" > ./mini/src/main/resources/application-redis.yml
+
+    - name: Make application-jwt.yml
+      run: |
+        mkdir -p ./mini/src/main/resources
+        echo "spring:" > ./mini/src/main/resources/application-jwt.yml
+        echo "  jwt:" >> ./mini/src/main/resources/application-jwt.yml
+        echo "    access-secret: ${secrets.JWT_ACCESS_SECRET}" >> ./mini/src/main/resources/application-jwt.yml
+        echo "    refresh-secret: ${secrets.JWT_REFRESH_SECRET}" >> ./mini/src/main/resources/application-jwt.yml
 
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
