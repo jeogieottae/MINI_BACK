@@ -1,11 +1,14 @@
 package com.example.mini.global.security.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.example.mini.global.auth.oauth2.service.KakaoMemberDetailsService;
 import com.example.mini.global.auth.oauth2.util.OAuth2SuccessHandler;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +22,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -45,6 +51,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
+			.cors(withDefaults())
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(swagger).permitAll()
@@ -68,5 +75,24 @@ public class SecurityConfig {
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public CorsFilter corsFilter() {
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		CorsConfiguration config = new CorsConfiguration();
+		config.setAllowCredentials(true);
+		config.setAllowedOrigins(Arrays.asList(
+			"http://localhost:8080",
+			"http://3.38.1.70:8080",
+			"http://ec2-3-38-1-70.ap-northeast-2.compute.amazonaws.com:8080",
+			"http://localhost:3000",
+			"https://localhost:3000",
+			"https://127.0.0.1:3000"
+		));
+		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+		config.setAllowedHeaders(Arrays.asList("*"));
+		source.registerCorsConfiguration("/**", config);
+		return new CorsFilter(source);
 	}
 }
