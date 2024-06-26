@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ "test-release" ]  # 배포 브랜치를 test-release로 변경
+    branches: [ "test-release" ]  
   pull_request:
     branches: [ "test-release" ]
 
