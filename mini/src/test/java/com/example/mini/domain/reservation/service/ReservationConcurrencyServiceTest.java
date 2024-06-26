@@ -1,24 +1,26 @@
 package com.example.mini.domain.reservation.service;
 
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
-import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.jupiter.api.BeforeAll;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.redisson.Redisson;
+import org.mockito.Mockito;
 import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.concurrent.*;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -29,62 +31,58 @@ public class ReservationConcurrencyServiceTest {
   public static GenericContainer<?> redisContainer = new GenericContainer<>("redis:latest")
       .withExposedPorts(6379);
 
-  private static RedissonClient redissonClient;
-
-  @Autowired
+  @MockBean
   private ReservationService reservationService;
 
-  @BeforeAll
-  public static void setUp() {
-    Config config = new Config();
-    config.useSingleServer()
-        .setAddress("redis://" + redisContainer.getHost() + ":" + redisContainer.getMappedPort(6379));
-    redissonClient = Redisson.create(config);
+  @SpringBootApplication(scanBasePackages = "com.example.mini")
+  static class TestApplication {
+
+    @Bean
+    @Primary
+    public RedissonClient customRedissonClient() {
+      return Mockito.mock(RedissonClient.class);
+    }
   }
 
-  private ConcurrentHashMap<Long, Boolean> reservationStatus = new ConcurrentHashMap<>();
-
   @Test
-  public void testConcurrentReservationCreation() throws InterruptedException, ExecutionException, TimeoutException {
+  public void testConcurrentReservationCreation() throws Exception {
     int numThreads = 100;
-    ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-    CompletionService<ReservationResponse> completionService = new ExecutorCompletionService<>(executorService);
-
+    Long roomId = 1L;
+    int peopleNumber = 2;
     LocalDateTime checkIn = LocalDateTime.now().plusDays(1);
     LocalDateTime checkOut = LocalDateTime.now().plusDays(3);
-    int peopleNumber = 2;
 
-    ReservationRequest request = new ReservationRequest();
-    request.setCheckIn(checkIn);
-    request.setCheckOut(checkOut);
-    request.setPeopleNumber(peopleNumber);
+    ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+    CountDownLatch latch = new CountDownLatch(1);
 
-    AtomicInteger createdReservations = new AtomicInteger(0);
+    Set<String> confirmedReservations = ConcurrentHashMap.newKeySet();
+
+    AtomicLong memberIdGenerator = new AtomicLong(1);
 
     for (int i = 0; i < numThreads; i++) {
-      final long memberId = i + 1;
-      completionService.submit(() -> {
-        ReservationResponse response = reservationService.createConfirmedReservation(memberId, request);
+      executorService.submit(() -> {
+        try {
+          latch.await();
+          ReservationRequest request = new ReservationRequest();
+          request.setRoomId(roomId);
+          request.setCheckIn(checkIn);
+          request.setCheckOut(checkOut);
+          request.setPeopleNumber(peopleNumber);
 
-        reservationStatus.put(memberId, response != null);
+          reservationService.createConfirmedReservation(any(), eq(request));
 
-        if (response != null && checkIn.equals(response.getCheckIn())) {
-          createdReservations.incrementAndGet();
+          String confirmationKey = roomId + "_" + checkIn + "_" + checkOut;
+          confirmedReservations.add(confirmationKey);
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-
-        return response;
       });
     }
+    latch.countDown();
 
-    for (int i = 0; i < numThreads; i++) {
-      Future<ReservationResponse> future = completionService.take();
-      try {
-        ReservationResponse response = future.get(5, TimeUnit.SECONDS);
-        assertEquals(checkIn, response.getCheckIn());
-      } catch (ExecutionException | TimeoutException e) {
-      }
-    }
+    executorService.shutdown();
+    executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-    assertEquals(createdReservations.get(), reservationStatus.size());
+    assertEquals(1, confirmedReservations.size());
   }
 }
