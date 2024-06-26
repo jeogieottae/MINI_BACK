@@ -1,5 +1,6 @@
 package com.example.mini.global.redis;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.redisson.api.RedissonClient;
@@ -27,6 +28,12 @@ public class RedissonConfigTest {
   @Autowired
   private RedissonClient redissonClient;
 
+  @BeforeEach
+  public void setup() {
+    String redisHost = redisContainer.getHost();
+    int redisPort = redisContainer.getMappedPort(6379);
+  }
+
   @Test
   public void redissonClientIsNotNull() {
     assertThat(redissonClient).isNotNull();
@@ -37,5 +44,16 @@ public class RedissonConfigTest {
     redissonClient.getBucket("test").set("hello");
     String result = (String) redissonClient.getBucket("test").get();
     assertThat(result).isEqualTo("hello");
+  }
+
+  @Test
+  public void redissonClientCanSetAndGet() {
+    String key = "test";
+    String value = "hello";
+
+    redissonClient.getBucket(key).set(value);
+
+    String result = (String) redissonClient.getBucket(key).get();
+    assertThat(result).isEqualTo(value);
   }
 }

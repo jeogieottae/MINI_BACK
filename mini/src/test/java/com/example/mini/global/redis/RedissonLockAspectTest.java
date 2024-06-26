@@ -1,7 +1,10 @@
 package com.example.mini.global.redis;
 
+import com.example.mini.domain.reservation.service.ReservationService;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.RedissonErrorCode;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,6 +41,9 @@ public class RedissonLockAspectTest {
 
   @Autowired
   private RedissonLockAspect redissonLockAspect;
+
+  @Autowired
+  private ReservationService reservationService;
 
   @BeforeEach
   void setUp() {
