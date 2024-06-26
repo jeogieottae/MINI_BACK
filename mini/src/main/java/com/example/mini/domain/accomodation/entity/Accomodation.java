@@ -46,6 +46,7 @@ public class Accomodation extends BaseEntity {
 
 	@Setter
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private AccomodationCategory category;
 
 	@OneToMany(mappedBy = "accomodation")
