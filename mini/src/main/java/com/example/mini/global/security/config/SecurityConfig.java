@@ -1,9 +1,6 @@
 package com.example.mini.global.security.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-
-import com.example.mini.global.auth.oauth2.service.KakaoMemberDetailsService;
-import com.example.mini.global.auth.oauth2.util.OAuth2SuccessHandler;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
