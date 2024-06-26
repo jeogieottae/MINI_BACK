@@ -35,6 +35,15 @@ public class ReservationService {
   public ReservationResponse createConfirmedReservation(Long memberId, ReservationRequest request) {
     Member member = getMember(memberId);
 
+    List<Reservation> existingReservations = reservationRepository.findOverlappingReservationsByMemberId(
+        memberId, request.getRoomId(), request.getCheckIn(), request.getCheckOut());
+
+    for (Reservation existingReservation : existingReservations) {
+      if (existingReservation.getStatus() == ReservationStatus.CONFIRMED) {
+        throw new GlobalException(ReservationErrorCode.DUPLICATED_RESERVATION);
+      }
+    }
+
     Room room = roomRepository.findById(request.getRoomId())
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.ROOM_NOT_FOUND));
 

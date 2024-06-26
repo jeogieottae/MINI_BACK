@@ -59,4 +59,19 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   );
 
   Optional<Reservation> findByIdAndMemberId(Long reservationId, Long memberId);
+
+  @Query("SELECT r FROM Reservation r " +
+      "WHERE r.member.id = :memberId " +
+      "AND r.room.id IN :roomId " +
+      "AND r.status = 'CONFIRMED' " +
+      "AND ((r.checkIn < :checkOut AND r.checkOut > :checkIn) OR " +
+      "(r.checkIn >= :checkIn AND r.checkOut <= :checkOut) OR " +
+      "(r.checkIn < :checkOut AND r.checkOut >= :checkOut) OR " +
+      "(r.checkIn <= :checkIn AND r.checkOut > :checkIn))")
+  List<Reservation> findOverlappingReservationsByMemberId(
+      @Param("memberId") Long memberId,
+      @Param("roomId") Long roomId,
+      @Param("checkIn") LocalDateTime checkIn,
+      @Param("checkOut") LocalDateTime checkOut
+  );
 }
