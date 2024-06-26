@@ -28,5 +28,6 @@ public class RedissonConfig {
         .setAddress(REDISSON_HOST_PREFIX + redisHost + ":" + redisPort)
         .setPassword(redisPassword);
     return Redisson.create(config);
+
   }
 }
