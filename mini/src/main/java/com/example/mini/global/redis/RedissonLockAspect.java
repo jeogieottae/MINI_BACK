@@ -1,11 +1,13 @@
 package com.example.mini.global.redis;
 
+import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.RedissonErrorCode;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.redisson.api.RLock;
-import org.redisson.api.RQueue;
 import org.redisson.api.RedissonClient;
+import org.redisson.client.RedisException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -26,33 +28,27 @@ public class RedissonLockAspect {
     TimeUnit timeUnit = redissonLock.timeUnit();
 
     RLock lock = redissonClient.getLock(lockKey);
-    boolean isLocked = lock.tryLock(waitTime, leaseTime, timeUnit);
-    if (isLocked) {
-      try {
-        return joinPoint.proceed();
-      } catch (Exception e) {
-        throw new RuntimeException("락 처리 중 오류 발생: " + e.getMessage(), e);
-      } finally {
-        lock.unlock();
-      }
-    } else {
-      throw new RuntimeException("키 " + lockKey + "에 대한 락을 획득할 수 없습니다.");
-    }
-  }
-
-  @Around("@annotation(redissonQueue)")
-  public Object redissonQueue(ProceedingJoinPoint joinPoint, RedissonQueue redissonQueue) throws Throwable {
-    String queueName = redissonQueue.queueName();
-    Object data;
+    boolean isLocked = false;
     try {
-      data = joinPoint.proceed();
-    } catch (Exception e) {
-      throw new RuntimeException("큐 처리 중 오류 발생: " + e.getMessage(), e);
+      isLocked = lock.tryLock(waitTime, leaseTime, timeUnit);
+      if (isLocked) {
+        return joinPoint.proceed();
+      } else {
+        throw new GlobalException(RedissonErrorCode.KEY_NOT_GAIN);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new GlobalException(RedissonErrorCode.KEY_INTERRUPTED);
+    } catch (RedisException e) {
+      throw new GlobalException(RedissonErrorCode.REDIS_ERROR);
+    } finally {
+      if (isLocked) {
+        try {
+          lock.unlock();
+        } catch (RedisException e) {
+          throw new GlobalException(RedissonErrorCode.REDIS_ERROR);
+        }
+      }
     }
-
-    RQueue<Object> queue = redissonClient.getQueue(queueName);
-    queue.add(data);
-
-    return data;
   }
 }
