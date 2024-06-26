@@ -1,7 +1,7 @@
 package com.example.mini.global.security.config;
 
-import com.example.mini.global.auth.oauth2.service.CustomOAuth2UserService;
-import com.example.mini.global.auth.oauth2.util.OAuth2SuccessHandler;
+import com.example.mini.global.auth.service.GoogleAuthService;
+import com.example.mini.global.auth.service.KakaoAuthService;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -17,16 +17,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -47,8 +39,8 @@ public class SecurityConfig {
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;  // 추가된 부분
-	private final CustomOAuth2UserService customOAuth2UserService;
-	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final KakaoAuthService kakaoAuthService;
+	private final GoogleAuthService googleAuthService;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -57,15 +49,11 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(swagger).permitAll()
 				.requestMatchers("/api/protected/**").authenticated()
-				.requestMatchers(("/test")).authenticated()
+				.requestMatchers(("/test")).permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
-				.anyRequest().authenticated())
-			.oauth2Login(oAuth2Login -> {
-				oAuth2Login.userInfoEndpoint(userInfoEndpointConfig ->
-					userInfoEndpointConfig.userService(customOAuth2UserService));
-				oAuth2Login.successHandler(oAuth2SuccessHandler);
-			})
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);  // 수정된 부분
+				.anyRequest().permitAll())
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, kakaoAuthService, googleAuthService)
+					, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
@@ -79,9 +67,4 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	@Bean
-	public OAuth2AuthorizedClientService authorizedClientService(
-			ClientRegistrationRepository clientRegistrationRepository) {
-		return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
-	}
 }

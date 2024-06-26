@@ -1,6 +1,9 @@
 package com.example.mini.global.security.filter;
 
-import com.example.mini.global.auth.oauth2.model.UserInfo;
+import com.example.mini.global.auth.model.GoogleUserInfo;
+import com.example.mini.global.auth.model.KakaoUserInfo;
+import com.example.mini.global.auth.service.GoogleAuthService;
+import com.example.mini.global.auth.service.KakaoAuthService;
 import com.example.mini.global.exception.error.AuthErrorCode;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -13,12 +16,10 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -36,15 +37,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;
+	private final KakaoAuthService kakaoAuthService;
+	private final GoogleAuthService googleAuthService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
 
-		Cookie googleCookie = CookieUtil.getCookie(request, "google_token");
+		Cookie googleCookie = CookieUtil.getCookie(request, "googleAccessToken");
 		String googleToken = googleCookie != null ? googleCookie.getValue() : null;
 
-		Cookie kakaoCookie = CookieUtil.getCookie(request, "kakao_token");
+		Cookie kakaoCookie = CookieUtil.getCookie(request, "kakaoAccessToken");
 		String kakaoToken = kakaoCookie != null ? kakaoCookie.getValue() : null;
 
 		String token = jwtProvider.resolveToken(request);
@@ -113,43 +116,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		Function<Map<String, Object>, TokenInfo> infoExtractor;
 
 		if (provider.equals("google")) {
-			apiUrl = "https://www.googleapis.com/oauth2/v3/userinfo";
-			infoExtractor = attributes -> new TokenInfo(
-					attributes.containsKey("email"),
-					(String) attributes.get("email")
-			);
+			GoogleUserInfo googleUserInfo = googleAuthService.getGoogleUserInfo(token);
+			return new TokenInfo(googleUserInfo.getEmail() != null, googleUserInfo.getEmail());
 		} else if (provider.equals("kakao")) {
-			apiUrl = "https://kapi.kakao.com/v2/user/me";
-			infoExtractor = attributes -> {
-				UserInfo userInfo = new UserInfo(attributes);
-				return new TokenInfo(userInfo.getEmail() != null, userInfo.getEmail());
-			};
+			KakaoUserInfo kakaoUserInfo = kakaoAuthService.getKakaoUserInfo(token);
+			return new TokenInfo(kakaoUserInfo.getEmail() != null, kakaoUserInfo.getEmail());
 		} else {
 			return null; // 지원하지 않는 제공자
 		}
-
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setBearerAuth(token);
-		HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-		try {
-			ResponseEntity<Map> response = restTemplate.exchange(
-					apiUrl,
-					HttpMethod.GET,
-					entity,
-					Map.class
-			);
-
-			if (response.getStatusCode() == HttpStatus.OK) {
-				Map<String, Object> attributes = response.getBody();
-				return infoExtractor.apply(attributes);
-			}
-		} catch (Exception e) {
-			log.info("JwtAuthenticationFiller: 토큰으로 이메일 가져오기 실패");
-		}
-
-		return null;
 	}
 
 	private static class TokenInfo {

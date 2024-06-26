@@ -1,11 +1,11 @@
-package com.example.mini.global.auth.oauth2.model;
+package com.example.mini.global.auth.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 
-public class UserInfo {
+public class KakaoUserInfo {
 
 	public static final String KAKAO_ACCOUNT = "kakao_account";
 	public static final String EMAIL = "email";
@@ -14,7 +14,7 @@ public class UserInfo {
 
 	private Map<String, Object> attributes;
 
-	public UserInfo(Map<String, Object> attributes) {
+	public KakaoUserInfo(Map<String, Object> attributes) {
 		this.attributes = attributes;
 	}
 
@@ -44,7 +44,7 @@ public class UserInfo {
 	@Override
 	public String toString() {
 		return "KakaoUserInfo{" +
-			"attributes=" + attributes +
-			'}';
+				"attributes=" + attributes +
+				'}';
 	}
 }

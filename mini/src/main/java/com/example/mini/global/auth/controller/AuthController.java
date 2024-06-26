@@ -1,15 +1,12 @@
 package com.example.mini.global.auth.controller;
 
-import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
-import com.example.mini.global.auth.oauth2.model.UserInfo;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.exception.error.AuthErrorCode;
 import com.example.mini.global.exception.type.GlobalException;
 import com.example.mini.global.security.jwt.JwtProvider;
-import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.api.ApiResponse;
 import com.example.mini.global.util.cookies.CookieUtil;
@@ -18,21 +15,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -101,10 +92,6 @@ public class AuthController {
 		redirectToLoginPage("google", response);
 	}
 
-	@GetMapping("/login/kakao")
-	public void kakaoLogin(HttpServletResponse response) throws IOException {
-		redirectToLoginPage("kakao", response);
-	}
 
 
 	@GetMapping("logout/google")
@@ -152,31 +139,7 @@ public class AuthController {
 
 	}
 
-	@GetMapping("logout/kakao")
-	public void kakaoLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// 쿠키 삭제
-		Cookie cookie = new Cookie("kakao_token", null);
-		cookie.setMaxAge(0);
-		cookie.setPath("/");
-		response.addCookie(cookie);
 
-		// JSESSIONID 쿠키 삭제
-		Cookie jsessionidCookie = new Cookie("JSESSIONID", null);
-		jsessionidCookie.setMaxAge(0);
-		jsessionidCookie.setPath("/");
-		response.addCookie(jsessionidCookie);
-
-		// 세션 무효화
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.invalidate();
-		}
-
-		response.sendRedirect("https://kauth.kakao.com/oauth/logout?client_id=" + kakaoClientId
-				+ "&logout_redirect_uri=" + kakaoLogoutRedirectUri);
-
-
-	}
 
 	private void redirectToLoginPage(String registrationId, HttpServletResponse response) throws IOException {
 		ClientRegistration registration = clientRegistrationRepository.findByRegistrationId(registrationId);
