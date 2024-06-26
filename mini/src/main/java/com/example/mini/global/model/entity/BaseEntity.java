@@ -6,6 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.time.LocalDateTime;
@@ -17,11 +19,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@SuperBuilder
+
 @Data
 @MappedSuperclass
 @NoArgsConstructor
 @AllArgsConstructor
+@SuperBuilder
 @EntityListeners(AuditingEntityListener.class)
 public class BaseEntity {
 
@@ -38,5 +41,20 @@ public class BaseEntity {
 	@Column
 	@Temporal(TemporalType.TIMESTAMP)
 	private LocalDateTime updatedAt;
+
+
+	@PrePersist
+	public void prePersist() {
+		if (this.getCreatedAt() == null) {
+			this.setCreatedAt(LocalDateTime.now());
+		}
+		this.setUpdatedAt(null); // 최초에는 null로 설정
+	}
+
+	@PreUpdate
+	public void preUpdate() {
+		this.setUpdatedAt(LocalDateTime.now()); // 수정 시 현재 시간으로 설정
+	}
+
 
 }
