@@ -53,7 +53,7 @@ public class CartConcurrencyServiceTest {
 
   @Test
   public void testConcurrentReservationConfirmation() throws Exception {
-    int numThreads = 5;
+    int numThreads = 100;
     Long roomId = 1L;
     int peopleNumber = 2;
     LocalDateTime checkIn = LocalDateTime.now().plusDays(1);
