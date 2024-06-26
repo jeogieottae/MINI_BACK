@@ -19,7 +19,8 @@ public class WebConfig implements WebMvcConfigurer { //cors 방지
 				"https://localhost:3000",
 				"https://127.0.0.1:3000"
 			)
-			.allowedMethods("GET", "POST", "PUT", "DELETE","PATCH")
-			.allowedHeaders("*");
+			.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+			.allowedHeaders("*")
+			.allowCredentials(true);
 	}
 }

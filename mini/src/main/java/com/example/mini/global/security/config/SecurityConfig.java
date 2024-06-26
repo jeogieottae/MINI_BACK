@@ -8,7 +8,6 @@ import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
-import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,10 +25,18 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.Arrays;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
+	private final JwtProvider jwtProvider;
+	private final UserDetailsServiceImpl userDetailsService;
+	private final TokenService tokenService;
+	private final KakaoMemberDetailsService kakaoMemberDetailsService;
+	private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -42,12 +49,6 @@ public class SecurityConfig {
 		"/v3/api-docs/**"
 	};
 
-	private final JwtProvider jwtProvider;
-	private final UserDetailsServiceImpl userDetailsService;
-	private final TokenService tokenService;  // 추가된 부분
-	private final KakaoMemberDetailsService kakaoMemberDetailsService;
-	private final OAuth2SuccessHandler oAuth2SuccessHandler;
-
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
@@ -57,13 +58,13 @@ public class SecurityConfig {
 				.requestMatchers(swagger).permitAll()
 				.requestMatchers("/api/protected/**").authenticated()
 				.requestMatchers("/api/auth/**").permitAll()
-				.anyRequest().authenticated()) //todo 인증되지 않은 사용자도 접근 가능한 api 추가
+				.anyRequest().authenticated())
 			.oauth2Login(oAuth2Login -> {
 				oAuth2Login.userInfoEndpoint(userInfoEndpointConfig ->
 					userInfoEndpointConfig.userService(kakaoMemberDetailsService));
 				oAuth2Login.successHandler(oAuth2SuccessHandler);
 			})
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);  // 수정된 부분
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
@@ -90,7 +91,7 @@ public class SecurityConfig {
 			"https://localhost:3000",
 			"https://127.0.0.1:3000"
 		));
-		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
 		config.setAllowedHeaders(Arrays.asList("*"));
 		source.registerCorsConfiguration("/**", config);
 		return new CorsFilter(source);
