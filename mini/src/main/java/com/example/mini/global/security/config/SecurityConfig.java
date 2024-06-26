@@ -74,7 +74,7 @@ public class SecurityConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
-		config.setAllowedOrigins(Arrays.asList(
+		config.setAllowedOriginPatterns(Arrays.asList(
 			"http://localhost:8080",
 			"http://3.38.1.70:8080",
 			"http://ec2-3-38-1-70.ap-northeast-2.compute.amazonaws.com:8080",
