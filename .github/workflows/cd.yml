@@ -1,0 +1,81 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ "test-release" ]  
+  pull_request:
+    branches: [ "test-release" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'oracle'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x mini/gradlew
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+
+    - name: Build with Gradle Wrapper
+      working-directory: mini
+      run: ./gradlew build -x test
+      
+    # mysql 
+    - name: Make application-database.yml
+      run: |
+        mkdir -p ./mini/src/main/resources
+        echo "${{ secrets.DATABASE }}" > ./mini/src/main/resources/application-database.yml
+        
+    # redis
+    - name: Make application-redis.yml
+      run: |
+        mkdir -p ./mini/src/main/resources
+        echo "${{ secrets.REDIS }}" > ./mini/src/main/resources/application-redis.yml
+
+    - name: Docker login
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }} ./mini
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+
+    - name: Docker logout
+      run: docker logout
+
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ubuntu
+        key: ${{ secrets.KEY }}
+        script: |
+          sudo docker rm $(sudo docker ps -a)
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+          cd ~
+          docker-compose up -d
+          sudo docker image prune -f
+
+  dependency-submission:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'oracle'
