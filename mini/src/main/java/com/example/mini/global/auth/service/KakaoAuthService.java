@@ -3,6 +3,7 @@ package com.example.mini.global.auth.service;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.repository.MemberRepository;
+import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.util.cookies.CookieUtil;
@@ -113,8 +114,8 @@ public class KakaoAuthService {
                         .name(name)
                         .email(email)
                         .password("OAuth password")
-                        .state(MemberState.ACTIVE)
                         .build());
+        member.setState(MemberState.ACTIVE);
         memberRepository.save(member);
 
 
@@ -170,5 +171,12 @@ public class KakaoAuthService {
         } else {
             throw new RuntimeException("카카오 토큰 갱신 실패");
         }
+    }
+
+    public void setMemberInactive(String accessToken) {
+        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
+        Member member = memberRepository.findByEmail(kakaoUserInfo.getEmail()).get();
+        member.setState(MemberState.INACTIVE);
+        memberRepository.save(member);
     }
 }

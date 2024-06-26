@@ -55,6 +55,10 @@ public class KakaoAuthController {
     @GetMapping("/logout")
     public void kakaoLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        // 사용자 비활성화 처리
+        String accessToken = CookieUtil.getCookie(request, "kakaoAccessToken").getValue();
+        kakaoAuthService.setMemberInactive(accessToken);
+
         // 쿠키 삭제
         CookieUtil.deleteCookie(response, "kakaoAccessToken");
         CookieUtil.deleteCookie(response, "kakaoRefreshToken");

@@ -51,9 +51,13 @@ public class GoogleAuthController {
 
     @GetMapping("/logout")
     public void googleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        // 사용자 비활성화 처리
+        String accessToken = CookieUtil.getCookie(request, "googleAccessToken").getValue();
+        googleAuthService.setMemberInactive(accessToken);
+
         // 로그 아웃 url 없음
         // 쿠키, 세션 삭제
-
         CookieUtil.deleteCookie(response, "googleAccessToken");
         CookieUtil.deleteCookie(response, "googleRefreshToken");  // 리프레시 토큰 쿠키 삭제
         CookieUtil.deleteCookie(response, "JSESSIONID");

@@ -115,8 +115,8 @@ public class GoogleAuthService {
                         .name(name)
                         .email(email)
                         .password("OAuth password")
-                        .state(MemberState.ACTIVE)
                         .build());
+        member.setState(MemberState.ACTIVE);
         memberRepository.save(member);
 
         // SecurityContext에 인증 정보 저장
@@ -168,5 +168,12 @@ public class GoogleAuthService {
         } else {
             throw new RuntimeException("구글 토큰 갱신 실패");
         }
+    }
+
+    public void setMemberInactive(String accessToken) {
+        GoogleUserInfo googleUserInfo = getGoogleUserInfo(accessToken);
+        Member member = memberRepository.findByEmail(googleUserInfo.getEmail()).get();
+        member.setState(MemberState.INACTIVE);
+        memberRepository.save(member);
     }
 }
