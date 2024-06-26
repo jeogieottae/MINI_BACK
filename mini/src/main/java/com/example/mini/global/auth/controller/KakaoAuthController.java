@@ -55,9 +55,6 @@ public class KakaoAuthController {
     @GetMapping("/logout")
     public void kakaoLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.sendRedirect("https://kauth.kakao.com/oauth/logout?client_id=" + kakaoClientId
-                + "&logout_redirect_uri=" + kakaoLogoutRedirectUri);
-
         // 쿠키 삭제
         CookieUtil.deleteCookie(response, "kakaoAccessToken");
         CookieUtil.deleteCookie(response, "kakaoRefreshToken");
@@ -68,6 +65,11 @@ public class KakaoAuthController {
         if (session != null) {
             session.invalidate();
         }
+
+        response.sendRedirect("https://kauth.kakao.com/oauth/logout?client_id=" + kakaoClientId
+                + "&logout_redirect_uri=" + kakaoLogoutRedirectUri);
+
+
     }
 
     @GetMapping("/home")
