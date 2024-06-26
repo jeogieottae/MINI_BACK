@@ -35,8 +35,7 @@ public class SecurityConfig {
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;
-	private final KakaoMemberDetailsService kakaoMemberDetailsService;
-	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -59,11 +58,6 @@ public class SecurityConfig {
 				.requestMatchers("/api/protected/**").authenticated()
 				.requestMatchers("/api/auth/**").permitAll()
 				.anyRequest().authenticated())
-			.oauth2Login(oAuth2Login -> {
-				oAuth2Login.userInfoEndpoint(userInfoEndpointConfig ->
-					userInfoEndpointConfig.userService(kakaoMemberDetailsService));
-				oAuth2Login.successHandler(oAuth2SuccessHandler);
-			})
 			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
