@@ -2,9 +2,9 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]  # 배포 브랜치를 변경하려면 여기를 수정
+    branches: [ "test-release" ]  # 배포 브랜치를 test-release로 변경
   pull_request:
-    branches: [ "main" ]
+    branches: [ "test-release" ]
 
 jobs:
   deploy:
@@ -31,11 +31,18 @@ jobs:
     - name: Build with Gradle Wrapper
       working-directory: mini
       run: ./gradlew build -x test
-
+      
+    # mysql 
     - name: Make application-database.yml
       run: |
         mkdir -p ./mini/src/main/resources
         echo "${{ secrets.DATABASE }}" > ./mini/src/main/resources/application-database.yml
+        
+    # redis
+    - name: Make application-redis.yml
+      run: |
+        mkdir -p ./mini/src/main/resources
+        echo "${{ secrets.REDIS }}" > ./mini/src/main/resources/application-redis.yml
 
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
