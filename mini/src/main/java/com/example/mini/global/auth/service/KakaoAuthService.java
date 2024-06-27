@@ -3,6 +3,8 @@ package com.example.mini.global.auth.service;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.repository.MemberRepository;
+import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.AuthErrorCode;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
@@ -84,7 +86,7 @@ public class KakaoAuthService {
 
             return body;
         } else {
-            throw new RuntimeException("카카오 토큰 받기 실패");
+            throw new GlobalException(AuthErrorCode.TOKEN_FETCH_FAILED);
         }
     }
 
@@ -171,7 +173,7 @@ public class KakaoAuthService {
 
             return body;
         } else {
-            throw new RuntimeException("카카오 토큰 갱신 실패");
+            throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
     }
 

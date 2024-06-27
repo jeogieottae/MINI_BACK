@@ -1,10 +1,16 @@
 package com.example.mini.global.auth.controller;
 
 import com.example.mini.domain.member.entity.Member;
+import com.example.mini.domain.member.entity.enums.MemberState;
+import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.AuthErrorCode;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.auth.service.GoogleAuthService;
 import com.example.mini.global.util.cookies.CookieUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -59,7 +65,7 @@ public class GoogleAuthController {
         // 로그 아웃 url 없음
         // 쿠키, 세션 삭제
         CookieUtil.deleteCookie(response, "googleAccessToken");
-        CookieUtil.deleteCookie(response, "googleRefreshToken");  // 리프레시 토큰 쿠키 삭제
+        CookieUtil.deleteCookie(response, "googleRefreshToken");
         CookieUtil.deleteCookie(response, "JSESSIONID");
 
         HttpSession session = request.getSession(false);
@@ -67,32 +73,36 @@ public class GoogleAuthController {
             session.invalidate();
         }
 
-        response.sendRedirect("http://localhost:8080/api/auth/kakao/home");
+        response.sendRedirect("http://localhost:8080/api/protected/home");
     }
 
-    @GetMapping("/home")
-    public ResponseEntity<TokenResponse> googleCallback(@RequestParam(value = "code", required = false) String code,
+    @GetMapping("/callback")
+    public ResponseEntity<ApiResponse<LoginResponse>> googleCallback(@RequestParam(value = "code", required = false) String code,
                                                         @RequestParam(value = "error", required = false) String error,
                                                         HttpServletResponse response) throws IOException {
-        log.info("code: {}", code);
-        log.info("error: {}", error);
+        if(error != null) {
+            throw new GlobalException(AuthErrorCode.AUTHENTICATION_FAILED);
+        }
 
         TokenResponse tokenResponse = googleAuthService.getGoogleToken(code);
         GoogleUserInfo googleUserInfo = googleAuthService.getGoogleUserInfo(tokenResponse.getAccess_token());
         Member member = googleAuthService.saveGoogleMember(googleUserInfo);
 
-        log.info("access token: {}", tokenResponse.getAccess_token());
-        // Google might not always return a refresh token
-        if (tokenResponse.getRefresh_token() != null) {
-            log.info("refresh token: {}", tokenResponse.getRefresh_token());
-        }
-
-        return ResponseEntity.ok(tokenResponse);
+        return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder()
+                .state(member.getState())
+                .accessToken(tokenResponse.getAccess_token())
+                .refreshToken(tokenResponse.getRefresh_token())
+                .build()));
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<TokenResponse> googleRefresh(@RequestParam(value = "refresh_token") String refreshToken) {
-        TokenResponse tokenResponse = googleAuthService.getGoogleRefreshedToken(refreshToken);
-        return ResponseEntity.ok(tokenResponse);
+    public  ResponseEntity<ApiResponse<String>> googleRefresh(HttpServletRequest request, HttpServletResponse response) {
+        Cookie refreshTokenCookie = CookieUtil.getCookie(request, "googleRefreshToken");
+        if (refreshTokenCookie == null) {
+            throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        TokenResponse tokenResponse = googleAuthService.getGoogleRefreshedToken(refreshTokenCookie.getValue());
+        return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
     }
 }
