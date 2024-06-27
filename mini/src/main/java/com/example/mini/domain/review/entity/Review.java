@@ -2,6 +2,7 @@ package com.example.mini.domain.review.entity;
 
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,4 +30,8 @@ public class Review extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "accommodation_id", nullable = false)
   private Accomodation accomodation;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "reservation_id", nullable = false, unique = true)
+  private Reservation reservation;
 }

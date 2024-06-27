@@ -1,5 +1,7 @@
 package com.example.mini.domain.accomodation.service;
 
+
+import org.springframework.data.domain.Pageable;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
@@ -12,8 +14,12 @@ import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
+import com.example.mini.domain.review.entity.Review;
+import com.example.mini.domain.review.model.response.ReviewResponse;
+import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,6 +39,7 @@ public class AccomodationService {
     private final AccomodationRepository accomodationRepository;
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
+    private final ReviewRepository reviewRepository;
     private final int PageSize = 5; // 페이지 크기
 
     /**
@@ -86,13 +93,29 @@ public class AccomodationService {
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
 
+        Pageable pageable = PageRequest.of(0, 5);
+        List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, pageable);
+        Double avgStar = reviewRepository.findAverageStarByAccomodation(accomodation);
+
+
         AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
         List<RoomResponseDto> roomResponseDtos = rooms.stream().map(RoomResponseDto::toDto).toList();
 
+        List<ReviewResponse> reviewResponses = latestReviews.stream()
+            .map(review -> {
+                ReviewResponse response = new ReviewResponse();
+                response.setComment(review.getComment());
+                response.setStar(review.getStar());
+                return response;
+            })
+            .collect(Collectors.toList());
+
         return AccomodationDetailsResponseDto.builder()
-                .accomodation(accomodationResponseDto)
-                .rooms(roomResponseDtos)
-                .build();
+            .accomodation(accomodationResponseDto)
+            .rooms(roomResponseDtos)
+            .reviews(reviewResponses)
+            .avgStar(avgStar)
+            .build();
     }
 
     /**

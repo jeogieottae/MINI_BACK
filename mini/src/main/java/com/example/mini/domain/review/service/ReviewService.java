@@ -34,13 +34,19 @@ public class ReviewService {
 
     Accomodation accomodation = getValidAccomodation(request.getAccomodationId());
 
-    checkIfMemberCanReview(memberId, accomodation.getId());
+    Reservation confirmedReservation = reservationRepository.findByMemberIdAndAccomodationIdAndStatus(
+            memberId, request.getAccomodationId(), ReservationStatus.CONFIRMED)
+        .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND));
 
     LocalDateTime memberCheckoutDate = getMemberCheckoutDate(memberId, accomodation.getId());
     LocalDateTime serverCurrentTime = LocalDateTime.now();
 
     if (serverCurrentTime.isBefore(memberCheckoutDate)) {
       throw new GlobalException(ReviewErrorCode.INVALID_REVIEW_DATE);
+    }
+
+    if (reviewRepository.existsByReservation(confirmedReservation)) {
+      throw new GlobalException(ReviewErrorCode.DUPLICATE_REVIEW);
     }
 
     validateReviewRequest(request);
@@ -50,6 +56,7 @@ public class ReviewService {
         .star(request.getStar())
         .member(member)
         .accomodation(accomodation)
+        .reservation(confirmedReservation)
         .build();
 
     reviewRepository.save(review);
@@ -78,14 +85,6 @@ public class ReviewService {
   private Accomodation getValidAccomodation(Long accomodationId) {
     return accomodationRepository.findById(accomodationId)
         .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
-  }
-
-  private void checkIfMemberCanReview(Long memberId, Long accomodationId) {
-    boolean isConfirmedReservation = reservationRepository.existsByMemberIdAndAccomodationIdAndStatus(
-        memberId, accomodationId, ReservationStatus.CONFIRMED);
-    if (!isConfirmedReservation) {
-      throw new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND);
-    }
   }
 
   private LocalDateTime getMemberCheckoutDate(Long memberId, Long accomodationId) {

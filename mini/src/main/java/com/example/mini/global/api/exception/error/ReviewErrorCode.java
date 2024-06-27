@@ -8,7 +8,8 @@ public enum ReviewErrorCode implements ErrorCode{
   RESERVATION_NOT_FOUND(HttpStatus.NOT_FOUND, "예약 정보를 찾을 수 없습니다"),
   INVALID_REVIEW_DATE(HttpStatus.BAD_REQUEST, "유효하지 않은 리뷰 작성 기간입니다"),
   INVALID_REVIEW_STAR(HttpStatus.BAD_REQUEST, "유효하지 않은 별점입니다"),
-  EMPTY_REVIEW_COMMENT(HttpStatus.BAD_REQUEST, "리뷰란이 비어있습니다");
+  EMPTY_REVIEW_COMMENT(HttpStatus.BAD_REQUEST, "리뷰란이 비어있습니다"),
+  DUPLICATE_REVIEW(HttpStatus.BAD_REQUEST, "이미 리뷰를 작성하셨습니다");
 
   private final HttpStatus code;
   private final String info;
