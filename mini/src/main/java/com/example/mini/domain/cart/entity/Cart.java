@@ -4,12 +4,20 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.member.entity.Member;
-import jakarta.persistence.*;
-
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 
@@ -33,5 +41,4 @@ public class Cart extends BaseEntity {
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@Setter
 	private List<Reservation> reservationList = new ArrayList<>();
-
 }

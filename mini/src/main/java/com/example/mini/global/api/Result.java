@@ -52,14 +52,6 @@ public class Result {
                 .build();
     }
 
-    public static Result ERROR(ErrorCode errorCode, String description) {
-        return Result.builder()
-                .resultCode(errorCode.getCode())
-                .resultMessage("error")
-                .resultDescription(description)
-                .build();
-    }
-
     public static Result VALIDATION_ERROR(List<String> errors) {
         return Result.builder()
                 .resultCode(HttpStatus.BAD_REQUEST)
