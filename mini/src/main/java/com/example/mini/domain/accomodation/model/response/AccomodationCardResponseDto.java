@@ -23,7 +23,7 @@ public class AccomodationCardResponseDto {
     private String category;
     private Integer minPrice;
 
-    public static AccomodationCardResponseDto toDto(Accomodation accomodation, int minPrice) {
+    public static AccomodationCardResponseDto toDto(Accomodation accomodation, Integer minPrice) {
         return AccomodationCardResponseDto.builder()
                 .id(accomodation.getId())
                 .name(accomodation.getName())

@@ -1,16 +1,13 @@
 package com.example.mini.domain.accomodation.service;
 
 
+import com.example.mini.domain.accomodation.model.response.*;
 import org.springframework.data.domain.Pageable;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
 import com.example.mini.domain.accomodation.model.AccomodationSearch;
-import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
-import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
-import com.example.mini.domain.accomodation.model.response.PagedResponse;
-import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
@@ -49,10 +46,10 @@ public class AccomodationService {
      * @param page  조회할 페이지 번호
      * @return      숙소 정보 목록을 포함한 응답 객체
      */
-    public PagedResponse<AccomodationResponseDto> getAllAccommodations(int page) {
+    public PagedResponse<AccomodationCardResponseDto> getAllAccommodations(int page) {
         Page<Accomodation> accommodations = accomodationRepository.findAll(PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
-        return setResponse(accommodations);
+        return setCardResponse(accommodations);
     }
 
     /**
@@ -140,14 +137,18 @@ public class AccomodationService {
      * @return                  숙소 정보 목록을 포함한 응답 객체
      */
     private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
-//        List<AccomodationResponseDto> content = accommodations.getContent().stream()
-//                .map(accommodation -> {
-//                    Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
-//                    return AccomodationResponseDto.toDto(accommodation, minPrice);
-//                })
-//                .toList();
         List<AccomodationResponseDto> content = accommodations.getContent().stream()
                 .map(AccomodationResponseDto::toDto).toList();
+        return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
+    }
+
+    private PagedResponse<AccomodationCardResponseDto> setCardResponse(Page<Accomodation> accommodations) {
+        List<AccomodationCardResponseDto> content = accommodations.getContent().stream()
+                .map(accommodation -> {
+                    Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
+                    return AccomodationCardResponseDto.toDto(accommodation, minPrice);
+                })
+                .toList();
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
 

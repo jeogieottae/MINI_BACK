@@ -3,10 +3,7 @@ package com.example.mini.domain.accomodation.service;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
-import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
-import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
-import com.example.mini.domain.accomodation.model.response.PagedResponse;
-import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
+import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
@@ -59,7 +56,7 @@ class AccomodationServiceTest {
         when(accomodationRepository.findAll(pageable)).thenReturn(page);
 
         // Then
-        PagedResponse<AccomodationResponseDto> result = accomodationService.getAllAccommodations(1);
+        PagedResponse<AccomodationCardResponseDto> result = accomodationService.getAllAccommodations(1);
         assertEquals(2, result.getTotalElements());
         assertEquals(1, result.getTotalPages());
         assertEquals("숙소 이름 1", result.getContent().get(0).getName());

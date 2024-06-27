@@ -1,10 +1,7 @@
 package com.example.mini.domain.accomodation.controller;
 
 import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
-import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
-import com.example.mini.domain.accomodation.model.response.AccomodationResponseDto;
-import com.example.mini.domain.accomodation.model.response.PagedResponse;
-import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
+import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +18,10 @@ public class AccomodationController {
     private final AccomodationService accomodationService;
 
     @GetMapping("")
-    public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponseDto>>> getAllAccommodations(
+    public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> getAllAccommodations(
             @RequestParam(value="page", required = false, defaultValue = "1") int page
     ) {
-        PagedResponse<AccomodationResponseDto> response = accomodationService.getAllAccommodations(page);
+        PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page);
         return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
