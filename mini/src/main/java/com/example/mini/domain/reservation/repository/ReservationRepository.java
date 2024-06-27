@@ -74,4 +74,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       @Param("checkIn") LocalDateTime checkIn,
       @Param("checkOut") LocalDateTime checkOut
   );
+
+  boolean existsByMemberIdAndAccomodationIdAndStatus(Long memberId, Long accomodationId, ReservationStatus status);
+
+  Optional<Reservation> findByMemberIdAndAccomodationIdAndStatus(Long memberId, Long accomodationId, ReservationStatus status);
 }
