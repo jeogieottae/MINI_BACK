@@ -68,7 +68,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.KEY }}
         script: |
-          sudo docker rm $(sudo docker ps -a)
+          sudo docker rm mini_container
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
           cd ~
           docker-compose up -d
