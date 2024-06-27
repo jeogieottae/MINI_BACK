@@ -22,7 +22,7 @@ public class AccomodationResponseDto {
     private Boolean cookingAvailable;
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
-    private AccomodationCategory categoryId;
+    private String category;
 
     public static AccomodationResponseDto toDto(Accomodation accomodation) {
         return AccomodationResponseDto.builder()
@@ -35,7 +35,7 @@ public class AccomodationResponseDto {
                 .cookingAvailable(accomodation.getCookingAvailable())
                 .checkIn(accomodation.getCheckIn())
                 .checkOut(accomodation.getCheckOut())
-                .categoryId(accomodation.getCategory())
+                .category(accomodation.getCategory().getName())
                 .build();
     }
 }

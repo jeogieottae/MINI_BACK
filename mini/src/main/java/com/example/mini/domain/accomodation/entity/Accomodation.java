@@ -23,7 +23,7 @@ public class Accomodation extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String description;
 
 	@Column(nullable = false)
@@ -32,10 +32,10 @@ public class Accomodation extends BaseEntity {
 	@Column(nullable = false)
 	private String address;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TINYINT(1)")
 	private Boolean parkingAvailable;
 
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TINYINT(1)")
 	private Boolean cookingAvailable;
 
 	@Column(nullable = false)

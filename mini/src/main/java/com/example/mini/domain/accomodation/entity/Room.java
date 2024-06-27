@@ -38,12 +38,4 @@ public class Room extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "accomodation_id")
 	private Accomodation accomodation;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "reservation_id")
-	private Reservation reservation;
-
-	@ManyToMany(fetch = FetchType.LAZY)
-	private List<Cart> cart;
-
 }
