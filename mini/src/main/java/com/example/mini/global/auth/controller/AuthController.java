@@ -43,7 +43,11 @@ public class AuthController {
 		CookieUtil.addCookie(response, "accessToken", loginResponse.getAccessToken(), TokenType.ACCESS.getExpireTime() / 1000);
 		CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), TokenType.REFRESH.getExpireTime() / 1000);
 
-		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder().state(loginResponse.getState()).build()));
+		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder()
+				.state(loginResponse.getState())
+				.accessToken(loginResponse.getAccessToken())
+				.refreshToken(loginResponse.getRefreshToken())
+				.build()));
 	}
 
 	@PostMapping("/logout")
