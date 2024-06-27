@@ -112,4 +112,24 @@ public class AuthService {
 		tokenService.blacklistToken(accessToken);
 		log.info("로그아웃 성공: 이메일={}", email);
 	}
+
+	@Transactional
+	public void withdraw(String accessToken) {
+		if (accessToken == null || accessToken.isEmpty()) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
+		Member member = memberRepository.findByEmail(email)
+				.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+		// 회원 정보 삭제
+		memberRepository.delete(member);
+
+		// 토큰 무효화
+		tokenService.blacklistToken(accessToken);
+		tokenService.removeToken(tokenService.getRefreshToken(email));
+
+		log.info("회원 탈퇴 성공: 이메일={}", email);
+	}
 }

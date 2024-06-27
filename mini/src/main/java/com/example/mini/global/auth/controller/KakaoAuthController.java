@@ -13,14 +13,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -105,5 +103,34 @@ public class KakaoAuthController {
 
         TokenResponse tokenResponse = kakaoAuthService.getKakaoRefreshedToken(refreshTokenCookie.getValue());
         return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
+    }
+
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        Cookie accessTokenCookie = CookieUtil.getCookie(request, "kakaoAccessToken");
+        if (accessTokenCookie == null) {
+            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
+        String accessToken = accessTokenCookie.getValue();
+        kakaoAuthService.withdraw(accessToken);
+
+        // 쿠키 삭제
+        CookieUtil.deleteCookie(response, "kakaoAccessToken");
+        CookieUtil.deleteCookie(response, "kakaoRefreshToken");
+        CookieUtil.deleteCookie(response, "JSESSIONID");
+
+        // 세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        response.sendRedirect("https://kauth.kakao.com/oauth/logout?client_id=" + kakaoClientId
+                + "&logout_redirect_uri=" + kakaoLogoutRedirectUri);
+
+        return ResponseEntity.ok(ApiResponse.DELETE());
     }
 }

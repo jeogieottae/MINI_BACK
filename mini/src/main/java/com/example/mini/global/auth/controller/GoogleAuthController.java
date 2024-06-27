@@ -18,10 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -104,5 +101,29 @@ public class GoogleAuthController {
 
         TokenResponse tokenResponse = googleAuthService.getGoogleRefreshedToken(refreshTokenCookie.getValue());
         return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
+    }
+
+    @DeleteMapping("/withdraw")
+    public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) {
+        Cookie accessTokenCookie = CookieUtil.getCookie(request, "googleAccessToken");
+        if (accessTokenCookie == null) {
+            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
+        String accessToken = accessTokenCookie.getValue();
+        googleAuthService.withdraw(accessToken);
+
+        // 쿠키 삭제
+        CookieUtil.deleteCookie(response, "googleAccessToken");
+        CookieUtil.deleteCookie(response, "googleRefreshToken");
+        CookieUtil.deleteCookie(response, "JSESSIONID");
+
+        // 세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        return ResponseEntity.ok(ApiResponse.DELETE());
     }
 }

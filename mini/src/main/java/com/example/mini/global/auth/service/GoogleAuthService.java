@@ -10,6 +10,7 @@ import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -182,4 +183,20 @@ public class GoogleAuthService {
         member.setState(MemberState.INACTIVE);
         memberRepository.save(member);
     }
+
+    @Transactional
+    public void withdraw(String accessToken) {
+        GoogleUserInfo googleUserInfo = getGoogleUserInfo(accessToken);
+        String email = googleUserInfo.getEmail();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+        // 회원 정보 삭제
+        memberRepository.delete(member);
+
+        log.info("Google 회원 탈퇴 성공: 이메일={}", email);
+    }
+
+
 }

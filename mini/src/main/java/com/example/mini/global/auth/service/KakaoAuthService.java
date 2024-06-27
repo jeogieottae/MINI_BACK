@@ -11,6 +11,7 @@ import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -182,5 +183,19 @@ public class KakaoAuthService {
         Member member = memberRepository.findByEmail(kakaoUserInfo.getEmail()).get();
         member.setState(MemberState.INACTIVE);
         memberRepository.save(member);
+    }
+
+    @Transactional
+    public void withdraw(String accessToken) {
+        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
+        String email = kakaoUserInfo.getEmail();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+        // 회원 정보 삭제
+        memberRepository.delete(member);
+
+        log.info("Kakao 회원 탈퇴 성공: 이메일={}", email);
     }
 }

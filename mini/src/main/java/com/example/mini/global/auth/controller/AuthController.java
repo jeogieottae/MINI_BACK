@@ -73,6 +73,15 @@ public class AuthController {
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
 
+	@DeleteMapping("/withdraw")
+	public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) {
+		String accessToken = jwtProvider.resolveToken(request);
+		authService.withdraw(accessToken);
 
+		CookieUtil.deleteCookie(response, "accessToken");
+		CookieUtil.deleteCookie(response, "refreshToken");
+
+		return ResponseEntity.ok(ApiResponse.DELETE());
+	}
 
 }
