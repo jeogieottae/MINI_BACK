@@ -9,10 +9,10 @@ import org.springframework.http.ResponseCookie;
 
 public class CookieUtil {
 
-	public static void addCookie(HttpServletResponse response, String name, String value, long maxAgeInSeconds) {
+	public static void addCookie(HttpServletResponse response, String name, String value, long maxAgeInSeconds, boolean isSecure) {
 		ResponseCookie cookie = ResponseCookie.from(name, value)
 			.httpOnly(true)
-			.secure(true)
+			.secure(isSecure)
 			.path("/")
 			.maxAge(Duration.ofSeconds(maxAgeInSeconds))
 			.sameSite("None")  // 추가
@@ -31,10 +31,10 @@ public class CookieUtil {
 		return null;
 	}
 
-	public static void deleteCookie(HttpServletResponse response, String name) {
+	public static void deleteCookie(HttpServletResponse response, String name, boolean isSecure) {
 		ResponseCookie cookie = ResponseCookie.from(name, "")
 			.httpOnly(true)
-			.secure(true)
+			.secure(isSecure)
 			.path("/")
 			.maxAge(0)
 			.sameSite("None")  // 추가

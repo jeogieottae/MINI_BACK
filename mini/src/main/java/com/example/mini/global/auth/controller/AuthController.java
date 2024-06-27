@@ -16,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +38,9 @@ public class AuthController {
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;
 
+	@Value("${server.ssl.enabled}")
+	private boolean isSecure;
+
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
 		String response = authService.register(request);
@@ -47,8 +51,8 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
 		LoginResponse loginResponse = authService.login(request);
 
-		CookieUtil.addCookie(response, "accessToken", loginResponse.getAccessToken(), TokenType.ACCESS.getExpireTime() / 1000);
-		CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), TokenType.REFRESH.getExpireTime() / 1000);
+		CookieUtil.addCookie(response, "accessToken", loginResponse.getAccessToken(), TokenType.ACCESS.getExpireTime() / 1000, isSecure);
+		CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), TokenType.REFRESH.getExpireTime() / 1000, isSecure);
 
 		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder().state(loginResponse.getState()).build()));
 	}
@@ -59,8 +63,8 @@ public class AuthController {
 
 		authService.logout(accessToken);
 
-		CookieUtil.deleteCookie(response, "accessToken");
-		CookieUtil.deleteCookie(response, "refreshToken");
+		CookieUtil.deleteCookie(response, "accessToken", isSecure);
+		CookieUtil.deleteCookie(response, "refreshToken", isSecure);
 
 		// 세션 무효화
 		request.getSession().invalidate();
@@ -77,12 +81,10 @@ public class AuthController {
 
 		String newAccessToken = authService.createAccessToken(refreshTokenCookie.getValue());
 
-		CookieUtil.addCookie(response, "accessToken", newAccessToken, TokenType.ACCESS.getExpireTime() / 1000);
+		CookieUtil.addCookie(response, "accessToken", newAccessToken, TokenType.ACCESS.getExpireTime() / 1000, isSecure);
 
 		log.info("재발급된 Access 토큰을 쿠키에 저장: NewAccessToken={}", newAccessToken);
 
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
-
-
 }
