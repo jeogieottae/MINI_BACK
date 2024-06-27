@@ -114,11 +114,13 @@ public class GoogleAuthService {
     public Member saveGoogleMember(GoogleUserInfo googleUserInfo) {
         String email = googleUserInfo.getEmail();
         String name = googleUserInfo.getName();
+        String givenName = googleUserInfo.getGivenName();
 
         Member member = memberRepository.findByEmail(email)
                 .map(entity -> entity.update(name))
                 .orElse(Member.builder()
                         .name(name)
+                        .nickname(givenName)
                         .email(email)
                         .password("OAuth password")
                         .build());
@@ -198,5 +200,22 @@ public class GoogleAuthService {
         log.info("Google 회원 탈퇴 성공: 이메일={}", email);
     }
 
+    @Transactional
+    public void updateNickname(String accessToken, String nickname) {
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
+        GoogleUserInfo googleUserInfo = getGoogleUserInfo(accessToken);
+        String email = googleUserInfo.getEmail();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+        member.setNickname(nickname);
+        memberRepository.save(member);
+
+        log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, nickname);
+    }
 
 }

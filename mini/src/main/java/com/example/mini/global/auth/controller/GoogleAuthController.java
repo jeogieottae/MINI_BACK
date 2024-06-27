@@ -2,6 +2,7 @@ package com.example.mini.global.auth.controller;
 
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
+import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.GlobalException;
@@ -125,5 +126,23 @@ public class GoogleAuthController {
         }
 
         return ResponseEntity.ok(ApiResponse.DELETE());
+    }
+
+    @PostMapping("/nickname")
+    public ResponseEntity<ApiResponse<String>> changeNickname(
+            HttpServletRequest request,
+            @RequestBody ChangeNicknameRequest changeNicknameRequest) {
+
+        Cookie accessTokenCookie = CookieUtil.getCookie(request, "googleAccessToken");
+        if (accessTokenCookie == null) {
+            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
+        String accessToken = accessTokenCookie.getValue();
+        String newNickname = changeNicknameRequest.getNickname();
+
+        googleAuthService.updateNickname(accessToken, newNickname);
+
+        return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
     }
 }

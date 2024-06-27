@@ -118,6 +118,7 @@ public class KakaoAuthService {
                 .map(entity -> entity.update(name))
                 .orElse(Member.builder()
                         .name(name)
+                        .nickname(name)
                         .email(email)
                         .password("OAuth password")
                         .build());
@@ -197,5 +198,23 @@ public class KakaoAuthService {
         memberRepository.delete(member);
 
         log.info("Kakao 회원 탈퇴 성공: 이메일={}", email);
+    }
+
+    @Transactional
+    public void updateNickname(String accessToken, String nickname) {
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        }
+
+        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
+        String email = kakaoUserInfo.getEmail();
+
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+        member.setNickname(nickname);
+        memberRepository.save(member);
+
+        log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, nickname);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.mini.global.auth.controller;
 
+import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
@@ -82,6 +83,19 @@ public class AuthController {
 		CookieUtil.deleteCookie(response, "refreshToken");
 
 		return ResponseEntity.ok(ApiResponse.DELETE());
+	}
+
+	@PostMapping("/nickname")
+	public ResponseEntity<ApiResponse<String>> changeNickname(
+			HttpServletRequest request,
+			@RequestBody ChangeNicknameRequest changeNicknameRequest) {
+
+		String accessToken = jwtProvider.resolveToken(request);
+		String newNickname = changeNicknameRequest.getNickname();
+
+		authService.updateNickname(accessToken, newNickname);
+
+		return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
 	}
 
 }

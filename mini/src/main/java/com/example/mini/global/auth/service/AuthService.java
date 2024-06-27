@@ -30,10 +30,11 @@ public class AuthService {
 
 	@Transactional
 	public String register(RegisterRequest request) {
-		log.info("회원가입 시도: 이메일={}, 닉네임={}", request.getEmail(), request.getName());
+		log.info("회원가입 시도: 이메일={}, 이름={}, 닉네임={}", request.getEmail(), request.getName(), request.getNickname());
 		String email = request.getEmail();
 		String password = passwordEncoder.encode(request.getPassword());
 		String name = request.getName();
+		String nickname = request.getNickname();
 
 		if (memberRepository.existsByEmail(email)) {
 			throw new GlobalException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
@@ -43,6 +44,7 @@ public class AuthService {
 			.email(email)
 			.password(password)
 			.name(name)
+			.nickname(nickname)
 			.state(MemberState.INACTIVE)
 			.build();
 
@@ -131,5 +133,20 @@ public class AuthService {
 		tokenService.removeToken(tokenService.getRefreshToken(email));
 
 		log.info("회원 탈퇴 성공: 이메일={}", email);
+	}
+
+	public void updateNickname(String accessToken, String nickname) {
+		if (accessToken == null || accessToken.isEmpty()) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
+		Member member = memberRepository.findByEmail(email)
+				.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+		member.setNickname(nickname);
+		memberRepository.save(member);
+
+		log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, nickname);
 	}
 }

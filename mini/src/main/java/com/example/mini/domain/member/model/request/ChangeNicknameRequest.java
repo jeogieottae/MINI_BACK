@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRequest {
+public class ChangeNicknameRequest {
 
-	private String name;
-	private String nickname;
-	private String email;
-	private String password;
+    private String nickname;
 
 }
