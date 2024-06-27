@@ -33,7 +33,7 @@ public class AccomodationService {
     private final AccomodationRepository accomodationRepository;
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
-    private final int PageSize = 5; // 페이지 크기
+    private final int PageSize = 20; // 페이지 크기
 
     /**
      * 전체 숙소 목록 조회
@@ -85,8 +85,9 @@ public class AccomodationService {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
+        int minPrice = roomRepository.findMinPriceByAccommodationId(accomodationId);
 
-        AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
+        AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation, minPrice);
         List<RoomResponseDto> roomResponseDtos = rooms.stream().map(RoomResponseDto::toDto).toList();
 
         return AccomodationDetailsResponseDto.builder()
@@ -118,7 +119,10 @@ public class AccomodationService {
      */
     private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
         List<AccomodationResponseDto> content = accommodations.getContent().stream()
-                .map(AccomodationResponseDto::toDto)
+                .map(accommodation -> {
+                    Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
+                    return AccomodationResponseDto.toDto(accommodation, minPrice);
+                })
                 .toList();
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
@@ -150,6 +154,6 @@ public class AccomodationService {
         Accomodation saved = accomodationRepository.save(accomodation);
         AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
         accomodationSearchRepository.save(search);
-        return AccomodationResponseDto.toDto(saved);
+        return AccomodationResponseDto.toDto(saved, 0);
     }
 }
