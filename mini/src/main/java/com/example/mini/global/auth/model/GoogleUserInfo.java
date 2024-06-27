@@ -26,8 +26,4 @@ public class GoogleUserInfo {
         this.locale = (String) attributes.get("locale");
     }
 
-    // 필요에 따라 추가 메서드를 구현할 수 있습니다.
-    public String getFullName() {
-        return this.givenName + " " + this.familyName;
-    }
 }

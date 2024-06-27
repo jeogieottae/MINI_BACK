@@ -112,7 +112,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	private TokenInfo validateAndGetTokenInfo(String token, String provider) {
-		String apiUrl;
 		Function<Map<String, Object>, TokenInfo> infoExtractor;
 
 		if (provider.equals("google")) {

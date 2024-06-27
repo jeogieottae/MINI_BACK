@@ -158,6 +158,7 @@ public class GoogleAuthService {
             log.info("Refreshed AccessToken 쿠키 설정: {}", googleAccessToken);
 
             // 새로운 리프레시 토큰이 발급된 경우 쿠키 업데이트
+            // 리프레시 토큰의 만료 시간이 없음 임의로 30일로 정함
             if (body.getRefresh_token() != null) {
                 String newRefreshToken = body.getRefresh_token();
                 CookieUtil.addCookie(httpResponse, "googleRefreshToken", newRefreshToken, 30 * 24 * 60 * 60);

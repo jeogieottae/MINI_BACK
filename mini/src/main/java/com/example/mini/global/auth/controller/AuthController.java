@@ -14,15 +14,10 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
 
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,15 +28,6 @@ public class AuthController {
 
 	private final AuthService authService;
 	private final JwtProvider jwtProvider;
-	private final ClientRegistrationRepository clientRegistrationRepository;
-
-	@Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-	private String kakaoClientId;
-	private String kakaoLogoutRedirectUri = "http://localhost:8080/api/protected/home";
-
-	@Value("${spring.security.oauth2.client.registration.google.client-id}")
-	private String googleClientId;
-	private String googleLogoutRedirectUri = "http://localhost:8080/api/protected/home";
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
@@ -87,69 +73,6 @@ public class AuthController {
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
 
-	@GetMapping("/login/google")
-	public void googleLogin(HttpServletResponse response) throws IOException {
-		redirectToLoginPage("google", response);
-	}
 
-
-
-	@GetMapping("logout/google")
-	public void googleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String googleLogoutUrl = "https://accounts.google.com/o/oauth2/revoke?token=";
-
-		Cookie[] cookies = request.getCookies();
-		String accessToken = null;
-		if(cookies != null) {
-			for(Cookie cookie : cookies) {
-				if("google_token".equals(cookie.getName())) {
-					accessToken = cookie.getValue();
-					break;
-				}
-			}
-		}
-
-		if(accessToken == null) {
-			// 엑세스 토큰을 못찾았을 때
-			response.sendRedirect("/");
-			return;
-		}
-
-		// 쿠키 삭제
-		Cookie cookie = new Cookie("google_token", null);
-		cookie.setMaxAge(0);
-		cookie.setPath("/");
-		response.addCookie(cookie);
-
-		// JSESSIONID 쿠키 삭제
-		Cookie jsessionidCookie = new Cookie("JSESSIONID", null);
-		jsessionidCookie.setMaxAge(0);
-		jsessionidCookie.setPath("/");
-		response.addCookie(jsessionidCookie);
-
-		// 세션 무효화
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.invalidate();
-		}
-
-		response.sendRedirect(googleLogoutUrl + accessToken +
-				"&client_id=" + googleClientId +
-				"&post_logout_redirect_uri=" + googleLogoutRedirectUri);
-
-	}
-
-
-
-	private void redirectToLoginPage(String registrationId, HttpServletResponse response) throws IOException {
-		ClientRegistration registration = clientRegistrationRepository.findByRegistrationId(registrationId);
-		if (registration != null) {
-			String authorizationRequestBaseUri = "/oauth2/authorization";
-			String authorizationRequestUri = authorizationRequestBaseUri + "/" + registration.getRegistrationId();
-			response.sendRedirect(authorizationRequestUri);
-		} else {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "유효하지 않은 로그인 제공자입니다.");
-		}
-	}
 
 }

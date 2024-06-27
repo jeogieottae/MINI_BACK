@@ -1,6 +1,5 @@
 package com.example.mini.global.api.exception.error;
 
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http;
 import org.springframework.http.HttpStatus;
 
 public enum CartErrorCode implements ErrorCode {
