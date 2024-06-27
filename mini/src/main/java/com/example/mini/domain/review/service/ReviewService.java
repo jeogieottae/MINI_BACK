@@ -9,12 +9,16 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.request.ReviewRequest;
+import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
 import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReviewErrorCode;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -92,6 +96,24 @@ public class ReviewService {
         .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND));
 
     return confirmedReservation.getCheckOut();
+  }
+
+
+  public Page<AccomodationReviewResponse> getReviewsByAccomodationId(Long accomodationId, int page, int size) {
+    Accomodation accomodation = getValidAccomodation(accomodationId);
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, pageable);
+
+    return reviewPage.map(this::convertToAccomodationReviewResponse);
+  }
+
+  private AccomodationReviewResponse convertToAccomodationReviewResponse(Review review) {
+    AccomodationReviewResponse response = new AccomodationReviewResponse();
+    response.setComment(review.getComment());
+    response.setStar(review.getStar());
+    response.setMemberName(review.getMember().getName());
+    response.setCreatedAt(review.getCreatedAt());
+    return response;
   }
 }
 
