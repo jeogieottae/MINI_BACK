@@ -1,7 +1,7 @@
 package com.example.mini.global.security.config;
 
-import com.example.mini.global.auth.oauth2.service.KakaoMemberDetailsService;
-import com.example.mini.global.auth.oauth2.util.OAuth2SuccessHandler;
+import com.example.mini.global.auth.service.GoogleAuthService;
+import com.example.mini.global.auth.service.KakaoAuthService;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -39,8 +39,8 @@ public class SecurityConfig {
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;  // 추가된 부분
-	private final KakaoMemberDetailsService kakaoMemberDetailsService;
-	private final OAuth2SuccessHandler oAuth2SuccessHandler;
+	private final KakaoAuthService kakaoAuthService;
+	private final GoogleAuthService googleAuthService;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -49,14 +49,11 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(swagger).permitAll()
 				.requestMatchers("/api/protected/**").authenticated()
+				.requestMatchers(("/test")).permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
-				.anyRequest().authenticated())
-			.oauth2Login(oAuth2Login -> {
-				oAuth2Login.userInfoEndpoint(userInfoEndpointConfig ->
-					userInfoEndpointConfig.userService(kakaoMemberDetailsService));
-				oAuth2Login.successHandler(oAuth2SuccessHandler);
-			})
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);  // 수정된 부분
+				.anyRequest().permitAll())
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, kakaoAuthService, googleAuthService)
+					, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
@@ -69,4 +66,5 @@ public class SecurityConfig {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
 }

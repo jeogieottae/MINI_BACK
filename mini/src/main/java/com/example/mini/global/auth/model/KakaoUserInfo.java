@@ -1,4 +1,4 @@
-package com.example.mini.global.auth.oauth2.model;
+package com.example.mini.global.auth.model;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,7 +44,7 @@ public class KakaoUserInfo {
 	@Override
 	public String toString() {
 		return "KakaoUserInfo{" +
-			"attributes=" + attributes +
-			'}';
+				"attributes=" + attributes +
+				'}';
 	}
 }

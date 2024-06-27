@@ -50,5 +50,10 @@ public class Member extends BaseEntity {
 			'}';
 	}
 
+	public Member update(String name){
+		this.name = name;
+		return this;
+	}
+
 
 }

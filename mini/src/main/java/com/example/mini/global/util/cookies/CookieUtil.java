@@ -16,6 +16,7 @@ public class CookieUtil {
 			.path("/")
 			.maxAge(Duration.ofSeconds(maxAgeInSeconds))
 			.sameSite("None")  // 추가
+//			.sameSite("Lax") // 개발시
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 	}

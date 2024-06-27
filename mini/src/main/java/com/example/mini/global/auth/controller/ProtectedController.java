@@ -14,4 +14,9 @@ public class ProtectedController {
 	public String protectedEndpoint() {
 		return "인증된 사용자만 접근 가능한 api에 접근 성공!";
 	}
+
+	@GetMapping("/home")
+	public String home() {
+		return "home";
+	}
 }
