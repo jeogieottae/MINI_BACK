@@ -139,7 +139,7 @@ public class AccomodationService {
         Accomodation accomodation = Accomodation.builder()
                 .name(requestDto.getName())
                 .description(requestDto.getDescription())
-                .postalCode(123445)
+                .postalCode("123445")
                 .address("서귀포시 --- ---")
                 .parkingAvailable(true)
                 .cookingAvailable(true)

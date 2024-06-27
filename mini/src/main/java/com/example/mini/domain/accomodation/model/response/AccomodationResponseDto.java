@@ -16,7 +16,7 @@ public class AccomodationResponseDto {
     private Long id;
     private String name;
     private String description;
-    private int postalCode;
+    private String postalCode;
     private String address;
     private Boolean parkingAvailable;
     private Boolean cookingAvailable;
