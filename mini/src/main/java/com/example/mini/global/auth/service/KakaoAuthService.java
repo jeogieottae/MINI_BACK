@@ -6,6 +6,7 @@ import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
+import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -32,6 +34,7 @@ import java.util.Map;
 public class KakaoAuthService {
 
     private final MemberRepository memberRepository;
+    private final UserDetailsServiceImpl userDetailsService;
 
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -120,13 +123,12 @@ public class KakaoAuthService {
 
 
         // SecurityContext에 인증 정보 저장
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                member,
-                null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-        );
+        UserDetails userDetails;
+        userDetails = userDetailsService.loadUserByEmail(email);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+
         log.info("SecurityContext에 인증 정보 저장 완료: {}", authentication);
 
         return member;
