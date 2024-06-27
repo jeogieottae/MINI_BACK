@@ -38,7 +38,7 @@ public class AuthController {
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;
 
-	@Value("${server.ssl.enabled}")
+	@Value("${server.ssl.enabled:false}")
 	private boolean isSecure;
 
 	@PostMapping("/register")
