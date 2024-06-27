@@ -1,17 +1,13 @@
 package com.example.mini.domain.accomodation.entity;
 
+import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
+import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.global.model.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import java.util.List;
 import java.util.ArrayList;
@@ -48,9 +44,10 @@ public class Accomodation extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDateTime checkOut;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id", nullable = false)
-	private Category category;
+	@Setter
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private AccomodationCategory category;
 
 	@OneToMany(mappedBy = "accomodation")
 	private List<Room> rooms = new ArrayList<>();
