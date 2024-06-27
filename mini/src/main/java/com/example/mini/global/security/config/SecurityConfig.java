@@ -33,7 +33,6 @@ public class SecurityConfig {
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;
 
-
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
 		return (web) -> web.ignoring().requestMatchers("/static/**", "/css/**", "/js/**", "/images/**", "^(?!/api/).*");
@@ -83,7 +82,7 @@ public class SecurityConfig {
 			"https://127.0.0.1:3000"
 		));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
-		config.setAllowedHeaders(Arrays.asList("*"));
+		config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
 		source.registerCorsConfiguration("/**", config);
 		return new CorsFilter(source);
 	}
