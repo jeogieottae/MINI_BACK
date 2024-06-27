@@ -1,5 +1,7 @@
 package com.example.mini.domain.accomodation.service;
 
+
+import org.springframework.data.domain.Pageable;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
@@ -12,8 +14,12 @@ import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
+import com.example.mini.domain.review.entity.Review;
+import com.example.mini.domain.review.model.response.ReviewResponse;
+import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,7 +39,9 @@ public class AccomodationService {
     private final AccomodationRepository accomodationRepository;
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
+    private final ReviewRepository reviewRepository;
     private final int PageSize = 20; // 페이지 크기
+
 
     /**
      * 전체 숙소 목록 조회
@@ -85,15 +93,29 @@ public class AccomodationService {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
-        int minPrice = roomRepository.findMinPriceByAccommodationId(accomodationId);
+        AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
 
-        AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation, minPrice);
+        Pageable pageable = PageRequest.of(0, 5);
+        List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, pageable);
+        Double avgStar = reviewRepository.findAverageStarByAccomodation(accomodation);
+
         List<RoomResponseDto> roomResponseDtos = rooms.stream().map(RoomResponseDto::toDto).toList();
 
+        List<ReviewResponse> reviewResponses = latestReviews.stream()
+            .map(review -> {
+                ReviewResponse response = new ReviewResponse();
+                response.setComment(review.getComment());
+                response.setStar(review.getStar());
+                return response;
+            })
+            .collect(Collectors.toList());
+
         return AccomodationDetailsResponseDto.builder()
-                .accomodation(accomodationResponseDto)
-                .rooms(roomResponseDtos)
-                .build();
+            .accomodation(accomodationResponseDto)
+            .rooms(roomResponseDtos)
+            .reviews(reviewResponses)
+            .avgStar(avgStar)
+            .build();
     }
 
     /**
@@ -118,12 +140,14 @@ public class AccomodationService {
      * @return                  숙소 정보 목록을 포함한 응답 객체
      */
     private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
+//        List<AccomodationResponseDto> content = accommodations.getContent().stream()
+//                .map(accommodation -> {
+//                    Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
+//                    return AccomodationResponseDto.toDto(accommodation, minPrice);
+//                })
+//                .toList();
         List<AccomodationResponseDto> content = accommodations.getContent().stream()
-                .map(accommodation -> {
-                    Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
-                    return AccomodationResponseDto.toDto(accommodation, minPrice);
-                })
-                .toList();
+                .map(AccomodationResponseDto::toDto).toList();
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
 
@@ -154,6 +178,6 @@ public class AccomodationService {
         Accomodation saved = accomodationRepository.save(accomodation);
         AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
         accomodationSearchRepository.save(search);
-        return AccomodationResponseDto.toDto(saved, 0);
+        return AccomodationResponseDto.toDto(saved);
     }
 }
