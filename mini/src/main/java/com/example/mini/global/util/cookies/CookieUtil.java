@@ -15,7 +15,7 @@ public class CookieUtil {
 			.secure(isSecure)
 			.path("/")
 			.maxAge(Duration.ofSeconds(maxAgeInSeconds))
-			.sameSite("None")  // 추가
+			.sameSite("Lax")  // 변경
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
@@ -37,7 +37,7 @@ public class CookieUtil {
 			.secure(isSecure)
 			.path("/")
 			.maxAge(0)
-			.sameSite("None")  // 추가
+			.sameSite("Lax")  // 변경
 			.build();
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
