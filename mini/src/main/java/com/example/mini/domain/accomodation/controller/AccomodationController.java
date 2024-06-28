@@ -38,23 +38,7 @@ public class AccomodationController {
         return ResponseEntity.ok(ApiResponse.OK(response));
     }
 
-    // 데이터 삽입 테스트
-    @PostMapping("")
-    public ResponseEntity<ApiResponse<AccomodationResponseDto>> saveTest(
-            @RequestBody AccomodationRequestDto requestDto
-    ) {
-        AccomodationResponseDto response = accomodationService.saveAccomodation(requestDto);
-        return ResponseEntity.ok(ApiResponse.OK(response));
-    }
 
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponseDto>>> searchByAccommodationName(
-            @RequestParam(value = "name", required = true) String keyword,
-            @RequestParam(value= "page", required = false, defaultValue = "1") int page
-    ) {
-        PagedResponse<AccomodationResponseDto> response = accomodationService.searchByAccommodationName(keyword, page);
-        return ResponseEntity.ok(ApiResponse.OK(response));
-    }
 
     @GetMapping("/{accomodationId}")
     public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(

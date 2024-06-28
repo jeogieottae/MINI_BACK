@@ -8,7 +8,6 @@ import com.example.mini.domain.accomodation.model.response.AccomodationResponseD
 import com.example.mini.domain.accomodation.model.response.PagedResponse;
 import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
-import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

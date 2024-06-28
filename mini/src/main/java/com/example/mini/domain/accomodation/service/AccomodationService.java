@@ -12,7 +12,6 @@ import com.example.mini.domain.accomodation.model.response.AccomodationResponseD
 import com.example.mini.domain.accomodation.model.response.PagedResponse;
 import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
-import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.response.ReviewResponse;
@@ -37,7 +36,6 @@ import java.util.List;
 public class AccomodationService {
 
     private final AccomodationRepository accomodationRepository;
-    private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
     private final ReviewRepository reviewRepository;
     private final int PageSize = 5; // 페이지 크기
@@ -68,19 +66,6 @@ public class AccomodationService {
         return setResponse(accommodations);
     }
 
-    /**
-     * 숙소 이름으로 검색
-     *
-     * @param keyword   검색 키워드
-     * @return          숙소 정보 목록을 포함한 응답 객체
-     */
-    public PagedResponse<AccomodationResponseDto> searchByAccommodationName(String keyword, int page) {
-        List<AccomodationSearch> searches = accomodationSearchRepository.findAccommodationsByName(keyword);
-        List<Long> idList = searches.stream().map(AccomodationSearch::getId).toList();
-        Page<Accomodation> accommodations = accomodationRepository.findByIdList(idList, PageRequest.of(page-1, PageSize));
-        checkPageException(accommodations);
-        return setResponse(accommodations);
-    }
 
     /**
      * 숙소 상세정보 조회
@@ -157,22 +142,4 @@ public class AccomodationService {
         }
     }
 
-    // elastic 데이터 삽입 테스트
-    public AccomodationResponseDto saveAccomodation(AccomodationRequestDto requestDto) {
-        Accomodation accomodation = Accomodation.builder()
-                .name(requestDto.getName())
-                .description(requestDto.getDescription())
-                .postalCode(123445)
-                .address("서귀포시 --- ---")
-                .parkingAvailable(true)
-                .cookingAvailable(true)
-                .checkIn(LocalDateTime.now())
-                .checkOut(LocalDateTime.now())
-                .category(AccomodationCategory.JEJU)
-                .build();
-        Accomodation saved = accomodationRepository.save(accomodation);
-        AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
-        accomodationSearchRepository.save(search);
-        return AccomodationResponseDto.toDto(saved);
-    }
 }
