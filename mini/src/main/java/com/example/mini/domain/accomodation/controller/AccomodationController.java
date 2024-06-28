@@ -52,7 +52,7 @@ public class AccomodationController {
 
     @GetMapping("/{accomodationId}")
     public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(
-            @PathVariable Long accomodationId
+        @PathVariable Long accomodationId
     ) {
         AccomodationDetailsResponseDto response = accomodationService.getAccomodationDetails(accomodationId);
         return ResponseEntity.ok(ApiResponse.OK(response));
@@ -60,8 +60,8 @@ public class AccomodationController {
 
     @GetMapping("/{accomodationId}/room/{roomId}")
     public ResponseEntity<ApiResponse<RoomResponseDto>> getRoomDetail(
-            @PathVariable Long accomodationId,
-            @PathVariable Long roomId
+        @PathVariable Long accomodationId,
+        @PathVariable Long roomId
     ) {
         RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId);
         return ResponseEntity.ok(ApiResponse.OK(response));
