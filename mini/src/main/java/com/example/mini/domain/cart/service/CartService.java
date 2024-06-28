@@ -5,6 +5,8 @@ import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest.ConfirmItem;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequestTest;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequestTest.ConfirmItemtest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
@@ -232,5 +234,21 @@ public class CartService {
         item.getCheckOut(), item.getReservationId());
     reservationRepository.updateReservationStatus(item.getReservationId(),
         ReservationStatus.CONFIRMED);
+  }
+
+
+  //K6 테스트용
+  @Transactional
+  public void confirmCartItemstest(ConfirmCartItemRequestTest request) {
+    for (ConfirmItemtest item : request.getConfirmItemstest()) {
+      confirmReservationItemtest(item);
+    }
+  }
+
+  @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
+  public void confirmReservationItemtest(ConfirmItemtest item) {
+    if (!item.getCheckOut().isAfter(item.getCheckIn())) {
+      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
+    }
   }
 }

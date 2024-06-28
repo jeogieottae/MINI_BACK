@@ -123,7 +123,7 @@ class LikeServiceTest {
     Accomodation accomodation = Accomodation.builder()
         .name("Test Accomodation")
         .description("Test Description")
-        .postalCode(12345)
+        .postalCode("12345")
         .address("Test Address")
         .build();
     Like like = new Like(member, accomodation, true);
@@ -139,7 +139,7 @@ class LikeServiceTest {
     AccomodationResponse response = result.getContent().get(0);
     assertEquals("Test Accomodation", response.getName());
     assertEquals("Test Description", response.getDescription());
-    assertEquals(12345, response.getPostalCode());
+    assertEquals("12345", response.getPostalCode());
     assertEquals("Test Address", response.getAddress());
   }
 }

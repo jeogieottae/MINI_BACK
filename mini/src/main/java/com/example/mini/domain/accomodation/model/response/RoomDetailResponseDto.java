@@ -8,16 +8,15 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoomResponseDto {
+public class RoomDetailResponseDto {
     Long id;
     String name;
     int baseGuests;
     int price;
     int maxGuests;
     int extraPersonCharge;
-    boolean reservationAvailable;
 
-    public static RoomResponseDto toDto(Room room, boolean isAvailable) {
+    public static RoomResponseDto toDto(Room room) {
         return RoomResponseDto.builder()
                 .id(room.getId())
                 .name(room.getName())
@@ -25,7 +24,6 @@ public class RoomResponseDto {
                 .price(room.getPrice())
                 .maxGuests(room.getMaxGuests())
                 .extraPersonCharge(room.getExtraPersonCharge())
-                .reservationAvailable(isAvailable)
                 .build();
     }
 }

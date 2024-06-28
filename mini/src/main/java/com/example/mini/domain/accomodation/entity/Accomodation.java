@@ -27,7 +27,7 @@ public class Accomodation extends BaseEntity {
 	private String description;
 
 	@Column(nullable = false)
-	private int postalCode;
+	private String postalCode;
 
 	@Column(nullable = false)
 	private String address;

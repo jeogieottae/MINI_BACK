@@ -15,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
   @Query("SELECT r FROM Reservation r " +
@@ -74,4 +73,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       @Param("checkIn") LocalDateTime checkIn,
       @Param("checkOut") LocalDateTime checkOut
   );
+
+  Optional<Reservation> findByMemberIdAndAccomodationIdAndStatus(Long memberId, Long accomodationId, ReservationStatus status);
 }
