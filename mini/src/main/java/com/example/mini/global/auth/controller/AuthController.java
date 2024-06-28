@@ -9,57 +9,43 @@ import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.security.jwt.JwtProvider;
-import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/auth")
-@RequiredArgsConstructor
-@Slf4j
-public class AuthController {
+		@RestController
+		@RequestMapping("/api/auth")
+		@RequiredArgsConstructor
+		@Slf4j
+		public class AuthController {
 
-	private final AuthService authService;
-	private final JwtProvider jwtProvider;
+			private final AuthService authService;
+			private final JwtProvider jwtProvider;
 
-	@PostMapping("/register")
-	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
-		String response = authService.register(request);
-		return ResponseEntity.ok(ApiResponse.CREATED(response));
-	}
+			@PostMapping("/register")
+			public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
+				String response = authService.register(request);
+				return ResponseEntity.ok(ApiResponse.CREATED(response));
+			}
 
-	@PostMapping("/login")
-	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
-		LoginResponse loginResponse = authService.login(request);
+			@PostMapping("/login")
+			public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+				LoginResponse loginResponse = authService.login(request);
+				authService.addTokenCookies(response, loginResponse.getAccessToken(), loginResponse.getRefreshToken());
+				return ResponseEntity.ok(ApiResponse.OK(loginResponse));
+			}
 
-		CookieUtil.addCookie(response, "accessToken", loginResponse.getAccessToken(), TokenType.ACCESS.getExpireTime() / 1000);
-		CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), TokenType.REFRESH.getExpireTime() / 1000);
-
-		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder()
-				.state(loginResponse.getState())
-				.accessToken(loginResponse.getAccessToken())
-				.refreshToken(loginResponse.getRefreshToken())
-				.build()));
-	}
-
-	@PostMapping("/logout")
-	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response) {
-		String accessToken = jwtProvider.resolveToken(request);
-
-		authService.logout(accessToken);
-
-		CookieUtil.deleteCookie(response, "accessToken");
-		CookieUtil.deleteCookie(response, "refreshToken");
-
-		return ResponseEntity.ok(ApiResponse.DELETE());
+			@PostMapping("/logout")
+			public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response) {
+				String accessToken = jwtProvider.resolveToken(request);
+				authService.logout(accessToken);
+				authService.deleteTokenCookies(response);
+				return ResponseEntity.ok(ApiResponse.DELETE());
 	}
 
 	@PostMapping("/token/refresh")
@@ -68,13 +54,9 @@ public class AuthController {
 		if (refreshTokenCookie == null) {
 			throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
 		}
-
 		String newAccessToken = authService.createAccessToken(refreshTokenCookie.getValue());
-
-		CookieUtil.addCookie(response, "accessToken", newAccessToken, TokenType.ACCESS.getExpireTime() / 1000);
-
+		authService.addAccessTokenCookie(response, newAccessToken);
 		log.info("재발급된 Access 토큰을 쿠키에 저장: NewAccessToken={}", newAccessToken);
-
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
 
@@ -82,24 +64,17 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) {
 		String accessToken = jwtProvider.resolveToken(request);
 		authService.withdraw(accessToken);
-
-		CookieUtil.deleteCookie(response, "accessToken");
-		CookieUtil.deleteCookie(response, "refreshToken");
-
+		authService.deleteTokenCookies(response);
 		return ResponseEntity.ok(ApiResponse.DELETE());
 	}
 
 	@PostMapping("/nickname")
 	public ResponseEntity<ApiResponse<String>> changeNickname(
-			HttpServletRequest request,
-			@RequestBody ChangeNicknameRequest changeNicknameRequest) {
+		HttpServletRequest request,
+		@RequestBody ChangeNicknameRequest changeNicknameRequest) {
 
 		String accessToken = jwtProvider.resolveToken(request);
-		String newNickname = changeNicknameRequest.getNickname();
-
-		authService.updateNickname(accessToken, newNickname);
-
+		authService.updateNickname(accessToken, changeNicknameRequest.getNickname());
 		return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
 	}
-
 }

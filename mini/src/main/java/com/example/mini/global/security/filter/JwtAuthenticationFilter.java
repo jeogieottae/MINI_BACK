@@ -127,7 +127,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private static class TokenInfo {
+	private static class TokenInfo { // todo : 따로 뺄 수 있으면 빼기
 		private final boolean valid;
 		private final String email;
 

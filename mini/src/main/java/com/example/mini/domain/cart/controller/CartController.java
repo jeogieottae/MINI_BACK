@@ -2,7 +2,6 @@ package com.example.mini.domain.cart.controller;
 
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
-import com.example.mini.domain.cart.model.request.ConfirmCartItemRequestTest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
@@ -50,16 +49,7 @@ public class CartController {
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @RequestBody ConfirmCartItemRequest request
   ) {
-    cartService.confirmCartItems(userDetails.getMemberId(), request);
-    return ResponseEntity.ok().build();
-  }
-
-  //k6 동시성 테스트용
-  @PutMapping("/test")
-  public ResponseEntity<Void> confirmCartItemstest(
-      @RequestBody ConfirmCartItemRequestTest request
-  ) {
-    cartService.confirmCartItemstest(request);
+    cartService.confirmReservationItem(userDetails.getMemberId(), request);
     return ResponseEntity.ok().build();
   }
 

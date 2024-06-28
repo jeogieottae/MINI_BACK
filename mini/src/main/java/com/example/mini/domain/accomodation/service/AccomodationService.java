@@ -156,9 +156,7 @@ public class AccomodationService {
                     Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
                     List<Room> rooms = roomRepository.findByAccomodationId(accommodation.getId());
 
-                    List<Boolean> availables = rooms.stream().map(room -> {
-                        return reservationAvailable(checkInOut.get(0), checkInOut.get(1), room.getId());
-                    }).toList();
+                    List<Boolean> availables = rooms.stream().map(room -> reservationAvailable(checkInOut.get(0), checkInOut.get(1), room.getId())).toList();
                     boolean isAvailable = checkAllReservationAvailable(availables);
                     return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
                 }).toList();
@@ -174,9 +172,7 @@ public class AccomodationService {
                     LocalDateTime checkIn = LocalDateTime.now();
                     LocalDateTime checkOut = checkIn.plusDays(1);
 
-                    List<Boolean> availables = rooms.stream().map(room -> {
-                        return reservationAvailable(checkIn, checkOut, room.getId());
-                    }).toList();
+                    List<Boolean> availables = rooms.stream().map(room -> reservationAvailable(checkIn, checkOut, room.getId())).toList();
                     boolean isAvailable = checkAllReservationAvailable(availables);
                     return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
                 })
@@ -213,6 +209,26 @@ public class AccomodationService {
         }
     }
 
+
+/*    // elastic 데이터 삽입 테스트
+    public AccomodationResponseDto saveAccomodation(AccomodationRequestDto requestDto) {
+        Accomodation accomodation = Accomodation.builder()
+                .name(requestDto.getName())
+                .description(requestDto.getDescription())
+                .postalCode(123445)
+                .address("서귀포시 --- ---")
+                .parkingAvailable(true)
+                .cookingAvailable(true)
+                .checkIn(LocalDateTime.now())
+                .checkOut(LocalDateTime.now())
+                .category(AccomodationCategory.JEJU)
+                .build();
+        Accomodation saved = accomodationRepository.save(accomodation);
+        AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
+        accomodationSearchRepository.save(search);
+        return AccomodationResponseDto.toDto(saved);
+    }*/
+
     /**
      * 체크인 체크아웃 형식 변환
      *
@@ -220,7 +236,7 @@ public class AccomodationService {
      * @param checkOut  체크아웃
      * @return          체크인 체크아웃 리스트
      */
-    private List<LocalDateTime> dateTimeFormatter(String checkIn, String checkOut) {
+    private List<LocalDateTime> dateTimeFormatter(String checkIn, String checkOut) { // todo: 데이터 형식 변환 util로 빼서 가져와서 사용하기
         LocalDateTime ConvertedCheckIn;
         LocalDateTime ConvertedCheckOut;
         if (checkIn.isEmpty()) {
@@ -233,4 +249,5 @@ public class AccomodationService {
         }
         return asList(ConvertedCheckIn, ConvertedCheckOut);
     }
+
 }

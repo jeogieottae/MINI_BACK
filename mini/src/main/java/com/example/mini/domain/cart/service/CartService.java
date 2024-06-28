@@ -4,9 +4,6 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
-import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest.ConfirmItem;
-import com.example.mini.domain.cart.model.request.ConfirmCartItemRequestTest;
-import com.example.mini.domain.cart.model.request.ConfirmCartItemRequestTest.ConfirmItemtest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
@@ -183,28 +180,22 @@ public class CartService {
     cartRepository.save(cart);
   }
 
+  @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
   @Transactional
-  public void confirmCartItems(Long memberId, ConfirmCartItemRequest request) {
+  public void confirmReservationItem(Long memberId, ConfirmCartItemRequest request) {
     Member member = getMember(memberId);
 
     Cart cart = cartRepository.findByMember(member)
         .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
 
-    for (ConfirmItem item : request.getConfirmItems()) {
-      confirmReservationItem(member, cart, item);
-    }
-  }
-
-  @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
-  public void confirmReservationItem(Member member, Cart cart, ConfirmItem item) {
-    if (!item.getCheckOut().isAfter(item.getCheckIn())) {
+    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
       throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
     }
 
-    Reservation reservation = reservationRepository.findById(item.getReservationId())
+    Reservation reservation = reservationRepository.findById(request.getReservationId())
         .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
 
-    if (!reservation.getRoom().getId().equals(item.getRoomId())) {
+    if (!reservation.getRoom().getId().equals(request.getRoomId())) {
       throw new GlobalException(CartErrorCode.RESERVATION_MISMATCH);
     }
 
@@ -215,9 +206,10 @@ public class CartService {
     if (!cart.getReservationList().contains(reservation)) {
       throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
     }
-    List<Long> roomIds = Collections.singletonList(item.getRoomId());
-    LocalDateTime checkIn = item.getCheckIn();
-    LocalDateTime checkOut = item.getCheckOut();
+
+    List<Long> roomIds = Collections.singletonList(request.getRoomId());
+    LocalDateTime checkIn = request.getCheckIn();
+    LocalDateTime checkOut = request.getCheckOut();
 
     List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
     for (Reservation overlappingReservation : overlappingReservations) {
@@ -226,29 +218,13 @@ public class CartService {
       }
     }
 
-    if (item.getPeopleNumber() > reservation.getRoom().getMaxGuests()) {
+    if (request.getPeopleNumber() > reservation.getRoom().getMaxGuests()) {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
-    reservationRepository.updateReservationDetails(item.getPeopleNumber(), item.getCheckIn(),
-        item.getCheckOut(), item.getReservationId());
-    reservationRepository.updateReservationStatus(item.getReservationId(),
+    reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
+        request.getCheckOut(), request.getReservationId());
+    reservationRepository.updateReservationStatus(request.getReservationId(),
         ReservationStatus.CONFIRMED);
-  }
-
-
-  //K6 테스트용
-  @Transactional
-  public void confirmCartItemstest(ConfirmCartItemRequestTest request) {
-    for (ConfirmItemtest item : request.getConfirmItemstest()) {
-      confirmReservationItemtest(item);
-    }
-  }
-
-  @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
-  public void confirmReservationItemtest(ConfirmItemtest item) {
-    if (!item.getCheckOut().isAfter(item.getCheckIn())) {
-      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
-    }
   }
 }
