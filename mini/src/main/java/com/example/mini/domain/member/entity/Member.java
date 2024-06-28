@@ -29,6 +29,10 @@ public class Member extends BaseEntity {
 	@Column(nullable = false)
 	private String name;
 
+	@Setter
+	@Column (nullable = false)
+	private String nickname;
+
 	@OneToOne(mappedBy = "member")
 	private Cart cart;
 

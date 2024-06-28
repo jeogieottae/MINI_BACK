@@ -1,5 +1,7 @@
 package com.example.mini.global.security.config;
 
+import com.example.mini.global.auth.external.GoogleApiClient;
+import com.example.mini.global.auth.external.KakaoApiClient;
 import com.example.mini.global.auth.service.GoogleAuthService;
 import com.example.mini.global.auth.service.KakaoAuthService;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
@@ -39,8 +41,8 @@ public class SecurityConfig {
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;  // 추가된 부분
-	private final KakaoAuthService kakaoAuthService;
-	private final GoogleAuthService googleAuthService;
+	private final GoogleApiClient googleApiClientService;
+	private final KakaoApiClient kakaoApiClientService;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -52,7 +54,7 @@ public class SecurityConfig {
 				.requestMatchers(("/test")).permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
 				.anyRequest().permitAll())
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, kakaoAuthService, googleAuthService)
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, googleApiClientService, kakaoApiClientService)
 					, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}

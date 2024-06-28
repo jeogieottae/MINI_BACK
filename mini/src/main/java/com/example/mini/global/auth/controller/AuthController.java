@@ -1,5 +1,6 @@
 package com.example.mini.global.auth.controller;
 
+import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
@@ -42,7 +43,11 @@ public class AuthController {
 		CookieUtil.addCookie(response, "accessToken", loginResponse.getAccessToken(), TokenType.ACCESS.getExpireTime() / 1000);
 		CookieUtil.addCookie(response, "refreshToken", loginResponse.getRefreshToken(), TokenType.REFRESH.getExpireTime() / 1000);
 
-		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder().state(loginResponse.getState()).build()));
+		return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder()
+				.state(loginResponse.getState())
+				.accessToken(loginResponse.getAccessToken())
+				.refreshToken(loginResponse.getRefreshToken())
+				.build()));
 	}
 
 	@PostMapping("/logout")
@@ -71,6 +76,30 @@ public class AuthController {
 		log.info("재발급된 Access 토큰을 쿠키에 저장: NewAccessToken={}", newAccessToken);
 
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
+	}
+
+	@DeleteMapping("/withdraw")
+	public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) {
+		String accessToken = jwtProvider.resolveToken(request);
+		authService.withdraw(accessToken);
+
+		CookieUtil.deleteCookie(response, "accessToken");
+		CookieUtil.deleteCookie(response, "refreshToken");
+
+		return ResponseEntity.ok(ApiResponse.DELETE());
+	}
+
+	@PostMapping("/nickname")
+	public ResponseEntity<ApiResponse<String>> changeNickname(
+			HttpServletRequest request,
+			@RequestBody ChangeNicknameRequest changeNicknameRequest) {
+
+		String accessToken = jwtProvider.resolveToken(request);
+		String newNickname = changeNicknameRequest.getNickname();
+
+		authService.updateNickname(accessToken, newNickname);
+
+		return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
 	}
 
 }

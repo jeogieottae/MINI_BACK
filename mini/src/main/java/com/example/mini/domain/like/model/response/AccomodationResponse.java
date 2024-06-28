@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class AccomodationResponse {
   private String name;
   private String description;
-  private int postalCode;
+  private String postalCode;
   private String address;
 }
