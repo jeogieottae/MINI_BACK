@@ -2,6 +2,8 @@ package com.example.mini.global.security.filter;
 
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
+import com.example.mini.global.auth.external.GoogleApiClient;
+import com.example.mini.global.auth.external.KakaoApiClient;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.service.GoogleAuthService;
@@ -37,8 +39,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
 	private final TokenService tokenService;
-	private final KakaoAuthService kakaoAuthService;
-	private final GoogleAuthService googleAuthService;
+	private final GoogleApiClient googleApiClient;
+	private final KakaoApiClient kakaoApiClient;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -115,10 +117,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		Function<Map<String, Object>, TokenInfo> infoExtractor;
 
 		if (provider.equals("google")) {
-			GoogleUserInfo googleUserInfo = googleAuthService.getGoogleUserInfo(token);
+			GoogleUserInfo googleUserInfo = googleApiClient.getGoogleUserInfo(token);
 			return new TokenInfo(googleUserInfo.getEmail() != null, googleUserInfo.getEmail());
 		} else if (provider.equals("kakao")) {
-			KakaoUserInfo kakaoUserInfo = kakaoAuthService.getKakaoUserInfo(token);
+			KakaoUserInfo kakaoUserInfo = kakaoApiClient.getKakaoUserInfo(token);
 			return new TokenInfo(kakaoUserInfo.getEmail() != null, kakaoUserInfo.getEmail());
 		} else {
 			return null; // 지원하지 않는 제공자

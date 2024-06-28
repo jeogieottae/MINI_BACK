@@ -3,8 +3,10 @@ package com.example.mini.global.auth.service;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.repository.MemberRepository;
+import com.example.mini.domain.member.service.KakaoMemberService;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
+import com.example.mini.global.auth.external.KakaoApiClient;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
@@ -36,185 +38,54 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KakaoAuthService {
 
-    private final MemberRepository memberRepository;
+    private final KakaoApiClient kakaoApiClient;
+    private final KakaoMemberService kakaoMemberService;
     private final UserDetailsServiceImpl userDetailsService;
 
+    public TokenResponse authenticateKakao(String code) {
+        TokenResponse tokenResponse = kakaoApiClient.getKakaoToken(code);
+        KakaoUserInfo userInfo = kakaoApiClient.getKakaoUserInfo(tokenResponse.getAccess_token());
+        Member member = kakaoMemberService.saveOrUpdateKakaoMember(userInfo);
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String clientId;
+        setSecurityContext(member.getEmail());
+        setTokenCookies(tokenResponse);
 
-    @Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
-    private String clientSecret;
-
-    @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-    private String redirectUri;
-
-    private final String TOKEN_URI = "https://kauth.kakao.com/oauth/token";
-
-    public TokenResponse getKakaoToken(String code) {
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "authorization_code");
-        params.add("client_id", clientId);
-        params.add("redirect_uri", redirectUri);
-        params.add("code", code);
-        params.add("client_secret", clientSecret);
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        ResponseEntity<TokenResponse> response = restTemplate.postForEntity(TOKEN_URI, request, TokenResponse.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-
-            TokenResponse body = response.getBody();
-
-            // 토큰을 쿠키에 저장
-            HttpServletResponse HttpResponse = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-
-            String kakaoAccessToken = body.getAccess_token();
-            Integer kakaoAccessTokenExpiresIn = body.getExpires_in();
-            String kakaoRefreshToken = body.getRefresh_token();
-            Integer refreshTokenExpiresIn = body.getRefresh_token_expires_in();
-
-            CookieUtil.addCookie(HttpResponse, "kakaoAccessToken", kakaoAccessToken, kakaoAccessTokenExpiresIn);
-            CookieUtil.addCookie(HttpResponse, "kakaoRefreshToken", kakaoRefreshToken, refreshTokenExpiresIn);
-            log.info("AccessToken 쿠키 설정: {}", kakaoAccessToken);
-            log.info("RefreshToken 쿠키 설정: {}", kakaoRefreshToken);
-
-            return body;
-        } else {
-            throw new GlobalException(AuthErrorCode.TOKEN_FETCH_FAILED);
-        }
+        return tokenResponse;
     }
 
-    public KakaoUserInfo getKakaoUserInfo(String kakaoAccessToken) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + kakaoAccessToken);
-        HttpEntity<String> entity = new HttpEntity<>("", headers);
-
-        ResponseEntity<Map> response = restTemplate.exchange(
-                "https://kapi.kakao.com/v2/user/me",
-                HttpMethod.GET,
-                entity,
-                Map.class
-        );
-
-        Map<String, Object> attributes = response.getBody();
-
-        return new KakaoUserInfo(attributes);
+    public TokenResponse refreshKakaoToken(String refreshToken) {
+        TokenResponse tokenResponse = kakaoApiClient.getKakaoRefreshedToken(refreshToken);
+        setTokenCookies(tokenResponse);
+        return tokenResponse;
     }
 
-    public Member saveKakaoMember(KakaoUserInfo kakaoUserInfo) {
-
-        String email = kakaoUserInfo.getEmail();
-        String name = kakaoUserInfo.getNickname();
-
-        Member member = memberRepository.findByEmail(email)
-                .map(entity -> entity.update(name))
-                .orElse(Member.builder()
-                        .name(name)
-                        .nickname(name)
-                        .email(email)
-                        .password("OAuth password")
-                        .build());
-        member.setState(MemberState.ACTIVE);
-        memberRepository.save(member);
-
-
-        // SecurityContext에 인증 정보 저장
-        UserDetails userDetails;
-        userDetails = userDetailsService.loadUserByEmail(email);
-
+    private void setSecurityContext(String email) {
+        UserDetails userDetails = userDetailsService.loadUserByEmail(email);
         Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         log.info("SecurityContext에 인증 정보 저장 완료: {}", authentication);
-
-        return member;
     }
 
-    public TokenResponse getKakaoRefreshedToken(String refreshToken) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    private void setTokenCookies(TokenResponse tokenResponse) {
+        HttpServletResponse httpResponse = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        CookieUtil.addCookie(httpResponse, "kakaoAccessToken", tokenResponse.getAccess_token(), tokenResponse.getExpires_in());
+        log.info("AccessToken 쿠키 설정: {}", tokenResponse.getAccess_token());
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "refresh_token");
-        params.add("client_id", clientId);
-        params.add("refresh_token", refreshToken);
-        params.add("client_secret", clientSecret);
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        ResponseEntity<TokenResponse> response = restTemplate.postForEntity(TOKEN_URI, request, TokenResponse.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            TokenResponse body = response.getBody();
-
-            // 토큰을 쿠키에 저장
-            HttpServletResponse httpResponse = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-
-            String kakaoAccessToken = body.getAccess_token();
-            Integer kakaoAccessTokenExpiresIn = body.getExpires_in();
-
-            CookieUtil.addCookie(httpResponse, "kakaoAccessToken", kakaoAccessToken, kakaoAccessTokenExpiresIn);
-            log.info("Refreshed AccessToken 쿠키 설정: {}", kakaoAccessToken);
-
-            // 새로운 리프레시 토큰이 발급된 경우에만 쿠키 업데이트
-            if (body.getRefresh_token() != null) {
-                String kakaoRefreshToken = body.getRefresh_token();
-                Integer refreshTokenExpiresIn = body.getRefresh_token_expires_in();
-                CookieUtil.addCookie(httpResponse, "kakaoRefreshToken", kakaoRefreshToken, refreshTokenExpiresIn);
-                log.info("Refreshed RefreshToken 쿠키 설정: {}", kakaoRefreshToken);
-            }
-
-            return body;
-        } else {
-            throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        if (tokenResponse.getRefresh_token() != null) {
+            CookieUtil.addCookie(httpResponse, "kakaoRefreshToken", tokenResponse.getRefresh_token(), tokenResponse.getRefresh_token_expires_in());
+            log.info("RefreshToken 쿠키 설정: {}", tokenResponse.getRefresh_token());
         }
     }
 
-    public void setMemberInactive(String accessToken) {
-        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
-        Member member = memberRepository.findByEmail(kakaoUserInfo.getEmail()).get();
-        member.setState(MemberState.INACTIVE);
-        memberRepository.save(member);
+    public void withdrawMember(String accessToken) {
+        KakaoUserInfo userInfo = kakaoApiClient.getKakaoUserInfo(accessToken);
+        kakaoMemberService.withdrawMember(userInfo.getEmail());
+        log.info("Kakao 회원 탈퇴 성공: 이메일={}", userInfo.getEmail());
     }
 
-    @Transactional
-    public void withdraw(String accessToken) {
-        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
-        String email = kakaoUserInfo.getEmail();
-
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
-
-        // 회원 정보 삭제
-        memberRepository.delete(member);
-
-        log.info("Kakao 회원 탈퇴 성공: 이메일={}", email);
-    }
-
-    @Transactional
     public void updateNickname(String accessToken, String nickname) {
-        if (accessToken == null || accessToken.isEmpty()) {
-            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
-        }
-
-        KakaoUserInfo kakaoUserInfo = getKakaoUserInfo(accessToken);
-        String email = kakaoUserInfo.getEmail();
-
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
-
-        member.setNickname(nickname);
-        memberRepository.save(member);
-
-        log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, nickname);
+        KakaoUserInfo userInfo = kakaoApiClient.getKakaoUserInfo(accessToken);
+        kakaoMemberService.updateNickname(userInfo.getEmail(), nickname);
+        log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", userInfo.getEmail(), nickname);
     }
 }

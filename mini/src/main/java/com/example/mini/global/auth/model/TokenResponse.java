@@ -1,8 +1,10 @@
 package com.example.mini.global.auth.model;
 
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 public class TokenResponse {
     private String token_type;
     private String access_token;

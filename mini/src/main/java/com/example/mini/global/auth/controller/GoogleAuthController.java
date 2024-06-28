@@ -4,9 +4,11 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.domain.member.service.GoogleMemberService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
+import com.example.mini.global.auth.external.GoogleApiClient;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.auth.service.GoogleAuthService;
@@ -30,6 +32,8 @@ import java.io.IOException;
 public class GoogleAuthController {
 
     private final GoogleAuthService googleAuthService;
+    private final GoogleApiClient googleApiClient;
+    private final GoogleMemberService googleMemberService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
@@ -58,7 +62,9 @@ public class GoogleAuthController {
 
         // 사용자 비활성화 처리
         String accessToken = CookieUtil.getCookie(request, "googleAccessToken").getValue();
-        googleAuthService.setMemberInactive(accessToken);
+
+        GoogleUserInfo googleUserInfo = googleApiClient.getGoogleUserInfo(accessToken);
+        googleMemberService.setMemberInactive(googleUserInfo.getEmail());
 
         // 로그 아웃 url 없음
         // 쿠키, 세션 삭제
@@ -82,9 +88,9 @@ public class GoogleAuthController {
             throw new GlobalException(AuthErrorCode.AUTHENTICATION_FAILED);
         }
 
-        TokenResponse tokenResponse = googleAuthService.getGoogleToken(code);
-        GoogleUserInfo googleUserInfo = googleAuthService.getGoogleUserInfo(tokenResponse.getAccess_token());
-        Member member = googleAuthService.saveGoogleMember(googleUserInfo);
+        TokenResponse tokenResponse = googleAuthService.authenticateGoogle(code);
+        GoogleUserInfo googleUserInfo = googleApiClient.getGoogleUserInfo(tokenResponse.getAccess_token());
+        Member member = googleMemberService.saveOrUpdateGoogleMember(googleUserInfo);
 
         return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder()
                 .state(member.getState())
@@ -100,7 +106,8 @@ public class GoogleAuthController {
             throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
 
-        TokenResponse tokenResponse = googleAuthService.getGoogleRefreshedToken(refreshTokenCookie.getValue());
+        googleAuthService.refreshGoogleToken(refreshTokenCookie.getValue());
+
         return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
     }
 
@@ -111,8 +118,7 @@ public class GoogleAuthController {
             throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
 
-        String accessToken = accessTokenCookie.getValue();
-        googleAuthService.withdraw(accessToken);
+        googleAuthService.withdrawMember(accessTokenCookie.getValue());
 
         // 쿠키 삭제
         CookieUtil.deleteCookie(response, "googleAccessToken");

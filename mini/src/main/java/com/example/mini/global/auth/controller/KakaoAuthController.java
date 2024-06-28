@@ -3,9 +3,11 @@ package com.example.mini.global.auth.controller;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.domain.member.service.KakaoMemberService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
+import com.example.mini.global.auth.external.KakaoApiClient;
 import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.auth.service.KakaoAuthService;
@@ -31,6 +33,8 @@ import java.io.IOException;
 public class KakaoAuthController {
 
     private final KakaoAuthService kakaoAuthService;
+    private final KakaoMemberService kakaoMemberService;
+    private final KakaoApiClient kakaoApiClient;
 
     private String kakaoLogoutRedirectUri = "http://localhost:8080/api/protected/home";
 
@@ -59,7 +63,9 @@ public class KakaoAuthController {
 
         // 사용자 비활성화 처리
         String accessToken = CookieUtil.getCookie(request, "kakaoAccessToken").getValue();
-        kakaoAuthService.setMemberInactive(accessToken);
+
+        KakaoUserInfo kakaoUserInfo = kakaoApiClient.getKakaoUserInfo(accessToken);
+        kakaoMemberService.setMemberInactive(kakaoUserInfo.getEmail());
 
         // 쿠키 삭제
         CookieUtil.deleteCookie(response, "kakaoAccessToken");
@@ -84,9 +90,9 @@ public class KakaoAuthController {
             throw new GlobalException(AuthErrorCode.AUTHENTICATION_FAILED);
         }
 
-        TokenResponse tokenResponse = kakaoAuthService.getKakaoToken(code);
-        KakaoUserInfo kakaoUserInfo = kakaoAuthService.getKakaoUserInfo(tokenResponse.getAccess_token());
-        Member member = kakaoAuthService.saveKakaoMember(kakaoUserInfo);
+        TokenResponse tokenResponse = kakaoAuthService.authenticateKakao(code);
+        KakaoUserInfo kakaoUserInfo = kakaoApiClient.getKakaoUserInfo(tokenResponse.getAccess_token());
+        Member member = kakaoMemberService.saveOrUpdateKakaoMember(kakaoUserInfo);
 
         return ResponseEntity.ok(ApiResponse.OK(LoginResponse.builder()
                 .state(member.getState())
@@ -102,7 +108,8 @@ public class KakaoAuthController {
             throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
 
-        TokenResponse tokenResponse = kakaoAuthService.getKakaoRefreshedToken(refreshTokenCookie.getValue());
+        kakaoAuthService.refreshKakaoToken(refreshTokenCookie.getValue());
+
         return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
     }
 
@@ -115,8 +122,7 @@ public class KakaoAuthController {
             throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
 
-        String accessToken = accessTokenCookie.getValue();
-        kakaoAuthService.withdraw(accessToken);
+        kakaoAuthService.withdrawMember(accessTokenCookie.getValue());
 
         // 쿠키 삭제
         CookieUtil.deleteCookie(response, "kakaoAccessToken");
