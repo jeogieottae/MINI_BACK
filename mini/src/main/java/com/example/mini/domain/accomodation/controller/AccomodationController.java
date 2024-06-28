@@ -39,7 +39,6 @@ public class AccomodationController {
     }
 
 
-
     @GetMapping("/{accomodationId}")
     public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(
             @PathVariable Long accomodationId
