@@ -4,13 +4,11 @@ package com.example.mini.domain.accomodation.service;
 import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
-import com.example.mini.domain.reservation.service.ReservationService;
 import org.springframework.data.domain.Pageable;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
-import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
-import com.example.mini.domain.accomodation.model.AccomodationSearch;
+import com.example.mini.domain.accomodation.model.response.AccomodationSearch;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
@@ -218,6 +216,13 @@ public class AccomodationService {
         }
     }
 
+    /**
+     * 체크인 체크아웃 형식 변환
+     *
+     * @param checkIn   체크인
+     * @param checkOut  체크아웃
+     * @return          체크인 체크아웃 리스트
+     */
     private List<LocalDateTime> dateTimeFormatter(String checkIn, String checkOut) {
         LocalDateTime ConvertedCheckIn;
         LocalDateTime ConvertedCheckOut;

@@ -1,6 +1,5 @@
 package com.example.mini.domain.accomodation.controller;
 
-import com.example.mini.domain.accomodation.model.request.AccomodationRequestDto;
 import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.api.ApiResponse;
