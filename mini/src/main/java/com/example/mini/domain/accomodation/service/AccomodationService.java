@@ -112,10 +112,7 @@ public class AccomodationService {
 
         List<ReviewResponse> reviewResponses = latestReviews.stream()
             .map(review -> {
-                ReviewResponse response = new ReviewResponse();
-                response.setComment(review.getComment());
-                response.setStar(review.getStar());
-                return response;
+                return new ReviewResponse(review.getComment(), review.getStar());
             })
             .collect(Collectors.toList());
 

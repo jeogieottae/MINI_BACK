@@ -1,9 +1,13 @@
 package com.example.mini.domain.review.model.response;
 
 import java.time.LocalDateTime;
-import lombok.Data;
 
-@Data
+import lombok.*;
+
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccomodationReviewResponse {
   private String comment;
   private int star;

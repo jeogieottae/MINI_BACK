@@ -65,10 +65,7 @@ public class ReviewService {
 
     reviewRepository.save(review);
 
-    ReviewResponse response = new ReviewResponse();
-    response.setComment(review.getComment());
-    response.setStar(review.getStar());
-    return response;
+    return new ReviewResponse(review.getComment(), review.getStar());
   }
 
   private void validateReviewRequest(ReviewRequest request) {
@@ -108,12 +105,12 @@ public class ReviewService {
   }
 
   private AccomodationReviewResponse convertToAccomodationReviewResponse(Review review) {
-    AccomodationReviewResponse response = new AccomodationReviewResponse();
-    response.setComment(review.getComment());
-    response.setStar(review.getStar());
-    response.setMemberName(review.getMember().getName());
-    response.setCreatedAt(review.getCreatedAt());
-    return response;
+    return AccomodationReviewResponse.builder()
+            .comment(review.getComment())
+            .star(review.getStar())
+            .memberName(review.getMember().getName())
+            .createdAt(review.getCreatedAt())
+            .build();
   }
 }
 
