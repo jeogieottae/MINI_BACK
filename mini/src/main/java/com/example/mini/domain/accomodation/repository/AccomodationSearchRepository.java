@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface AccomodationSearchRepository extends ElasticsearchRepository<AccomodationSearch, Long> {
     List<AccomodationSearch> findAccommodationsByName(String keyword);
 }

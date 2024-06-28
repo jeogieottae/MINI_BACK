@@ -157,7 +157,7 @@ public class AccomodationService {
         }
     }
 
-    // elastic 데이터 삽입 테스트
+/*    // elastic 데이터 삽입 테스트
     public AccomodationResponseDto saveAccomodation(AccomodationRequestDto requestDto) {
         Accomodation accomodation = Accomodation.builder()
                 .name(requestDto.getName())
@@ -174,5 +174,5 @@ public class AccomodationService {
         AccomodationSearch search = new AccomodationSearch(saved.getId(), saved.getName());
         accomodationSearchRepository.save(search);
         return AccomodationResponseDto.toDto(saved);
-    }
+    }*/
 }

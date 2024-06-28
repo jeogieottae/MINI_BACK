@@ -55,12 +55,12 @@ public class LikeService {
     Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, pageable);
     return likes.map(like -> {
       Accomodation accomodation = like.getAccomodation();
-      AccomodationResponse response = new AccomodationResponse();
-      response.setName(accomodation.getName());
-      response.setDescription(accomodation.getDescription());
-      response.setPostalCode(accomodation.getPostalCode());
-      response.setAddress(accomodation.getAddress());
-      return response;
+      return AccomodationResponse.builder()
+          .name(accomodation.getName())
+          .description(accomodation.getDescription())
+          .postalCode(accomodation.getPostalCode())
+          .address(accomodation.getAddress())
+          .build();
     });
   }
 }
