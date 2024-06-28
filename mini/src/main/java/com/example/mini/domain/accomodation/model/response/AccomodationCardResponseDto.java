@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccomodationCardResponseDto {

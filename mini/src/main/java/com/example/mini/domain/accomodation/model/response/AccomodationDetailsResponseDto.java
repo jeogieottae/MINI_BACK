@@ -7,7 +7,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccomodationDetailsResponseDto {
