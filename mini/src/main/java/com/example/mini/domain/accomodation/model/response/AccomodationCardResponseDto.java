@@ -22,7 +22,7 @@ public class AccomodationCardResponseDto {
     private LocalDateTime checkOut;
     private String category;
     private Integer minPrice;
-    private boolean reservationAble;
+    private boolean reservationAvailable;
 
     public static AccomodationCardResponseDto toDto(Accomodation accomodation, Integer minPrice, boolean reservationAble) {
         return AccomodationCardResponseDto.builder()
@@ -37,7 +37,7 @@ public class AccomodationCardResponseDto {
                 .checkOut(accomodation.getCheckOut())
                 .category(accomodation.getCategory().getName())
                 .minPrice(minPrice)
-                .reservationAble(reservationAble)
+                .reservationAvailable(reservationAble)
                 .build();
     }
 

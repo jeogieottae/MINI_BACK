@@ -23,7 +23,6 @@ public class AccomodationResponseDto {
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private String category;
-//    private Integer minPrice;
 
     public static AccomodationResponseDto toDto(Accomodation accomodation) {
         return AccomodationResponseDto.builder()
@@ -37,7 +36,6 @@ public class AccomodationResponseDto {
                 .checkIn(accomodation.getCheckIn())
                 .checkOut(accomodation.getCheckOut())
                 .category(accomodation.getCategory().getName())
-//                .minPrice(minPrice)
                 .build();
     }
 }
