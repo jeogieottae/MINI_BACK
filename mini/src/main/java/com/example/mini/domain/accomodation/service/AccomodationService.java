@@ -2,6 +2,9 @@ package com.example.mini.domain.accomodation.service;
 
 
 import com.example.mini.domain.accomodation.model.response.*;
+import com.example.mini.domain.reservation.entity.Reservation;
+import com.example.mini.domain.reservation.repository.ReservationRepository;
+import com.example.mini.domain.reservation.service.ReservationService;
 import org.springframework.data.domain.Pageable;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
@@ -27,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 @Slf4j
 @Service
 @Transactional
@@ -37,6 +42,7 @@ public class AccomodationService {
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
     private final ReviewRepository reviewRepository;
+    private final ReservationRepository reservationRepository;
     private final int PageSize = 20; // 페이지 크기
 
 
@@ -95,8 +101,14 @@ public class AccomodationService {
         Pageable pageable = PageRequest.of(0, 5);
         List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, pageable);
         Double avgStar = reviewRepository.findAverageStarByAccomodation(accomodation);
+        LocalDateTime checkIn = LocalDateTime.now();
+        LocalDateTime checkOut = LocalDateTime.now();
 
-        List<RoomResponseDto> roomResponseDtos = rooms.stream().map(RoomResponseDto::toDto).toList();
+        List<RoomResponseDto> roomResponseDtos = rooms.stream().map(room -> {
+            Boolean isAvailable = reservationAvailable(checkIn, checkOut, room.getId());
+            RoomResponseDto dto = RoomResponseDto.toDto(room, isAvailable);
+            return dto;
+        }).toList();
 
         List<ReviewResponse> reviewResponses = latestReviews.stream()
             .map(review -> {
@@ -127,7 +139,7 @@ public class AccomodationService {
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         if(!accomodationId.equals(room.getAccomodation().getId()))
             throw new GlobalException(AccomodationErrorCode.INVALID_ROOM_REQUEST);
-        return RoomResponseDto.toDto(room);
+        return RoomDetailResponseDto.toDto(room);
     }
 
     /**
@@ -139,6 +151,7 @@ public class AccomodationService {
     private PagedResponse<AccomodationResponseDto> setResponse(Page<Accomodation> accommodations) {
         List<AccomodationResponseDto> content = accommodations.getContent().stream()
                 .map(AccomodationResponseDto::toDto).toList();
+
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
 
@@ -146,10 +159,42 @@ public class AccomodationService {
         List<AccomodationCardResponseDto> content = accommodations.getContent().stream()
                 .map(accommodation -> {
                     Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
-                    return AccomodationCardResponseDto.toDto(accommodation, minPrice);
+                    List<Room> rooms = roomRepository.findByAccomodationId(accommodation.getId());
+                    LocalDateTime checkIn = LocalDateTime.now();
+                    LocalDateTime checkOut = checkIn.plusDays(1);
+
+                    List<Boolean> availables = rooms.stream().map(room -> {
+                        return reservationAvailable(checkIn, checkOut, room.getId());
+                    }).toList();
+                    boolean isAvailable = checkReservationAvailable(availables);
+                    return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
                 })
                 .toList();
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
+    }
+
+    public boolean checkReservationAvailable(List<Boolean> availables) {
+        // Check if any element in the list is true
+        boolean reservationAvailable = availables.stream().anyMatch(available -> available);
+        return reservationAvailable;
+    }
+
+    /**
+     * 해당 객실의 예약가능 여부를 반환하는 메서드
+     *
+     * @param checkIn   예약할 checkIn 정보
+     * @param checkOut  예약할 checkOut 정보
+     * @param roomId    조회할 객실 id
+     * @return          예약가능 여부
+     */
+    private boolean reservationAvailable(LocalDateTime checkIn, LocalDateTime checkOut, Long roomId) {
+        List<Long> list = asList(roomId);
+        List<Reservation> reservations = reservationRepository.findOverlappingReservations(list, checkIn, checkOut);
+        if(reservations.isEmpty()) {
+            // 그 시간에 예약 가능함
+            return true;
+        }
+        return false;
     }
 
     /**
