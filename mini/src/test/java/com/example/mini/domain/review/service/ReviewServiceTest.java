@@ -49,10 +49,11 @@ class ReviewServiceTest {
   void addReview_GivenValidRequest_WhenAllConditionsMet_ThenReviewIsAdded() {
     // Given
     Long memberId = 1L;
-    ReviewRequest request = new ReviewRequest();
-    request.setAccomodationId(1L);
-    request.setComment("Great stay!");
-    request.setStar(5);
+    ReviewRequest request = ReviewRequest.builder()
+            .accomodationId(1L)
+            .comment("Great stay!")
+            .star(5)
+            .build();
 
     Member member = new Member();
     member.setId(memberId);
@@ -83,10 +84,11 @@ class ReviewServiceTest {
   void addReview_GivenInvalidRequest_WhenReservationNotFound_ThenThrowsException() {
     // Given
     Long memberId = 1L;
-    ReviewRequest request = new ReviewRequest();
-    request.setAccomodationId(1L);
-    request.setComment("Great stay!");
-    request.setStar(5);
+    ReviewRequest request = ReviewRequest.builder()
+            .accomodationId(1L)
+            .comment("Great stay!")
+            .star(5)
+            .build();
 
     Member member = new Member();
     member.setId(memberId);
@@ -103,10 +105,11 @@ class ReviewServiceTest {
   void addReview_GivenInvalidRequest_WhenReviewExists_ThenThrowsException() {
     // Given
     Long memberId = 1L;
-    ReviewRequest request = new ReviewRequest();
-    request.setAccomodationId(1L);
-    request.setComment("Great stay!");
-    request.setStar(5);
+    ReviewRequest request = ReviewRequest.builder()
+            .accomodationId(1L)
+            .comment("Great stay!")
+            .star(5)
+            .build();
 
     Member member = new Member();
     member.setId(memberId);
@@ -132,10 +135,11 @@ class ReviewServiceTest {
   void addReview_GivenInvalidRequest_WhenInvalidStar_ThenThrowsException() {
     // Given
     Long memberId = 1L;
-    ReviewRequest request = new ReviewRequest();
-    request.setAccomodationId(1L);
-    request.setComment("Great stay!");
-    request.setStar(6);
+    ReviewRequest request = ReviewRequest.builder()
+            .accomodationId(1L)
+            .comment("Great stay!")
+            .star(5)
+            .build();
 
     // When & Then
     assertThrows(GlobalException.class, () -> reviewService.addReview(memberId, request));
@@ -145,10 +149,11 @@ class ReviewServiceTest {
   void addReview_GivenInvalidRequest_WhenEmptyComment_ThenThrowsException() {
     // Given
     Long memberId = 1L;
-    ReviewRequest request = new ReviewRequest();
-    request.setAccomodationId(1L);
-    request.setComment("");
-    request.setStar(5);
+    ReviewRequest request = ReviewRequest.builder()
+            .accomodationId(1L)
+            .comment("Great stay!")
+            .star(5)
+            .build();
 
     // When & Then
     assertThrows(GlobalException.class, () -> reviewService.addReview(memberId, request));
