@@ -19,14 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {
-    "http://localhost:8080",
-    "http://3.38.1.70:8080",
-    "http://ec2-3-38-1-70.ap-northeast-2.compute.amazonaws.com:8080",
-    "http://localhost:3000",
-    "https://localhost:3000",
-    "https://127.0.0.1:3000"
-})
 public class CartController {
 
   private final CartService cartService;
