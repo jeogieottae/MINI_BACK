@@ -9,11 +9,15 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.LikeErrorCode;
+import com.example.mini.global.model.dto.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -23,6 +27,8 @@ public class LikeService {
   private final LikeRepository likeRepository;
   private final MemberRepository memberRepository;
   private final AccomodationRepository accomodationRepository;
+
+  private final int pageSize = 10;
 
   @Transactional
   public void addLike(Long memberId, Long accomodationId) {
@@ -51,16 +57,10 @@ public class LikeService {
   }
 
   @Transactional(readOnly = true)
-  public Page<AccomodationResponse> getLikedAccomodations(Long memberId, Pageable pageable) {
-    Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, pageable);
-    return likes.map(like -> {
-      Accomodation accomodation = like.getAccomodation();
-      return AccomodationResponse.builder()
-          .name(accomodation.getName())
-          .description(accomodation.getDescription())
-          .postalCode(accomodation.getPostalCode())
-          .address(accomodation.getAddress())
-          .build();
-    });
+  public PagedResponse<AccomodationResponse> getLikedAccomodations(Long memberId, int page) {
+    Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, PageRequest.of(page-1, pageSize));
+
+    List<AccomodationResponse> content = likes.stream().map(like -> AccomodationResponse.toDto(like.getAccomodation())).toList();
+    return new PagedResponse<>(likes.getTotalPages(), likes.getTotalElements(), content);
   }
 }

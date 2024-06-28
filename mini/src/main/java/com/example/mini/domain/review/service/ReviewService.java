@@ -15,6 +15,9 @@ import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReviewErrorCode;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.example.mini.global.model.dto.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +35,8 @@ public class ReviewService {
   private final MemberRepository memberRepository;
   private final AccomodationRepository accomodationRepository;
   private final ReservationRepository reservationRepository;
+
+  private final int pageSize = 10;
 
   public ReviewResponse addReview(Long memberId, ReviewRequest request) {
     Member member = getMember(memberId);
@@ -96,12 +101,13 @@ public class ReviewService {
   }
 
 
-  public Page<AccomodationReviewResponse> getReviewsByAccomodationId(Long accomodationId, int page, int size) {
+  public PagedResponse<AccomodationReviewResponse> getReviewsByAccomodationId(Long accomodationId, int page) {
     Accomodation accomodation = getValidAccomodation(accomodationId);
-    Pageable pageable = PageRequest.of(page, size);
+    Pageable pageable = PageRequest.of(page-1, pageSize);
     Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, pageable);
+    List<AccomodationReviewResponse> content = reviewPage.stream().map(this::convertToAccomodationReviewResponse).toList();
 
-    return reviewPage.map(this::convertToAccomodationReviewResponse);
+    return new PagedResponse<>(reviewPage.getTotalPages(), reviewPage.getTotalElements(), content);
   }
 
   private AccomodationReviewResponse convertToAccomodationReviewResponse(Review review) {

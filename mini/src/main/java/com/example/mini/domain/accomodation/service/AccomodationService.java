@@ -4,6 +4,7 @@ package com.example.mini.domain.accomodation.service;
 import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
+import com.example.mini.global.model.dto.PagedResponse;
 import org.springframework.data.domain.Pageable;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;

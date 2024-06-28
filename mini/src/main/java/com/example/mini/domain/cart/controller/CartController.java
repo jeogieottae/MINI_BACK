@@ -6,11 +6,9 @@ import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,11 +23,11 @@ public class CartController {
 
   //장바구니 보기
   @GetMapping
-  public ResponseEntity<ApiResponse<Page<CartResponse>>> getAllCartItems(
+  public ResponseEntity<ApiResponse<PagedResponse<CartResponse>>> getAllCartItems(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @PageableDefault(size = 10) Pageable pageable
+      @RequestParam(value = "page", defaultValue = "1") int page
   ) {
-    Page<CartResponse> cartItems = cartService.getAllCartItems(userDetails.getMemberId(), pageable);
+    PagedResponse<CartResponse> cartItems = cartService.getAllCartItems(userDetails.getMemberId(), page);
     return ResponseEntity.ok(ApiResponse.OK(cartItems));
   }
 

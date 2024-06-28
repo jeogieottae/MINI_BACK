@@ -14,6 +14,7 @@ import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
+import com.example.mini.global.model.dto.PagedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -144,8 +145,8 @@ class ReservationServiceTest {
         .thenReturn(page);
 
     // When
-    Page<ReservationSummaryResponse> result = reservationService.getAllReservations(memberId,
-        pageable);
+    PagedResponse<ReservationSummaryResponse> result = reservationService.getAllReservations(memberId,
+        pageable.getPageNumber());
 
     // Then
     assertNotNull(result);
