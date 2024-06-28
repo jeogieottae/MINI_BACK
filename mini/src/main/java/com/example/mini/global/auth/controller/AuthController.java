@@ -8,7 +8,6 @@ import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
 import com.example.mini.global.security.jwt.JwtProvider;
-import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.Cookie;
@@ -24,19 +23,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = {
-	"http://localhost:8080",
-	"http://3.38.1.70:8080",
-	"http://ec2-3-38-1-70.ap-northeast-2.compute.amazonaws.com:8080",
-	"http://localhost:3000",
-	"https://localhost:3000",
-	"https://127.0.0.1:3000"
-})
 public class AuthController {
 
 	private final AuthService authService;
 	private final JwtProvider jwtProvider;
-	private final TokenService tokenService;
 
 	@Value("${server.ssl.enabled:false}")
 	private boolean isSecure;
@@ -87,4 +77,5 @@ public class AuthController {
 
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
+
 }

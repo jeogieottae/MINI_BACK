@@ -39,11 +39,6 @@ public class ApiResponse<T> {
 		apiResponse.result = Result.ERROR(errorCode);
 		return apiResponse;
 	}
-	public static ApiResponse<Object> ERROR(ErrorCode errorCode, String description) {
-		ApiResponse apiResponse = new ApiResponse<Object>();
-		apiResponse.result = Result.ERROR(errorCode, description);
-		return apiResponse;
-	}
 	public static ApiResponse<Object> VALIDATION_ERROR(List<String> errors) {
 		ApiResponse<Object> apiResponse = new ApiResponse<>();
 		apiResponse.result = Result.VALIDATION_ERROR(errors);

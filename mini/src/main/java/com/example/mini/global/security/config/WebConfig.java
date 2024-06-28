@@ -16,7 +16,8 @@ public class WebConfig implements WebMvcConfigurer {
 				"http://ec2-3-38-1-70.ap-northeast-2.compute.amazonaws.com:8080",
 				"http://localhost:3000",
 				"https://localhost:3000",
-				"https://127.0.0.1:3000"
+				"https://127.0.0.1:3000",
+				"https://your-trip-pied.vercel.app"
 			)
 			.allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
 			.allowedHeaders("Authorization", "Cache-Control", "Content-Type")

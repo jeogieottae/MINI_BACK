@@ -1,6 +1,8 @@
 package com.example.mini.global.security.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+import com.example.mini.global.auth.service.GoogleAuthService;
+import com.example.mini.global.auth.service.KakaoAuthService;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -44,6 +46,9 @@ public class SecurityConfig {
 		"/v3/api-docs/**"
 	};
 
+	private final KakaoAuthService kakaoAuthService;
+	private final GoogleAuthService googleAuthService;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable())
@@ -52,9 +57,11 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(swagger).permitAll()
 				.requestMatchers("/api/protected/**").authenticated()
+				.requestMatchers(("/test")).permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
-				.anyRequest().authenticated())
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService), UsernamePasswordAuthenticationFilter.class);
+				.anyRequest().permitAll())
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, kakaoAuthService, googleAuthService)
+					, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
 
@@ -79,7 +86,8 @@ public class SecurityConfig {
 			"http://ec2-3-38-1-70.ap-northeast-2.compute.amazonaws.com:8080",
 			"http://localhost:3000",
 			"https://localhost:3000",
-			"https://127.0.0.1:3000"
+			"https://127.0.0.1:3000",
+			"https://your-trip-pied.vercel.app"
 		));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
 		config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
