@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface AccomodationRepository extends JpaRepository<Accomodation, Long> {
 
     @Query("SELECT a FROM Accomodation a WHERE a.category = :category")

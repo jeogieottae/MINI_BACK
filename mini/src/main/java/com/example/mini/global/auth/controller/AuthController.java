@@ -73,6 +73,4 @@ public class AuthController {
 		return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
 	}
 
-
-
 }
