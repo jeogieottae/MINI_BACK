@@ -6,12 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class AccomodationResponse {
   private String name;
   private String description;
-  private int postalCode;
+  private String postalCode;
   private String address;
 }

@@ -1,6 +1,5 @@
 package com.example.mini.domain.member.entity;
 
-import com.example.mini.domain.member.entity.enums.MemberRole;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.cart.entity.Cart;
@@ -28,6 +27,10 @@ public class Member extends BaseEntity {
 
 	@Column(nullable = false)
 	private String name;
+
+	@Setter
+	@Column (nullable = false)
+	private String nickname;
 
 	@OneToOne(mappedBy = "member")
 	private Cart cart;

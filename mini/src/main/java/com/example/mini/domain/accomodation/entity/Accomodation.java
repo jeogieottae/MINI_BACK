@@ -1,7 +1,6 @@
 package com.example.mini.domain.accomodation.entity;
 
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
-import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
 
@@ -27,7 +26,7 @@ public class Accomodation extends BaseEntity {
 	private String description;
 
 	@Column(nullable = false)
-	private int postalCode;
+	private String postalCode;
 
 	@Column(nullable = false)
 	private String address;
@@ -51,6 +50,5 @@ public class Accomodation extends BaseEntity {
 
 	@OneToMany(mappedBy = "accomodation")
 	private List<Room> rooms = new ArrayList<>();
-
 
 }

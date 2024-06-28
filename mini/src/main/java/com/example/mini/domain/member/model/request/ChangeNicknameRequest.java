@@ -1,14 +1,16 @@
-package com.example.mini.domain.like.model.request;
+package com.example.mini.domain.member.model.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Builder;
 
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccomodationLikeRequest {
-  private Long accomodationId;
+public class ChangeNicknameRequest {
+
+    private String nickname;
+
 }
