@@ -3,6 +3,7 @@ package com.example.mini.domain.cart.controller;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
+import com.example.mini.domain.cart.model.response.CartConfirmResponse;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
@@ -43,12 +44,12 @@ public class CartController {
 
   // 장바구니 품목 확정
   @PutMapping
-  public ResponseEntity<Void> confirmCartItems(
+  public ResponseEntity<CartConfirmResponse> confirmCartItems(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @RequestBody ConfirmCartItemRequest request
-  ) {
-    cartService.confirmReservationItem(userDetails.getMemberId(), request);
-    return ResponseEntity.ok().build();
+      @RequestBody ConfirmCartItemRequest request) {
+    Long memberId = userDetails.getMemberId();
+    CartConfirmResponse response = cartService.confirmReservationItem(memberId, request);
+    return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   //장바구니 품목 삭제

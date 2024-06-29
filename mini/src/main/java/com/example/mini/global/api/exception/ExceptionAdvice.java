@@ -14,6 +14,7 @@ public class ExceptionAdvice {
     @ExceptionHandler(GlobalException.class)
     public ResponseEntity<ApiResponse<Object>> handleException(GlobalException ex) {
         ErrorCode errorCode = ex.getErrorCode();
+        log.warn("예외 발생 : {}", errorCode.getInfo());
         return ResponseEntity.status(errorCode.getCode()).body(ApiResponse.ERROR(errorCode));
     }
 }

@@ -5,6 +5,7 @@ import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
+import com.example.mini.domain.cart.model.response.CartConfirmResponse;
 import com.example.mini.domain.cart.repository.CartRepository;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
@@ -15,6 +16,7 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.redis.RedissonLock;
 import java.time.LocalDateTime;
@@ -39,7 +41,6 @@ public class CartService {
 
   private final int pageSize = 10;
 
-  @Transactional
   public PagedResponse<CartResponse> getAllCartItems(Long memberId, int page) {
       Member member = getMember(memberId);
       Cart cart = cartRepository.findByMember(member)
@@ -56,7 +57,6 @@ public class CartService {
         .orElseThrow(() -> new GlobalException(CartErrorCode.MEMBER_NOT_FOUND));
   }
 
-  @Transactional
   public ArrayList<Object> addCartItem(Long memberId, AddCartItemRequest request) {
     Member member = getMember(memberId);
 
@@ -126,7 +126,6 @@ public class CartService {
     return new ArrayList<>();
   }
 
-  @Transactional
   public void deleteCartItem(Long memberId, DeleteCartItemRequest request) {
     Member member = getMember(memberId);
 
@@ -155,9 +154,8 @@ public class CartService {
     cartRepository.save(cart);
   }
 
-  @Transactional
   @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
-  public void confirmReservationItem(Long memberId, ConfirmCartItemRequest request) {
+  public CartConfirmResponse confirmReservationItem(Long memberId, ConfirmCartItemRequest request) {
     Member member = getMember(memberId);
 
     Cart cart = cartRepository.findByMember(member)
@@ -182,24 +180,32 @@ public class CartService {
       throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
     }
 
-    List<Long> roomIds = Collections.singletonList(request.getRoomId());
-    LocalDateTime checkIn = request.getCheckIn();
-    LocalDateTime checkOut = request.getCheckOut();
+    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(
+        List.of(request.getRoomId()), request.getCheckIn(), request.getCheckOut()
+    );
 
-    List<Reservation> overlappingReservations = reservationRepository.findOverlappingReservations(roomIds, checkIn, checkOut);
     for (Reservation overlappingReservation : overlappingReservations) {
-      if (!overlappingReservation.getId().equals(reservation.getId())) {
-        throw new GlobalException(CartErrorCode.CONFLICTING_RESERVATION);
+      if (overlappingReservation.getStatus() == ReservationStatus.CONFIRMED) {
+        throw new GlobalException(ReservationErrorCode.CONFLICTING_RESERVATION);
       }
     }
+
 
     if (request.getPeopleNumber() > reservation.getRoom().getMaxGuests()) {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
     reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
-        request.getCheckOut(), request.getReservationId());
-    reservationRepository.updateReservationStatus(request.getReservationId(),
-        ReservationStatus.CONFIRMED);
+        request.getCheckOut(), ReservationStatus.CONFIRMED, request.getReservationId());
+
+    return CartConfirmResponse.builder()
+        .roomId(reservation.getRoom().getId())
+        .accomodationName(reservation.getRoom().getAccomodation().getName())
+        .roomName(reservation.getRoom().getName())
+        .checkIn(request.getCheckIn())
+        .checkOut(request.getCheckOut())
+        .peopleNumber(request.getPeopleNumber())
+        .totalPrice(reservation.getTotalPrice())
+        .build();
   }
 }
