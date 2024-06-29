@@ -19,6 +19,8 @@ import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -97,7 +99,8 @@ public class AccomodationService {
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
         AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
-        Double avgStar = reviewRepository.findAverageStarByAccomodation(accomodation);
+        List<Review> reviews = accomodation.getReviews();
+        Double avgStar = calculateAverageStar(reviews);
         List<ReviewResponse> reviewResponses = getReviewResponse(accomodation.getReviews());
         List<RoomResponseDto> roomResponseDtos = getRoomResponseDto(accomodationId, checkIn, checkOut);
 
@@ -193,6 +196,24 @@ public class AccomodationService {
             RoomResponseDto dto = RoomResponseDto.toDto(room, isAvailable);
             return dto;
         }).toList();
+    }
+
+
+    /**
+     * 리뷰 리스트를 이용하여 평균 별점을 계산하는 메서드
+     *
+     * @param reviews 리뷰 리스트
+     * @return 평균 별점
+     */
+    private Double calculateAverageStar(List<Review> reviews) {
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+        double sum = reviews.stream()
+            .mapToDouble(Review::getStar)
+            .sum();
+        BigDecimal average = BigDecimal.valueOf(sum).divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP);
+        return average.doubleValue();
     }
 
 
