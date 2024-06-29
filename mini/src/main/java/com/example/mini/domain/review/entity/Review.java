@@ -28,8 +28,8 @@ public class Review extends BaseEntity {
   private Member member;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "accommodation_id", nullable = false)
-  private Accomodation accommodation;
+  @JoinColumn(name = "accomodation_id", nullable = false)
+  private Accomodation accomodation;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "reservation_id", nullable = false, unique = true)

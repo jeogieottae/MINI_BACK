@@ -49,12 +49,12 @@ public class Accomodation extends BaseEntity {
 	@Column(nullable = false)
 	private AccomodationCategory category;
 
-	@OneToMany(mappedBy = "accommodation")
+	@OneToMany(mappedBy = "accomodation")
 	private List<Room> rooms = new ArrayList<>();
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
 	private List<Like> likes;
 
-	@OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
 	private List<Review> reviews;
 }
