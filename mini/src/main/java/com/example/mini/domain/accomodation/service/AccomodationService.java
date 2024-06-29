@@ -9,9 +9,11 @@ import com.example.mini.global.util.datetime.DateTimeUtil;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
+/*
 import com.example.mini.domain.accomodation.model.response.AccomodationSearch;
+*/
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
-import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
+/*import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;*/
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.response.ReviewResponse;
@@ -39,7 +41,7 @@ import static java.util.Arrays.asList;
 public class AccomodationService {
 
     private final AccomodationRepository accomodationRepository;
-    private final AccomodationSearchRepository accomodationSearchRepository;
+    /*private final AccomodationSearchRepository accomodationSearchRepository;*/
     private final RoomRepository roomRepository;
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
@@ -77,13 +79,13 @@ public class AccomodationService {
      * @param keyword   검색 키워드
      * @return          숙소 정보 목록을 포함한 응답 객체
      */
-    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(String keyword, int page, String checkIn, String checkOut) {
+/*    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(String keyword, int page, String checkIn, String checkOut) {
         List<AccomodationSearch> searches = accomodationSearchRepository.findAccommodationsByName(keyword);
         List<Long> idList = searches.stream().map(AccomodationSearch::getId).toList();
         Page<Accomodation> accommodations = accomodationRepository.findByIdList(idList, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
         return setResponse(accommodations, checkIn, checkOut);
-    }
+    }*/
 
     /**
      * 숙소 상세정보 조회

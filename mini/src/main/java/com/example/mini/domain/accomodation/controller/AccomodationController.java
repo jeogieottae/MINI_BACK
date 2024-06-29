@@ -38,6 +38,7 @@ public class AccomodationController {
     }
 
 
+/*
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> searchByAccommodationName(
             @RequestParam(value = "name", required = true) String keyword,
@@ -48,6 +49,7 @@ public class AccomodationController {
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.searchByAccommodationName(keyword, page, checkIn, checkOut);
         return ResponseEntity.ok(ApiResponse.OK(response));
     }
+*/
 
 
     @GetMapping("/{accomodationId}")
