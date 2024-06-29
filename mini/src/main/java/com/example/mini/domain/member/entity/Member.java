@@ -2,6 +2,7 @@ package com.example.mini.domain.member.entity;
 
 import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.member.entity.enums.MemberState;
+import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.cart.entity.Cart;
 import jakarta.persistence.CascadeType;
@@ -63,8 +64,11 @@ public class Member extends BaseEntity {
 		return this;
 	}
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
-	private List<Like> Likes;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<Like> likes;
+
+	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<Review> reviews;
 
 
 }
