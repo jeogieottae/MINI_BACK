@@ -1,4 +1,4 @@
-package com.example.mini.global.util.cookies;
+package com.example.mini.global.util.datetime;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

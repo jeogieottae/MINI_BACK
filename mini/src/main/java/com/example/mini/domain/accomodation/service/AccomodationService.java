@@ -5,8 +5,7 @@ import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.model.dto.PagedResponse;
-import com.example.mini.global.util.cookies.DateTimeUtil;
-import org.springframework.data.domain.Pageable;
+import com.example.mini.global.util.datetime.DateTimeUtil;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
@@ -20,7 +19,6 @@ import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -206,9 +204,7 @@ public class AccomodationService {
         System.out.println(accomodation.toString());
         List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(0, 5));
         return latestReviews.stream()
-                .map(review -> {
-                    return new ReviewResponse(review.getComment(), review.getStar());
-                }).collect(Collectors.toList());
+                .map(review -> new ReviewResponse(review.getComment(), review.getStar())).collect(Collectors.toList());
     }
 
 }

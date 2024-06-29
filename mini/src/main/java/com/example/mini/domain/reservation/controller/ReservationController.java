@@ -39,9 +39,9 @@ public class ReservationController {
     return ResponseEntity.ok(ApiResponse.OK(reservations));
   }
 
-  @GetMapping("/detail")
+  @GetMapping("/detail/{reservationId}")
   public ResponseEntity<ReservationDetailResponse> getReservationDetail(
-      @RequestParam("reservationId") Long reservationId,
+      @PathVariable("reservationId") Long reservationId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
     Long memberId = userDetails.getMemberId();

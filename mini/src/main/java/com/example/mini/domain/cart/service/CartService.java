@@ -43,8 +43,8 @@ public class CartService {
 
   public PagedResponse<CartResponse> getAllCartItems(Long memberId, int page) {
       Member member = getMember(memberId);
-      Cart cart = cartRepository.findByMember(member)
-              .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+    cartRepository.findByMember(member)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
 
     Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
         member.getId(), ReservationStatus.PENDING, PageRequest.of(page-1, pageSize));

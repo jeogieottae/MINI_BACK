@@ -47,7 +47,7 @@ public class GoogleMemberService {
     public void withdrawMember(String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
-        memberRepository.delete(member);
+        memberRepository.delete(member); //todo : db에서 아예 삭제할지, MemberState를 delete로 할지 고민
     }
 
     @Transactional

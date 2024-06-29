@@ -2,6 +2,7 @@ package com.example.mini.global.auth.service;
 
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
+import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
@@ -13,6 +14,8 @@ import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.cookies.CookieUtil;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -77,6 +80,17 @@ public class AuthService {
 	}
 
 	@Transactional
+	public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
+		Cookie refreshTokenCookie = CookieUtil.getCookie(request, "refreshToken");
+		if (refreshTokenCookie == null) {
+			throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
+		}
+		String newAccessToken = createAccessToken(refreshTokenCookie.getValue());
+		addAccessTokenCookie(response, newAccessToken);
+		log.info("재발급된 Access 토큰을 쿠키에 저장: NewAccessToken={}", newAccessToken);
+	}
+
+	@Transactional
 	public String createAccessToken(String refreshToken) {
 		Claims claims = jwtProvider.getUserInfoFromToken(refreshToken, TokenType.REFRESH);
 		String email = claims.getSubject();
@@ -128,22 +142,22 @@ public class AuthService {
 		log.info("회원 탈퇴 성공: 이메일={}", email);
 	}
 
-	public void updateNickname(String accessToken, String nickname) {
-		if (accessToken == null || accessToken.isEmpty()) {
-			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
-		}
 
+	@Transactional
+	public void updateNickname(HttpServletRequest request, ChangeNicknameRequest changeNicknameRequest) {
+		String accessToken = jwtProvider.resolveToken(request);
 		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
 		Member member = memberRepository.findByEmail(email)
 			.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
-		member.setNickname(nickname);
+		member.setNickname(changeNicknameRequest.getNickname());
 		memberRepository.save(member);
 
-		log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, nickname);
+		log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, changeNicknameRequest.getNickname());
 	}
 
-	// todo : 추후 util로 빼기 (공통 부분)
+
+	// todo : 이 부분을 어떻게 할지 고민 중
 	public void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
 		CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000);
 		CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000);
