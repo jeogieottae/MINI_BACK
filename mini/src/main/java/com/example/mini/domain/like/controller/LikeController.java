@@ -27,6 +27,7 @@ public class LikeController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
+
   @GetMapping
   public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponse>>> getLikedAccomodations(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
