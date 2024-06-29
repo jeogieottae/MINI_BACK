@@ -1,4 +1,4 @@
-package com.example.mini.domain.accomodation.model.response;
+package com.example.mini.global.model.dto;
 
 import lombok.*;
 
@@ -6,7 +6,6 @@ import java.util.List;
 
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class PagedResponse<T> {
     private int totalPages;

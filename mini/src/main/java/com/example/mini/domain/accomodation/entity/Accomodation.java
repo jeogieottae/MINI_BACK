@@ -43,7 +43,6 @@ public class Accomodation extends BaseEntity {
 	@Column(nullable = false)
 	private LocalDateTime checkOut;
 
-	@Setter
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private AccomodationCategory category;

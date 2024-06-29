@@ -14,11 +14,12 @@ import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.redis.RedissonLock;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,8 @@ public class ReservationService {
   private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
   private final MemberRepository memberRepository;
+
+  private final int pageSize = 10;
 
   @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   public ReservationResponse createConfirmedReservation(Long memberId, ReservationRequest request) {
@@ -105,9 +108,11 @@ public class ReservationService {
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.MEMBER_NOT_FOUND));
   }
 
-  public Page<ReservationSummaryResponse> getAllReservations(Long memberId, Pageable pageable) {
-    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, ReservationStatus.CONFIRMED, pageable);
-    return reservations.map(this::mapToSummaryResponse);
+  public PagedResponse<ReservationSummaryResponse> getAllReservations(Long memberId, int page) {
+    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(memberId, ReservationStatus.CONFIRMED, PageRequest.of(page-1, pageSize));
+//    return reservations.map(this::mapToSummaryResponse);
+    List<ReservationSummaryResponse> content = reservations.stream().map(this::mapToSummaryResponse).toList();
+    return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
   }
 
   private ReservationSummaryResponse mapToSummaryResponse(Reservation reservation) {

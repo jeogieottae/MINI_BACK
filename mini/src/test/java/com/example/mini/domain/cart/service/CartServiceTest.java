@@ -17,6 +17,8 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import java.util.Collections;
+
+import com.example.mini.global.model.dto.PagedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -108,7 +110,7 @@ public class CartServiceTest {
         pageable)).thenReturn(reservations);
 
     // When
-    Page<CartResponse> result = cartService.getAllCartItems(member.getId(), pageable);
+    PagedResponse<CartResponse> result = cartService.getAllCartItems(member.getId(), 1);
 
     // Then
     assertEquals(1, result.getTotalElements());

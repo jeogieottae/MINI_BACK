@@ -1,8 +1,11 @@
 package com.example.mini.domain.review.model.request;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReviewRequest {
   private Long accomodationId;
   private String comment;

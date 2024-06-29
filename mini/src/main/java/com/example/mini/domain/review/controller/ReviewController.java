@@ -5,9 +5,9 @@ import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
 import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.service.ReviewService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,18 +25,16 @@ public class ReviewController {
       @RequestBody ReviewRequest request,
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
-    Long memberId = userDetails.getMemberId();
-    ReviewResponse response = reviewService.addReview(memberId, request);
+    ReviewResponse response = reviewService.addReview(userDetails.getMemberId(), request);
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
   @GetMapping
-  public ResponseEntity<ApiResponse<Page<AccomodationReviewResponse>>> getReviewsByAccomodationId(
-      @RequestParam("accomodationId") Long accomodationId,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size
+  public ResponseEntity<ApiResponse<PagedResponse<AccomodationReviewResponse>>> getReviewsByAccomodationId(
+      @RequestParam(value = "id", required = true) Long accommodationId,
+      @RequestParam(defaultValue = "1") int page
   ) {
-    Page<AccomodationReviewResponse> reviews = reviewService.getReviewsByAccomodationId(accomodationId, page, size);
+    PagedResponse<AccomodationReviewResponse> reviews = reviewService.getReviewsByAccomodationId(accommodationId, page);
     return ResponseEntity.ok(ApiResponse.OK(reviews));
   }
 
