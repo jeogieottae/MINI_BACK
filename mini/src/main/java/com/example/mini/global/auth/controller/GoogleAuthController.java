@@ -39,7 +39,7 @@ public class GoogleAuthController {
     @GetMapping("/logout")
     public void googleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         googleAuthService.googleLogout(request, response);
-        response.sendRedirect("http://localhost:8080/api/protected/home");
+        response.sendRedirect("https://api.miniteam2.store/api/protected/home");
     }
 
     @GetMapping("/callback")
