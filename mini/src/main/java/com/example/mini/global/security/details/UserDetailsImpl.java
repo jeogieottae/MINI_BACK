@@ -1,7 +1,6 @@
 package com.example.mini.global.security.details;
 
 import com.example.mini.domain.member.entity.Member;
-import com.example.mini.domain.member.entity.enums.MemberRole;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import java.util.Collection;
 import java.util.HashSet;

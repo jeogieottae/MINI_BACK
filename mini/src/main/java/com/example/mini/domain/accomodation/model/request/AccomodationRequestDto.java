@@ -13,10 +13,4 @@ public class AccomodationRequestDto {
     private String name;
     private String description;
 
-    public Accomodation toEntity() {
-        return Accomodation.builder()
-                .name(name)
-                .description(description)
-                .build();
-    }
 }

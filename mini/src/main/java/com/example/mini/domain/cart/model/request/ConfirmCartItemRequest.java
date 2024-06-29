@@ -1,19 +1,20 @@
 package com.example.mini.domain.cart.model.request;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Data
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ConfirmCartItemRequest {
-  private List<ConfirmItem> confirmItems;
-
-  @Data
-  public static class ConfirmItem {
-    private Long reservationId;
-    private Long roomId;
-    private int peopleNumber;
-    private LocalDateTime checkIn;
-    private LocalDateTime checkOut;
-  }
+  private Long reservationId;
+  private Long roomId;
+  private int peopleNumber;
+  private LocalDateTime checkIn;
+  private LocalDateTime checkOut;
 }

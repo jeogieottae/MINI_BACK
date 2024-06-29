@@ -1,8 +1,9 @@
 package com.example.mini.global.security.config;
 
+
 import static org.springframework.security.config.Customizer.withDefaults;
-import com.example.mini.global.auth.service.GoogleAuthService;
-import com.example.mini.global.auth.service.KakaoAuthService;
+import com.example.mini.global.auth.external.GoogleApiClient;
+import com.example.mini.global.auth.external.KakaoApiClient;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -46,8 +47,8 @@ public class SecurityConfig {
 		"/v3/api-docs/**"
 	};
 
-	private final KakaoAuthService kakaoAuthService;
-	private final GoogleAuthService googleAuthService;
+	private final GoogleApiClient googleApiClientService;
+	private final KakaoApiClient kakaoApiClientService;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -60,7 +61,7 @@ public class SecurityConfig {
 				.requestMatchers(("/test")).permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
 				.anyRequest().permitAll())
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, kakaoAuthService, googleAuthService)
+			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, googleApiClientService, kakaoApiClientService)
 					, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}

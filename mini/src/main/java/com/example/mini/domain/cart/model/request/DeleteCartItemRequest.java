@@ -1,10 +1,16 @@
 package com.example.mini.domain.cart.model.request;
 
-import lombok.Data;
-
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import java.util.List;
 
-@Data
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeleteCartItemRequest {
   private List<Long> reservationIds;
 }

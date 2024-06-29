@@ -9,6 +9,7 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.LikeErrorCode;
+import com.example.mini.global.model.dto.PagedResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -123,7 +124,7 @@ class LikeServiceTest {
     Accomodation accomodation = Accomodation.builder()
         .name("Test Accomodation")
         .description("Test Description")
-        .postalCode(12345)
+        .postalCode("12345")
         .address("Test Address")
         .build();
     Like like = new Like(member, accomodation, true);
@@ -132,14 +133,14 @@ class LikeServiceTest {
     when(likeRepository.findByMemberIdAndIsLiked(memberId, true, pageable)).thenReturn(likes);
 
     // When
-    Page<AccomodationResponse> result = likeService.getLikedAccomodations(memberId, pageable);
+    PagedResponse<AccomodationResponse> result = likeService.getLikedAccomodations(memberId, 1);
 
     // Then
     assertEquals(1, result.getTotalElements());
     AccomodationResponse response = result.getContent().get(0);
     assertEquals("Test Accomodation", response.getName());
     assertEquals("Test Description", response.getDescription());
-    assertEquals(12345, response.getPostalCode());
+    assertEquals("12345", response.getPostalCode());
     assertEquals("Test Address", response.getAddress());
   }
 }

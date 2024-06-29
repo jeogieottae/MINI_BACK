@@ -15,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
   @Query("SELECT r FROM Reservation r " +
@@ -42,19 +41,17 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
   );
 
   @Modifying
-  @Query("UPDATE Reservation r SET r.status = :status WHERE r.id = :id")
-  void updateReservationStatus(@Param("id") Long id, @Param("status") ReservationStatus status);
-
-  @Modifying
   @Query("UPDATE Reservation r SET " +
       "r.peopleNumber = :peopleNumber, " +
       "r.checkIn = :checkIn, " +
-      "r.checkOut = :checkOut " +
+      "r.checkOut = :checkOut, " +
+      "r.status = :status " +
       "WHERE r.id = :id")
   void updateReservationDetails(
       @Param("peopleNumber") int peopleNumber,
       @Param("checkIn") LocalDateTime checkIn,
       @Param("checkOut") LocalDateTime checkOut,
+      @Param("status") ReservationStatus status,
       @Param("id") Long id
   );
 
@@ -74,8 +71,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       @Param("checkIn") LocalDateTime checkIn,
       @Param("checkOut") LocalDateTime checkOut
   );
-
-  boolean existsByMemberIdAndAccomodationIdAndStatus(Long memberId, Long accomodationId, ReservationStatus status);
 
   Optional<Reservation> findByMemberIdAndAccomodationIdAndStatus(Long memberId, Long accomodationId, ReservationStatus status);
 }

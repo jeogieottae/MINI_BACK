@@ -6,11 +6,9 @@ import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
 import com.example.mini.domain.reservation.service.ReservationService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,19 +31,17 @@ public class ReservationController {
   }
 
   @GetMapping
-  public ResponseEntity<ApiResponse<Page<ReservationSummaryResponse>>> getAllReservations(
+  public ResponseEntity<ApiResponse<PagedResponse<ReservationSummaryResponse>>> getAllReservations(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
-      @PageableDefault(size = 10) Pageable pageable
+      @RequestParam(value = "page", defaultValue = "1") int page
   ) {
-    Long memberId = userDetails.getMemberId();
-    Page<ReservationSummaryResponse> reservations = reservationService.getAllReservations(memberId,
-        pageable);
+    PagedResponse<ReservationSummaryResponse> reservations = reservationService.getAllReservations(userDetails.getMemberId(), page);
     return ResponseEntity.ok(ApiResponse.OK(reservations));
   }
 
-  @GetMapping("/detail")
+  @GetMapping("/detail/{reservationId}")
   public ResponseEntity<ReservationDetailResponse> getReservationDetail(
-      @RequestParam("reservationId") Long reservationId,
+      @PathVariable("reservationId") Long reservationId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
     Long memberId = userDetails.getMemberId();

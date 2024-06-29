@@ -1,8 +1,10 @@
 package com.example.mini.domain.review.model.response;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReviewResponse {
 
   private String comment;

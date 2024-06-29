@@ -1,10 +1,15 @@
 package com.example.mini.domain.cart.model.request;
 
-import lombok.Data;
-
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 
-@Data
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AddCartItemRequest {
 
   private Long roomId;

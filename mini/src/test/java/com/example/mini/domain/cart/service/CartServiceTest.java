@@ -5,7 +5,6 @@ import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.cart.model.request.AddCartItemRequest;
 import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
-import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest.ConfirmItem;
 import com.example.mini.domain.cart.model.request.DeleteCartItemRequest;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.repository.CartRepository;
@@ -16,6 +15,10 @@ import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.api.exception.error.CartErrorCode;
+import java.util.Collections;
+
+import com.example.mini.global.model.dto.PagedResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -107,7 +110,7 @@ public class CartServiceTest {
         pageable)).thenReturn(reservations);
 
     // When
-    Page<CartResponse> result = cartService.getAllCartItems(member.getId(), pageable);
+    PagedResponse<CartResponse> result = cartService.getAllCartItems(member.getId(), 1);
 
     // Then
     assertEquals(1, result.getTotalElements());
@@ -120,11 +123,12 @@ public class CartServiceTest {
   @Test
   public void testAddCartItemWithValidRequestShouldAddCartItem() {
     // Given
-    AddCartItemRequest request = new AddCartItemRequest();
-    request.setRoomId(room.getId());
-    request.setCheckIn(LocalDateTime.of(2023, 6, 21, 15, 0));
-    request.setCheckOut(LocalDateTime.of(2023, 6, 25, 12, 0));
-    request.setPeopleNumber(2);
+    AddCartItemRequest request = AddCartItemRequest.builder()
+        .roomId(room.getId())
+        .checkIn(LocalDateTime.of(2023, 6, 21, 15, 0))
+        .checkOut(LocalDateTime.of(2023, 6, 25, 12, 0))
+        .peopleNumber(2)
+        .build();
 
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
     when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
@@ -142,8 +146,9 @@ public class CartServiceTest {
   @Test
   public void testDeleteCartItemWithValidRequestShouldDeleteCartItem() {
     // Given
-    DeleteCartItemRequest request = new DeleteCartItemRequest();
-    request.setReservationIds(List.of(reservation.getId()));
+    DeleteCartItemRequest request = DeleteCartItemRequest.builder()
+        .reservationIds(List.of(reservation.getId()))
+        .build();
 
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
     when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
@@ -157,62 +162,28 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmCartItemsWithInvalidDatesShouldThrowException() {
+  public void confirmReservationItemInvalidCheckOutDateShouldThrowGlobalException() {
     // Given
-    ConfirmCartItemRequest request = new ConfirmCartItemRequest();
-    ConfirmItem confirmItem = new ConfirmItem();
-    confirmItem.setReservationId(reservation.getId());
-    confirmItem.setRoomId(room.getId());
-    confirmItem.setCheckIn(reservation.getCheckIn());
-    confirmItem.setCheckOut(LocalDateTime.of(2023, 6, 19, 11, 0));
-    request.setConfirmItems(List.of(confirmItem));
+    Long memberId = 1L;
+    Long reservationId = 10L;
+    Long roomId = 20L;
+    int peopleNumber = 2;
+    LocalDateTime checkIn = LocalDateTime.now().plusDays(1);
+    LocalDateTime checkOut = LocalDateTime.now().minusDays(1);
 
-    // When & Then
-    assertThrows(GlobalException.class, () -> {
-      cartService.confirmCartItems(member.getId(), request);
-    });
-  }
+    ConfirmCartItemRequest request = new ConfirmCartItemRequest(
+        reservationId, roomId, peopleNumber, checkIn, checkOut
+    );
 
-  @Test
-  public void testConfirmCartItemsWithReservationMismatchShouldThrowException() {
-    // Given
-    ConfirmCartItemRequest request = new ConfirmCartItemRequest();
-    ConfirmItem confirmItem = new ConfirmItem();
-    confirmItem.setReservationId(reservation.getId());
-    confirmItem.setRoomId(2L);
-    confirmItem.setCheckIn(reservation.getCheckIn());
-    confirmItem.setCheckOut(reservation.getCheckOut());
-    request.setConfirmItems(List.of(confirmItem));
-
-    when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-    when(reservationRepository.findById(request.getConfirmItems().get(0).getReservationId())).thenReturn(Optional.of(reservation));
+    when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
 
-    // When & Then
-    assertThrows(GlobalException.class, () -> {
-      cartService.confirmCartItems(member.getId(), request);
-    });
-  }
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class,
+        () -> cartService.confirmReservationItem(memberId, request));
 
-  @Test
-  public void testConfirmCartItemsWithValidRequestShouldConfirmReservation() {
-    // Given
-    ConfirmCartItemRequest request = new ConfirmCartItemRequest();
-    ConfirmItem confirmItem = new ConfirmItem();
-    confirmItem.setReservationId(reservation.getId());
-    confirmItem.setRoomId(room.getId());
-    confirmItem.setCheckIn(reservation.getCheckIn());
-    confirmItem.setCheckOut(reservation.getCheckOut());
-    request.setConfirmItems(List.of(confirmItem));
-
-    when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
-    when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-    when(reservationRepository.findById(request.getConfirmItems().get(0).getReservationId())).thenReturn(Optional.of(reservation));
-
-    // When
-    cartService.confirmCartItems(member.getId(), request);
-
-    // Then
-    verify(reservationRepository).updateReservationStatus(request.getConfirmItems().get(0).getReservationId(), ReservationStatus.CONFIRMED);
+    assertEquals(CartErrorCode.INVALID_CHECKOUT_DATE, exception.getErrorCode());
+    verify(reservationRepository, never()).updateReservationDetails(anyInt(), any(LocalDateTime.class), any(LocalDateTime.class), any(ReservationStatus.class), anyLong());
   }
 }

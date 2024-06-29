@@ -28,4 +28,8 @@ public class TokenService {
 	public boolean isTokenBlacklisted(String token) {
 		return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + token));
 	}
+
+	public void removeToken(String token) {
+		redisTemplate.delete(token);
+	}
 }
