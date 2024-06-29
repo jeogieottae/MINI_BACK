@@ -35,7 +35,7 @@ public class Member extends BaseEntity {
 	private String name;
 
 	@Setter
-	@Column (nullable = false)
+	@Column(nullable = false)
 	private String nickname;
 
 	@OneToOne(mappedBy = "member")
@@ -68,7 +68,4 @@ public class Member extends BaseEntity {
 		this.name = name;
 		return this;
 	}
-
-
-
 }

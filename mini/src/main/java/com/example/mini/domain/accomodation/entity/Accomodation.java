@@ -7,11 +7,11 @@ import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import java.util.List;
-import java.util.ArrayList;
 
 @Entity
 @Getter
@@ -49,13 +49,12 @@ public class Accomodation extends BaseEntity {
 	@Column(nullable = false)
 	private AccomodationCategory category;
 
-	@OneToMany(mappedBy = "accomodation")
+	@OneToMany(mappedBy = "accommodation")
 	private List<Room> rooms = new ArrayList<>();
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accommodation", cascade = CascadeType.ALL)
 	private List<Like> likes;
 
-	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "accommodation", cascade = CascadeType.ALL)
 	private List<Review> reviews;
-
 }
