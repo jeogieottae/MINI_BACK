@@ -1,6 +1,8 @@
 package com.example.mini.domain.accomodation.entity;
 
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
+import com.example.mini.domain.like.entity.Like;
+import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
 
@@ -49,5 +51,11 @@ public class Accomodation extends BaseEntity {
 
 	@OneToMany(mappedBy = "accomodation")
 	private List<Room> rooms = new ArrayList<>();
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<Like> likes;
+
+	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<Review> reviews;
 
 }

@@ -1,13 +1,18 @@
 package com.example.mini.domain.member.entity;
 
+import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.cart.entity.Cart;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -57,6 +62,9 @@ public class Member extends BaseEntity {
 		this.name = name;
 		return this;
 	}
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
+	private List<Like> Likes;
 
 
 }
