@@ -88,7 +88,12 @@ public class SecurityConfig {
 			"http://localhost:3000",
 			"https://localhost:3000",
 			"https://127.0.0.1:3000",
-			"https://your-trip-pied.vercel.app"
+			"https://your-trip-pied.vercel.app",
+			"https://api.miniteam2.store/api/auth/kakao/login",
+			"https://kauth.kakao.com/oauth/authorize",
+			"https://kauth.kakao.com/oauth/token",
+			"https://kapi.kakao.com/v2/user/me"
+
 		));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
 		config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
