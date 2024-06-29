@@ -20,6 +20,7 @@ public class WebConfig implements WebMvcConfigurer {
 				"https://your-trip-pied.vercel.app",
 				"https://api.miniteam2.store/api/auth/kakao/callback",
 				"https://api.miniteam2.store/api/auth/kakao/login",
+				"https://api.miniteam2.store/api/protected/home",
 				"https://kauth.kakao.com/oauth/authorize",
 				"https://kauth.kakao.com/oauth/token",
 				"https://kapi.kakao.com/v2/user/me"
