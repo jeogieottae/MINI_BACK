@@ -46,7 +46,6 @@ public class AccomodationService {
     private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
     private final int PageSize = 20;        // 숙소 목록 페이지 크기
-    private final int reviewPageSize = 5;   // 댓글 목록 페이지 크기
 
     /**
      * 전체 숙소 목록 조회
@@ -94,13 +93,13 @@ public class AccomodationService {
      * @param accomodationId    숙소 id
      * @return                  숙소 정보 및 객실 목록을 포함한 응답 객체
      */
-    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, int reviewPage, String checkIn, String checkOut) {
+    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
         AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
         Double avgStar = reviewRepository.findAverageStarByAccomodation(accomodation);
-        List<ReviewResponse> reviewResponses = getReviewResponse(accomodation, reviewPage);
+        List<ReviewResponse> reviewResponses = getReviewResponse(accomodation);
         List<RoomResponseDto> roomResponseDtos = getRoomResponseDto(accomodationId, checkIn, checkOut);
 
         return AccomodationDetailsResponseDto.builder()
@@ -197,14 +196,15 @@ public class AccomodationService {
         }).toList();
     }
 
+
     /**
-     * 숙소 상세정보의 리뷰 데이터 반환 메서드
-     * @param accomodation  해당 숙소의 객체
-     * @param reviewPage    조회할 리뷰의 페이지
-     * @return              리뷰 정보가 담긴 객체 리스트 반환
+     * 해당 숙소의 최근 작성된 리뷰 5개를 반환하는 메서드
+     * @param accomodation  조회할 숙소 정보
+     * @return              최근 작성된 리뷰 객체 리스트 반환
      */
-    private List<ReviewResponse> getReviewResponse(Accomodation accomodation, int reviewPage) {
-        List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(reviewPage, reviewPageSize));
+    private List<ReviewResponse> getReviewResponse(Accomodation accomodation) {
+        System.out.println(accomodation.toString());
+        List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(0, 5));
         return latestReviews.stream()
                 .map(review -> {
                     return new ReviewResponse(review.getComment(), review.getStar());
