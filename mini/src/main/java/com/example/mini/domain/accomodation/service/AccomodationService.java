@@ -21,6 +21,9 @@ import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,8 +101,9 @@ public class AccomodationService {
             .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
         AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
-        Double avgStar = reviewRepository.findAverageStarByAccomodation(accomodation);
-        List<ReviewResponse> reviewResponses = getReviewResponse(accomodation);
+        List<Review> reviews = accomodation.getReviews();
+        Double avgStar = calculateAverageStar(reviews);
+        List<ReviewResponse> reviewResponses = getReviewResponse(accomodation.getReviews());
         List<RoomResponseDto> roomResponseDtos = getRoomResponseDto(accomodationId, checkIn, checkOut);
 
         return AccomodationDetailsResponseDto.builder()
@@ -198,15 +202,37 @@ public class AccomodationService {
 
 
     /**
-     * 해당 숙소의 최근 작성된 리뷰 5개를 반환하는 메서드
-     * @param accomodation  조회할 숙소 정보
-     * @return              최근 작성된 리뷰 객체 리스트 반환
+     * 리뷰 리스트를 이용하여 평균 별점을 계산하는 메서드
+     *
+     * @param reviews 리뷰 리스트
+     * @return 평균 별점
      */
-    private List<ReviewResponse> getReviewResponse(Accomodation accomodation) {
-        System.out.println(accomodation.toString());
-        List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(0, 5));
+    private Double calculateAverageStar(List<Review> reviews) {
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+        double sum = reviews.stream()
+            .mapToDouble(Review::getStar)
+            .sum();
+        BigDecimal average = BigDecimal.valueOf(sum).divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP);
+        return average.doubleValue();
+    }
+
+
+    /**
+     * 해당 숙소의 최근 작성된 리뷰 5개를 반환하는 메서드
+     * @param reviews  조회할 리뷰 리스트
+     * @return         최근 작성된 리뷰 객체 리스트 반환
+     */
+    private List<ReviewResponse> getReviewResponse(List<Review> reviews) {
+        List<Review> latestReviews = reviews.stream()
+            .sorted(Comparator.comparing(Review::getCreatedAt).reversed())
+            .limit(5)
+            .collect(Collectors.toList());
+
         return latestReviews.stream()
-            .map(review -> new ReviewResponse(review.getComment(), review.getStar())).collect(Collectors.toList());
+            .map(review -> new ReviewResponse(review.getComment(), review.getStar()))
+            .collect(Collectors.toList());
     }
 
 }

@@ -1,16 +1,19 @@
 package com.example.mini.domain.member.entity;
 
+import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.member.entity.enums.MemberState;
+import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.domain.cart.entity.Cart;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import java.time.LocalDateTime;
+import java.util.List;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -42,6 +45,12 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private MemberState state;
 
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<Like> likes;
+
+	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<Review> reviews;
+
 	public void setEmail(String email) {
 	}
 
@@ -59,6 +68,7 @@ public class Member extends BaseEntity {
 		this.name = name;
 		return this;
 	}
+
 
 
 }

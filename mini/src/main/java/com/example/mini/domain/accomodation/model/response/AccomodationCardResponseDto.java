@@ -22,8 +22,14 @@ public class AccomodationCardResponseDto {
     private String category;
     private Integer minPrice;
     private boolean reservationAvailable;
+    private int likeCount;
 
     public static AccomodationCardResponseDto toDto(Accomodation accomodation, Integer minPrice, boolean reservationAble) {
+        int likeCount = 0;
+        if (accomodation.getLikes() != null) {
+            likeCount = accomodation.getLikes().size();
+        }
+
         return AccomodationCardResponseDto.builder()
                 .id(accomodation.getId())
                 .name(accomodation.getName())
@@ -37,6 +43,7 @@ public class AccomodationCardResponseDto {
                 .category(accomodation.getCategory().getName())
                 .minPrice(minPrice)
                 .reservationAvailable(reservationAble)
+                .likeCount(likeCount)
                 .build();
     }
 
