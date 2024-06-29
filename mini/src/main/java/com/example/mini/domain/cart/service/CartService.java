@@ -180,8 +180,8 @@ public class CartService {
     cartRepository.save(cart);
   }
 
-  @RedissonLock(key = "'confirmReservation_' + #item.roomId + '_' + #item.checkIn + '_' + #item.checkOut")
   @Transactional
+  @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   public void confirmReservationItem(Long memberId, ConfirmCartItemRequest request) {
     Member member = getMember(memberId);
 

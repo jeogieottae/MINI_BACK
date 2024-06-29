@@ -24,25 +24,22 @@ let redissonLocksAcquired = new Trend('redisson_locks_acquired');
 let redissonLocksFailed = new Trend('redisson_locks_failed');
 
 const confirmItem = {
-  reservationId: 22,
-  roomId: 10,
+  roomId: 42,
   peopleNumber: 2,
   checkIn: '2024-06-28T14:00:00',
   checkOut: '2024-06-30T10:00:00',
 };
 
-
 const baseUrl = 'http://localhost:8080';
-
 
 export default function () {
   let startTime = new Date().getTime();
 
   let itemsToSend = confirmItem || [];
-  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjQwMDIwLCJleHAiOjE3MTk2NDAxNDB9.NZM2oN0UacJkQuA5C_qXcCEL4hknQo_kpb0mpgkIJf0';
-  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjQwMDIwLCJleHAiOjE3MjA4NDk2MjB9.1E8qznDJm0GjMQbtfnT46BEyo9K_fvWu3mydt32nz9s';
+  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjM3OTcxLCJleHAiOjE3MTk2MzgwOTF9.EIJVWOQCPPVVZpSLYR7na_C4L1SyNTZTAK4DbOPYf8g';
+  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjM3OTcxLCJleHAiOjE3MjA4NDc1NzF9.GTcwQ48325GDVh6tdsE_EfRexqwMCfIfebKLnE84hHE';
 
-  let confirmResponse = http.put(`${baseUrl}/api/cart`, JSON.stringify(confirmItem), {
+  let confirmResponse = http.post(`${baseUrl}/api/reservation`, JSON.stringify(confirmItem), {
     headers: {
       'Content-Type': 'application/json',
       'Cookie': `accessToken=${accessToken}; refreshToken=${refreshToken}`
@@ -64,9 +61,8 @@ export default function () {
 
   // API 호출 결과를 검증
   check(confirmResponse, {
-    'confirm cart items status is 200': (r) => r.status === 200,
+    'confirm reservation status is 201': (r) => r.status === 201,
   });
-
 
   sleep(1);
 }
