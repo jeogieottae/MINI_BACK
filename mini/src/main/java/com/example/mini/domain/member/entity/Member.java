@@ -45,10 +45,10 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private MemberState state;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
 	private List<Like> likes;
 
-	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	private List<Review> reviews;
 
 	public void setEmail(String email) {

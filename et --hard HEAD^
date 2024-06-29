@@ -1,0 +1,1528 @@
+[33mcommit fe78072ebeded5462178b9268edc1c042907e1fb[m[33m ([m[1;36mHEAD -> [m[1;32mtest-release[m[33m, [m[1;31morigin/test-release[m[33m)[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sun Jun 30 01:15:10 2024 +0900
+
+    Refactor : 엔티티 관계 수정
+
+[33mcommit 3681cce5b7f42a5f5c2f7c3e8f3ceed66cff4de7[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sun Jun 30 00:18:41 2024 +0900
+
+    Refactor : 엔티티 관계 수정
+
+[33mcommit d71e68fdc5a144db022eb41096d944f4c9fa0c32[m
+Merge: 7cc5917 8e72416
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sun Jun 30 00:11:58 2024 +0900
+
+    Refactor : 엔티티 관계 수정
+
+[33mcommit 7cc5917821dfd57c2390f9f0f15a4cd3721934c9[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sun Jun 30 00:09:58 2024 +0900
+
+    Refactor : 주석 처리
+
+[33mcommit 8e72416517f03af08284cebe46a2f4165e9c42f4[m[33m ([m[1;31morigin/test/merge[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sun Jun 30 00:09:03 2024 +0900
+
+    refactor : 멤ã버 엔티티 수정
+
+[33mcommit e554c39d45f1f7fc4d72600bbc85b0ceae69bcd6[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 23:44:22 2024 +0900
+
+    Feat : cors 도메인 추가
+
+[33mcommit 1ebe8c09061191fbb6cc18a8bccb947229195b97[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 23:32:03 2024 +0900
+
+    Feat : cors 도메인 추가
+
+[33mcommit b1467630a53166b5d690048ca8514fc946432448[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 23:30:54 2024 +0900
+
+    refactor : 리뷰 쿼불필요한 쿼리문 삭제
+
+[33mcommit 0972520f74ab0645b3559792dd8e91a05a34e045[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 23:30:01 2024 +0900
+
+    refactor : 숙소 별점 계산 리펙토링
+
+[33mcommit 442ab1cb1d11ecd462e6bdeb7ee86c424c75a258[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 23:16:25 2024 +0900
+
+    refactor : 좋아요 및 리뷰랑 숙소 관계 수정
+
+[33mcommit 23247abbe705d3cf631e8311541b8860742e72b8[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 23:05:38 2024 +0900
+
+    Feat : cors 도메인 추가
+
+[33mcommit 146f782f5991ace614e74d334028b847f65329d7[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 22:37:52 2024 +0900
+
+    Refactor : 주석 처리
+
+[33mcommit dfd568f0e6d9658160811db01aeb26e6310494a9[m
+Merge: 8e38cbe 238f156
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 22:12:30 2024 +0900
+
+    Refactor : 코드 충돌 해결
+
+[33mcommit 238f1569dce994ccbe602793b4dfec1510e1d46b[m[33m ([m[1;32mtest/merge[m[33m)[m
+Merge: 2f05730 a4ecc51
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 21:43:47 2024 +0900
+
+    Merge branch 'test/merge' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test/merge
+
+[33mcommit 2f057308c0b7320741e3a05e86a136dfa518f9cb[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 21:43:29 2024 +0900
+
+    Feat : 이미지 엔티티 추가
+
+[33mcommit a4ecc5131dd3f88eaf5e27bca1c16e9623aa2daa[m
+Merge: 5f840e1 2298f2e
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 21:04:44 2024 +0900
+
+    Merge branch 'test/merge' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test/merge
+
+[33mcommit 5f840e1cac5d4df5553937a4f31841a84712c43c[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 21:03:44 2024 +0900
+
+    test : 장바구니 예약 동시성 테스트 완료
+
+[33mcommit 2298f2efe10b83d6e3884b26c6f40d3a3cd5bf23[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 20:05:32 2024 +0900
+
+    REFACTOR : 코드 분리
+
+[33mcommit d33a4d8d2c486eb03c139183a5b6c3d4f4ef4642[m
+Merge: 33542c7 9901139
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 14:53:22 2024 +0900
+
+    test : 예약 추가 동시성 테스트 완료
+
+[33mcommit 33542c7fb95171cfc988688817bdea3dfa6711f0[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 14:51:30 2024 +0900
+
+    test : 예약 추가 동시성 테스트 완료
+
+[33mcommit 9901139d2fa1add50e48ebe476ca103733ff4f02[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 10:41:15 2024 +0900
+
+    fix: 숙소 상세조회시 리뷰 반환되지 않는 에러 수정
+
+[33mcommit d454135c076c4be5fdc2af6981e08a8665c708cf[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 10:07:53 2024 +0900
+
+    docs: javadoc 작성
+
+[33mcommit f76ffc8ba2ab947b994587dbbff62c49a88a890f[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 09:09:37 2024 +0900
+
+    refactor: accommodation 컨트롤러, 서비스 레이어 리팩토링
+
+[33mcommit 306ace88b7f3a64c1c0d65ca03636bb39d9161c5[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 08:00:17 2024 +0900
+
+    refactor: 서비스 레이어 리팩토링
+
+[33mcommit 2633dc4d3ab392dddaa09b6a683cf6f91cfe2fd6[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 06:26:39 2024 +0900
+
+    refactor: 페이지네이션 형식 통일
+
+[33mcommit 2cc82b3c7e190f2bc6ff603902da803f53a3af1b[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 02:52:22 2024 +0900
+
+    test: 리뷰 테스트코드 일부 수정
+
+[33mcommit 0cc6c5c1ea7934813d17d8c3cae75ab40bf53a3a[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 02:46:48 2024 +0900
+
+    refactor: 불필요한 코드 수정
+
+[33mcommit c9767377476f0af8cfe35ca3c48598a06bf1b896[m
+Merge: 0cf3ca0 1ccd882
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 02:35:01 2024 +0900
+
+    Merge branch 'test/merge' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test/merge
+
+[33mcommit 1ccd882423f23f46a5dffe9af5a0198c73c50965[m
+Merge: f981a0c b4693cf
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 02:32:35 2024 +0900
+
+    test : 동시성 테스트코드 수정
+
+[33mcommit f981a0c502028ce50ab9a494c573553f24d10f94[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 29 02:29:08 2024 +0900
+
+    test : 동시성 테스트코드 ì수정
+
+[33mcommit b4693cf95caac71d5125eb0415fbee6f2334bb3b[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Sat Jun 29 02:13:51 2024 +0900
+
+    REFACTOR : controller 코드 분리
+
+[33mcommit 0cf3ca0c4da926892947daa555d04b01eb7c3620[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Sat Jun 29 00:39:05 2024 +0900
+
+    refactor: 리뷰 도메인의 dto 어노테이션 수정
+
+[33mcommit 233b01f19ff21de135b7ad929ca1b1cd10653200[m
+Merge: 85ee0d7 90f7f03
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 23:34:04 2024 +0900
+
+    REFACTOR : 충돌 해결
+
+[33mcommit 85ee0d7c44893e06e0d95b443effbffb7117b13a[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 23:26:45 2024 +0900
+
+    REFACTOR : 불필요한 코드 삭제
+
+[33mcommit 90f7f0309febc6ac77827e7ec971d8f02bacb43e[m
+Merge: 127d0bb 1f5fa4a
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Fri Jun 28 22:06:19 2024 +0900
+
+    feat: 구글/카카오 테스트 추가, 서비스 리팩토링
+
+[33mcommit 127d0bb68a55646fa4d6f47b3ec242186600c20b[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Fri Jun 28 20:35:54 2024 +0900
+
+    feat: 로그인 관련 서비스 테스트 추가
+
+[33mcommit 1a8cde922ef5c628db7b19bcdd3fb16d3eb6b3ba[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Fri Jun 28 20:34:46 2024 +0900
+
+    refactor: 구글/카카오 서비스, 인증, api 분리
+
+[33mcommit 1f5fa4a27a5d0fe95cb8dc1248266dce56d58569[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 28 18:32:07 2024 +0900
+
+    refactor: 불필요한 코드 수정
+
+[33mcommit 6f2fc418c37b63a00768637963198e9f41268405[m
+Merge: 938d412 832af42
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 28 18:13:27 2024 +0900
+
+    Merge branch 'test/merge' into feature/accomodation-backup6
+
+[33mcommit 832af4281274b1c4612e8507444af8decd6d49f0[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 18:00:44 2024 +0900
+
+    REFACTOR : 불필요한 코드 정리
+
+[33mcommit 8e38cbeb4b937864a54f9705f6331afa1d35c3c9[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 17:36:57 2024 +0900
+
+    REFACTOR : 불필요한 코드 삭제
+
+[33mcommit f6ec7d52327690f1970686ff50499433603a0907[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 28 17:18:14 2024 +0900
+
+    feat : k6 테스트용 코드 작성
+
+[33mcommit e9b6510efe9f22a36e22b3d31bbbf50e55f15e09[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 17:12:26 2024 +0900
+
+    충돌 해결
+
+[33mcommit 7436199c1456ef755f5074d72726ef55659bb8b4[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 16:02:51 2024 +0900
+
+    충돌 해결
+
+[33mcommit 8e44f7c2d5125ee8f6b18c0d2afbb97260816d6a[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 15:50:22 2024 +0900
+
+    충돌 해결
+
+[33mcommit 11a8ca93f9c2149facc0e30e5b6cc7f36fb361d5[m
+Merge: 66a0609 1db65fd
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 15:38:45 2024 +0900
+
+    Merge branch 'test-release' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test-release
+
+[33mcommit 66a060958f99cafefd4a31ab7dbaa2ad3886db31[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 15:34:58 2024 +0900
+
+    Refactor : 카카오 수정
+
+[33mcommit 1db65fdaafde74885d8a0fd62db4628d83a81db2[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Fri Jun 28 15:25:49 2024 +0900
+
+    Update cd.yml
+
+[33mcommit 148337ab618ba5dfcb1b3dd9d177334f76fce51a[m
+Merge: a1f7c11 804011e
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 14:50:36 2024 +0900
+
+    Refactor : 병합
+
+[33mcommit 938d41283a3ad234bd9dd1718672a061d5660b6c[m[33m ([m[1;31morigin/feature/accomodation[m[33m)[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 28 14:10:30 2024 +0900
+
+    fix: 모든 숙소 목록 조회 형식 통일
+
+[33mcommit ceec0bdb374324ae8a33806f0553b73368502f4e[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 28 10:49:42 2024 +0900
+
+    feat: 숙소 및 객실의 예약가능 여부 확인 구현
+
+[33mcommit a1f7c111dcb1c35922bb632c1ae5049847677399[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 28 10:22:49 2024 +0900
+
+    yml 수정
+
+[33mcommit 804011eac55d521c2af08c113fe2fe60dcddcd64[m[33m ([m[1;31morigin/feature/review[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 28 02:04:45 2024 +0900
+
+    test : 리뷰 단위테스트코드 작성
+
+[33mcommit 41e3b474451fb524d3023c67b976becc11edc19c[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 28 00:28:37 2024 +0900
+
+    refactor: 더미데이터 삭제
+
+[33mcommit f7f85ed095c7282f5b0848c3a8c1866d989ade7c[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 27 23:54:23 2024 +0900
+
+    feat: 메인 화면에 대한 ResponseDto 추가
+
+[33mcommit c5ea26d0bf0e533694abb0d84acb35d024fbda2e[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 23:42:29 2024 +0900
+
+    redis 추가
+
+[33mcommit 9655d04feddc3cb8d3c4198a7df87b06152791fb[m
+Merge: 9bd7fe4 78eb84e
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 27 23:31:41 2024 +0900
+
+    Merge branch 'test/merge' into feature/accomodation-backup5
+
+[33mcommit da7dd7e53a12702f815e35c320a82298d10b3306[m
+Merge: 5cef9a4 1a00e67
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 23:15:18 2024 +0900
+
+    Merge branch 'test-release' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test-release
+
+[33mcommit 5cef9a4523df035bdde1df442b1c840832632ad2[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 23:14:48 2024 +0900
+
+    redis 설정 추가
+
+[33mcommit 1a00e67a74de955995fcbbb034bcc6741e2ab3ca[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Thu Jun 27 23:06:19 2024 +0900
+
+    Update cd.yml
+
+[33mcommit 20ea75ed5f24c4363ea4e811d581ffab061efff9[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 22:51:46 2024 +0900
+
+    redis 설정 추가
+
+[33mcommit ac36e6247a15e7134889ee94a642f452cc559f52[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 22:03:55 2024 +0900
+
+    수정
+
+[33mcommit 9ab472bee00e007ef8deb6053799820ca4b3bd3c[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 21:34:29 2024 +0900
+
+    feat : https 해결
+
+[33mcommit 54a04db3689a678f6f0581972dab72bb86daae04[m[33m ([m[1;31morigin/refactor/auth[m[33m)[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 18:56:54 2024 +0900
+
+    refactor: yml 개인 정보 환경 변수로 이동
+
+[33mcommit 9bd7fe47f8dae036624af21e0cde2710d47814f2[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 27 18:44:29 2024 +0900
+
+    feat: 숙소 목록조회 - 최저가 포함하도록 구현
+
+[33mcommit 6aef7d1c86b29b5f5caa6699e872a99a6152b298[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 18:34:39 2024 +0900
+
+    fix: 일반 로그인시 토큰 정보 출력
+
+[33mcommit 06c8822b0439acf2f37f61fa7d5714371dd9cdc9[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 18:22:13 2024 +0900
+
+    feat: 사용자 닉네임, 닉네임 변경 기능 추가
+
+[33mcommit 78eb84ef548f12ad01e44de1266058702f1b5f18[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 18:16:24 2024 +0900
+
+    feature : 리뷰 상세조회 구현
+
+[33mcommit 578938d767a9a2d30a912ad0f5b5d63d1a9c5e32[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 17:37:15 2024 +0900
+
+    모든 controller에 crossOrigin 할당
+
+[33mcommit a0f3afb9df88c05eab360ee7fbfe37d2999f0e90[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 17:25:05 2024 +0900
+
+    samSite 속성 변경
+
+[33mcommit c2dd05dc50688dd8c871634416a614eef0a155db[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 17:21:19 2024 +0900
+
+    feature : ë¦숙소 상세 조회 시 ë¦가장 최신 리뷰 5개 및 별점 평균 조회 기능
+
+[33mcommit d48749dbb724d46452f1469f906d2c26a29293f9[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 17:12:36 2024 +0900
+
+    secure 속성 변경
+
+[33mcommit 78225887c6010842dca75aef3c2335b464af652c[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 17:04:12 2024 +0900
+
+    feat: 사용자 회원 탈퇴 기능 추가
+
+[33mcommit aface026560d433844c1369a97cfe3a33f6f6eb0[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 16:53:51 2024 +0900
+
+    ddl-auto 변경
+
+[33mcommit ccd9f0e971ac211ddecd2c7d3ac79e5aff344e0a[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 16:45:32 2024 +0900
+
+    쿠키 관련 코드 추가
+
+[33mcommit c8e8ec4701cfed62b1b2d6c8566e2497c703ac2c[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 16:32:02 2024 +0900
+
+    feature : 리뷰 작성 기능 추가
+
+[33mcommit 1456b50455aef01f893f1f5723e49a0c73906547[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 15:39:35 2024 +0900
+
+    refactor: redirectURI 변경
+
+[33mcommit a432ab0a27750a41a770b003a83061f1d9d626f9[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 15:38:51 2024 +0900
+
+    refactor: 구글/카카오 로그인 응답 통일 및 구조 변경
+    
+    토큰 갱신에 refresh 값을 직접 받지 않게 변경
+
+[33mcommit 8d03aafd9ad099d8c18a47c1323dfb32760c22d9[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 14:58:10 2024 +0900
+
+    fix: 구글/카카오 Security context 저장 객체 변경
+    
+    Member -> UserDetails
+
+[33mcommit cb211f78c8c3f29d3855e2d38322528399ecc80a[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 12:08:39 2024 +0900
+
+    redis 설정 변경
+
+[33mcommit 4f34c883c2067dee02a76a6dcae40a0dbfd98a45[m
+Merge: 455ad48 77aad9c
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 27 11:52:45 2024 +0900
+
+    Merge branch 'test/merge' into feature/accomodation-backup5
+
+[33mcommit 956b42b6b9ee6e94ece5e4c151860599384b19eb[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 11:47:13 2024 +0900
+
+    ddl-auto 변경
+
+[33mcommit 455ad48da60c8bcec5140a1f7bb0353164e09cd4[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 27 11:35:44 2024 +0900
+
+    refactor: 우편번호 타입 수정
+
+[33mcommit 655ba663664f2c6ea75c70d8fbc654f50c1160eb[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 11:29:22 2024 +0900
+
+    cors 추가사항 구현1
+
+[33mcommit 77aad9c1e671a9ef3426f8aa90574ba03b6d4ea1[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 11:12:45 2024 +0900
+
+    refactor : 불필요한 코드 삭제
+
+[33mcommit 43b92e5c315faf9c5f9fce38dbd5c3fd79666c9f[m
+Merge: 0b65f9a 03d0d2d
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 11:00:29 2024 +0900
+
+    fix : ígoogleOAuth 병합 충돌 처리
+
+[33mcommit 0b65f9a7f1d054ab985cb6e9edbf7c6486eae7d1[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 10:46:27 2024 +0900
+
+    fix : accomodation 에ë병합 충돌 처리
+
+[33mcommit 554dae14107d558f47e9829f72e66fb755f46974[m
+Merge: e2a58e9 ab8fade
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 10:42:48 2024 +0900
+
+    refactor : 숙소 병합 충돌 해결
+
+[33mcommit 6a8bbfbff1da661bb50f9d2429a6ddff6f628df8[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 27 10:22:54 2024 +0900
+
+    refactor: accomodation, room entity 수정
+
+[33mcommit de79a3ecef4a213f81eb8a35e04b0286ecf3cb7c[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 03:19:39 2024 +0900
+
+    cors 형식 변경
+
+[33mcommit d38446ab6cde4344132f27f2ef78b4e800badc18[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 03:01:04 2024 +0900
+
+    오류 해결
+
+[33mcommit b154bda2add362dd627b60499e06ff79c64f00bb[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 02:58:21 2024 +0900
+
+    oauth 부분 제거
+
+[33mcommit 3e14a75bba705b0c6bf7cfb96c2aecff82d2a7a4[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 02:43:25 2024 +0900
+
+    cors 관련 기능 추가
+
+[33mcommit c4999a3ed6566332b7314835819b06ce43f745de[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 02:32:45 2024 +0900
+
+    feat : cors 설정 추가
+
+[33mcommit c7693b73073b30b07db744d1e5d99a1818c55e79[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 02:04:03 2024 +0900
+
+    redis 값 수정
+
+[33mcommit 03d0d2d43ddeac5622ab276031bf292eb7d85f50[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 01:38:28 2024 +0900
+
+    refactor: 카카오/구글 로그인/로그아웃 Member state 변경
+
+[33mcommit a5fb2f02d4d8acc7ab5ea007cca39373a360aeba[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 01:24:50 2024 +0900
+
+    fix: 카카오 특정 상황에서 로그아웃 안되는 현상
+
+[33mcommit e2a58e9faca5fbe699b39bc935bfd549acb5074b[m[33m ([m[1;31morigin/feature/like[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 01:19:55 2024 +0900
+
+    test : 좋아요 í서비스 단위테스트코드 작성
+
+[33mcommit 3617a0ae9782025b41576fb1b8f9b4642bc7a4d1[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 27 01:05:04 2024 +0900
+
+    refactor: kakao, google 소셜 로그인
+    
+    리프레시 토큰 추가,
+    엑세트 토큰 재발급 추가,
+    OAuth 제거, 구조 개선
+    필터 및 SecurityConfig 수정
+
+[33mcommit d55a0d2304a95b8ec95447641fd47b4c8082b7fd[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 27 01:03:39 2024 +0900
+
+    feat : 좋아요 기능 추가
+
+[33mcommit 73f18ecdf5017c18f69f59fcb71176fd4987fd98[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 27 00:36:44 2024 +0900
+
+    redis 코드 수정
+
+[33mcommit e6be65598a62e53b8a7bad5626afe11b08270347[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Thu Jun 27 00:03:06 2024 +0900
+
+    Update cd.yml
+
+[33mcommit 2ef67ca24677859b317dbb3366ddf12242236571[m
+Merge: 9451720 c284212
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 23:53:52 2024 +0900
+
+    Merge pull request #3 from leeshinbi/leeshinbi-patch-1
+    
+    Leeshinbi patch 1
+
+[33mcommit c2842126ee01bb1c83d8e56a22d5106909ec7e95[m[33m ([m[1;31morigin/leeshinbi-patch-1[m[33m)[m
+Merge: 2debedd 9451720
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 23:53:44 2024 +0900
+
+    Merge branch 'test-release' into leeshinbi-patch-1
+
+[33mcommit 2debeddd3a360c8969ad05c0af4a36b6fd0eca4a[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 23:52:37 2024 +0900
+
+    Update cd.yml
+
+[33mcommit 94517206101b165c42bbe0371ae5b6be499ed41d[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 23:43:34 2024 +0900
+
+    application.yml 파일 수정
+
+[33mcommit 7a9583e7acacc9c7bd3bb2bf55dada92e3147a89[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 23:40:08 2024 +0900
+
+    Update cd.yml
+
+[33mcommit d3d7d40d31468414f226985884a49c8f2d0f1882[m
+Merge: 0d2d10e 24a98d2
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:51:56 2024 +0900
+
+    Merge branch 'test-release' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test-release
+
+[33mcommit 0d2d10e3ea8910f77ef738ff5e9588ce8094cbf7[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:51:27 2024 +0900
+
+    repush
+
+[33mcommit 24a98d230544047946cd28421f0de3ef07955413[m
+Merge: eb54f1e 15b0231
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:45:25 2024 +0900
+
+    Merge pull request #2 from leeshinbi/leeshinbi-patch-1
+    
+    Leeshinbi patch 1
+
+[33mcommit 15b0231cefe2fbf7275fca3f7b81ca7d639f3f27[m
+Merge: d869ee7 eb54f1e
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:42:29 2024 +0900
+
+    Merge branch 'test-release' into leeshinbi-patch-1
+
+[33mcommit d869ee71ad22a9cf63c79e27db5bbb52ee9e5ea6[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:35:46 2024 +0900
+
+    Update cd.yml
+
+[33mcommit eb54f1e7cc9a0ebdb1f4b1fd26d961bbc335a5cb[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:27:50 2024 +0900
+
+    다시 push
+
+[33mcommit de64c934979ab29ae4fa55e129ed27d3357e79fe[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:23:44 2024 +0900
+
+    Update cd.yml
+
+[33mcommit e96aa8696953bd592a44bb2037479a01a30eb887[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:20:08 2024 +0900
+
+    Update gradle.yml
+
+[33mcommit 56d9e310e393c78ee72427089953e43f81d59c85[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:14:50 2024 +0900
+
+    Dockerfile 추가
+
+[33mcommit 05d194573191f7d2430879af40ef95104c383b79[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 20:10:28 2024 +0900
+
+    redis 설정 추가
+
+[33mcommit bd6f84868bd212cb4d0a16b3367d7edbbb34fea9[m
+Merge: dbf3706 4d91669
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 18:19:48 2024 +0900
+
+    Merge branch 'feature/reservation' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test-release
+
+[33mcommit 4d9166988da2a96b40512fa8e0ce5f76498c6c06[m[33m ([m[1;31morigin/feature/reservation[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 17:42:12 2024 +0900
+
+    fix : room entity 수정
+
+[33mcommit db22f250512f76b1257de416af69e6c536ea9915[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 17:38:50 2024 +0900
+
+    feat : 중복 예약  예외처리 추가
+
+[33mcommit dbf37064d5c8e8f72963a693ed599cb567fe480e[m
+Merge: bce605e 902bd4d
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 17:31:03 2024 +0900
+
+    Merge branch 'feature/test' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test-release
+
+[33mcommit bce605ee764c54043b05979da479550abf79f0f8[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 17:30:53 2024 +0900
+
+    Refactor : 성공 코드 오류 해결
+
+[33mcommit 902bd4d3a62b0b9fcabb4b4998c038fadd8a2828[m[33m ([m[1;31morigin/feature/test[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 17:20:50 2024 +0900
+
+    fix : 에러ì코드 응답 수정
+
+[33mcommit c15c18fac644f1739724a6ab1f15e4700a9c3781[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 17:14:13 2024 +0900
+
+    fix : reservation테스트코드 ã수정
+
+[33mcommit 2f32c7572d2fccd47ce8b11a2fb118d31448fc32[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 15:44:51 2024 +0900
+
+    test : reservation 동시성 제어 테스트코드 수정
+
+[33mcommit 560f76542ec8d585c5cf2b52e1a4ef6ba992ecf3[m
+Merge: 51fd684 aeb1831
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 26 15:24:02 2024 +0900
+
+    Merge branch 'feature/test' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into test-release
+
+[33mcommit aeb18314dbf8425ebe9cc3e0894012276731b5ba[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 15:00:39 2024 +0900
+
+    test : Reservation 동시성 테스트 완료
+
+[33mcommit ab8fadec41c9579a2ebbdb7f703272b6f36641c1[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 26 12:00:26 2024 +0900
+
+    refactor: category not null 설정
+
+[33mcommit bc1aa04b0471ae5d793b21d59d024827266a7851[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 26 11:57:41 2024 +0900
+
+    test : 장바구니 예약확정 동시성 테스트
+
+[33mcommit 0ec5612f006e786581b417dcc261e9d1be82238b[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 26 05:20:15 2024 +0900
+
+    refactor: 불필요한 코드 수정
+
+[33mcommit 1a27ac4b2d88aba702561287508348df7ec38360[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 26 05:10:20 2024 +0900
+
+    test: 숙소, 객실에 대한 단위 테스트코드 수정
+
+[33mcommit 9de9d36a35699cffed0125d898bf8cc19fb61f27[m[33m ([m[1;31morigin/feature/googleOAuth[m[33m, [m[1;32mfeature/googleOAuth[m[33m)[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Tue Jun 25 22:38:32 2024 +0900
+
+    feat: googleOAuth
+    
+    구글 OAuth 추가
+    카카오 OAuth 리팩토링
+
+[33mcommit 0a9f95d991a8370b770208534ae3bc6b0108cce7[m
+Merge: 8a60991 0cb6fa0
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 25 20:36:23 2024 +0900
+
+    Merge branch 'main' of https://github.com/leeshinbi/KDT_BE8_Mini-Project
+
+[33mcommit 8a6099182ba690650c9eb3fe04b580bbbc4dd02b[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 25 20:35:39 2024 +0900
+
+    yml 수정
+
+[33mcommit 0cb6fa0866fa9a495d42936fcf8dbdbf03c1763d[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Tue Jun 25 19:22:40 2024 +0900
+
+    Update cd.yml
+
+[33mcommit fff1a5fc5ee138d3e2471c00a408d823ca7d8dd8[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Tue Jun 25 19:19:14 2024 +0900
+
+    Update cd.yml
+
+[33mcommit 8771f6d0f2469761e0cce445fe726ad300a9c535[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Tue Jun 25 19:12:28 2024 +0900
+
+    Update cd.yml
+
+[33mcommit f9b8e8084b12818256f25950cb6ad969c064a55c[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Tue Jun 25 19:10:44 2024 +0900
+
+    Create cd.yml
+
+[33mcommit dc9175f28743fa11aa81bed65b24bce838c05b67[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 25 18:58:38 2024 +0900
+
+    yml 파일 수정
+
+[33mcommit ff6df8ede14cd94d2bd7efa0fa8739433bc66c2c[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Tue Jun 25 17:11:57 2024 +0900
+
+    test : TestContainer 이용한 Redisson 테스트코드 작성
+
+[33mcommit 7dd7073219f3485bb0ae275b9b4454d7367ce677[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 25 17:06:57 2024 +0900
+
+    도커 설치 파일 추가
+
+[33mcommit 9c5dd35a7e9a30a69c3379f141727c884e8797d9[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 25 16:48:21 2024 +0900
+
+    수정
+
+[33mcommit 82ddc34db76e9bd0b347e83c33edba6d81efc4b6[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Tue Jun 25 14:23:19 2024 +0900
+
+    feat: 카테고리 enum 처리
+
+[33mcommit 51fd6840236cefdd6623919ce8800842de0115ef[m[33m ([m[1;32mfeature/test[m[33m)[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 25 14:07:00 2024 +0900
+
+    수정
+
+[33mcommit 575749106cac6f80ff2f728c7043f37865a4050a[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Tue Jun 25 11:07:23 2024 +0900
+
+    refactor: entity 형식 통일
+
+[33mcommit 7df50296eda00ff0d1afe90a9838d996346bdeda[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Mon Jun 24 19:41:02 2024 +0900
+
+    test: 숙소 및 객실조회 테스트코드 추가
+
+[33mcommit 413b8de4017cdb30c7525a71835494c8f007aba2[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 17:32:12 2024 +0900
+
+    fix : 큐 삭제
+
+[33mcommit 1a997d824423e52ad08c709b5bb975e3c9d5ca01[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 14:58:44 2024 +0900
+
+    test : 동시성 테스트코드 추가
+
+[33mcommit d1f21e5e8c2dfa4e2a5ab0bd5cabf5c60013b255[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 14:19:57 2024 +0900
+
+    test : 장바구니 단위테스트코드 수정
+
+[33mcommit 983f1e60edcd3fc8a38a22adac988293ab13d610[m
+Merge: 1a7a911 128c59d
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 14:03:20 2024 +0900
+
+    Merge remote-tracking branch 'refs/remotes/origin/feature/shinbi/signup' into feature/test
+
+[33mcommit 1a7a9117c5470b595c8776d80f203625d0584c08[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 13:06:45 2024 +0900
+
+    fix : 예약 수정 로직 수 정
+
+[33mcommit d42e3420506f91349d6a75f11ae512af5614680e[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 12:48:25 2024 +0900
+
+    feat : 여러개 예약 기능, 여í러개 예약 검증 기능 추가
+
+[33mcommit 18251490afe559964dea1cdf318515859a170c07[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Mon Jun 24 10:46:54 2024 +0900
+
+    docs : 브랜치 이름 변경
+
+[33mcommit 1917b6748ad450eda3f5c69fa974c7a7ab4927f6[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sun Jun 23 23:24:11 2024 +0900
+
+    test : reservation 단위테스트코드 작성
+
+[33mcommit c77e10ef7e176a607c9f4384dafe3c2404c280d0[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sun Jun 23 21:33:19 2024 +0900
+
+    Ctest : 카트서비스 단위 테스트코드 추가
+
+[33mcommit 31f307e8dc63f0335297e311a7fbd9f2b1412c15[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 11:16:13 2024 +0900
+
+    Update gradle.yml
+
+[33mcommit eb4d8de5e4233a25e9bf6a8e7d547cfeb452669f[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 11:11:18 2024 +0900
+
+    Update gradle.yml
+
+[33mcommit 8702fc15a23d10996a24bf129a7b4bb88e702cc7[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 11:09:44 2024 +0900
+
+    Create gradle.yml
+
+[33mcommit 5dd82c0154ba362b546f3dc9a686df643a7a45ac[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 11:08:07 2024 +0900
+
+    Delete .github/workflows/gradle.yml
+
+[33mcommit 4383136e7aed69b1ab03ef1203c22ddf53b95bde[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 11:07:03 2024 +0900
+
+    Update gradle.yml
+
+[33mcommit 75e086d21ebfcded46fbaeb68f64999d20afa05a[m
+Merge: 1f9f677 6325c9d
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 11:06:05 2024 +0900
+
+    Merge pull request #1 from leeshinbi/dev
+    
+    Dev
+
+[33mcommit 1f9f6779b101e3f6aaf62b54507f501915112d50[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 10:58:21 2024 +0900
+
+    Update gradle.yml
+
+[33mcommit 7f598cbee72a10ffa87c5e840a2d3aad64728753[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 10:45:49 2024 +0900
+
+    Update gradle.yml
+
+[33mcommit e6b1bac89c4ad13ffdb043d8feda7ce3e8094208[m
+Author: 신비 <tlsql6831@naver.com>
+Date:   Sun Jun 23 10:42:40 2024 +0900
+
+    Create gradle.yml
+
+[33mcommit a6620f777dead5af8e12a577c34f8fc17ba1373d[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 22 23:08:19 2024 +0900
+
+    feat : Queue 사용한 Redisson 분산락 기능 ê구현
+
+[33mcommit ffbae44efe69b7e9cd76f4f7393caaa985bc1876[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 22 20:11:59 2024 +0900
+
+    feat : 예약조회 및 장바구니 조회 페이지네이션처리
+
+[33mcommit 7416cc425b7df46dd61b18c1f0fa1623d7fe80ae[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 22 18:08:16 2024 +0900
+
+    refactor : 필요없는 import문 삭제
+
+[33mcommit ce3581d1feed5f4541d1463e27ffe73eb9988ce9[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 22 17:31:46 2024 +0900
+
+    feat : 예약 조회 기능 구현
+
+[33mcommit 46855b2ce6dfcf00447ffce3681a14e9b6b25d21[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 22 15:04:15 2024 +0900
+
+    refactor : 예약 여러개 확정 가능 기능 및 예외처리 추가
+
+[33mcommit 4cb944c66ff0222f57c64340a2844b4765314c9b[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Sat Jun 22 01:08:22 2024 +0900
+
+    feat : 장바구니 ì예약 상태변환 기능
+
+[33mcommit bbce7f82582d5b1c8941bc0c4a5e725ddfdc6c09[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 21 20:16:54 2024 +0900
+
+    refactor : 장바구니 에러처리 완료
+
+[33mcommit f0a5f733118b832502470b5cb0524108b22ff084[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 21 19:59:19 2024 +0900
+
+    feat : 삭제 기능 수정
+
+[33mcommit 128c59dbd4a35815c669826dfaca4377f892c96d[m[33m ([m[1;31morigin/feature/shinbi/signup[m[33m)[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 21 18:19:38 2024 +0900
+
+    Refactor : 카카오 로그인 쿠키 기능 추가
+
+[33mcommit 7ac00ef8a90f38107c769b0d8d6696f59c22d342[m
+Merge: 7d1f28e e4b48af
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 21 17:33:04 2024 +0900
+
+    fix : 병합충돌
+
+[33mcommit e4b48afa187d09c0e0ee1a642bf31a8fc0cb3e11[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 21 17:07:06 2024 +0900
+
+    feat : 쿠키 추가
+
+[33mcommit 7d1f28ef01f566193833b07698bc45b45473ab0e[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 21 16:56:27 2024 +0900
+
+    fix : 병합ì¶충돌 완료
+
+[33mcommit 8245e1d073a1fc3bb2686f7fbddbe2e4824a3fc8[m
+Merge: 928e0f7 00cddcd
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 21 16:46:18 2024 +0900
+
+    fix : merge 충돌 해결
+
+[33mcommit 928e0f7da311d1cc6e8514b79a36775878d0caa7[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Fri Jun 21 16:24:15 2024 +0900
+
+    testfix : 장바구니 ã버그 수정중
+
+[33mcommit 8660fdea418b074acfa9cf4b900cd0b15aef429b[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 21 15:56:21 2024 +0900
+
+    refactor: 응답 코드 수정
+
+[33mcommit 1a07a8f1640eb485caf8efad3dbabae093619b63[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Fri Jun 21 15:25:56 2024 +0900
+
+    refactor: 에러처리 코드 통일
+
+[33mcommit 8fabb61f86482527d010832d25678458c57059e8[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Fri Jun 21 12:52:25 2024 +0900
+
+    refactor: OAuth
+    
+    1. 카카오 로그인시 state Active
+    2. Member oAuthEmail 삭제 email로 통일 (nullable = false)
+    3. 일반 회원 가입시 상태 Active -> InActive 수정
+    4. 일반 로그인시 state Active 변경 추가
+    5. 카카오/일반 로그아웃시 state InActive 변경
+
+[33mcommit 00cddcd070e6d946308f82d621b756f3f5765fee[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Fri Jun 21 10:42:45 2024 +0900
+
+    Refactor: 토큰 값 받기
+
+[33mcommit 74650bace9cf03af7a0a6ca539a27c5692673518[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 20 19:06:01 2024 +0900
+
+    refactor: 패키지 구조 변경
+
+[33mcommit 3c131e9838a2bf662a0e8c1a20678d55332e03bf[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 20 18:34:10 2024 +0900
+
+    feat: 단일 숙소정보 및 객실정보 조회 기능 구현
+
+[33mcommit aeae0cffd8f7c657282c80c1757bb42d08daef9f[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 20 17:32:13 2024 +0900
+
+    Refactor: member 엔티티 수정
+
+[33mcommit c4e70ce56662468bd09657670fdd0f0c4fe5d387[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 16:12:04 2024 +0900
+
+    refactor : 회원 ID 받아오는 부분 수정
+
+[33mcommit fa07c306db0a91ed9db7e28f222b9b5c4a1d58b5[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 15:29:56 2024 +0900
+
+    refactor : 에러처리 코드 통일
+
+[33mcommit 152bd5acbeea555c3a5963aa1370d9a63bd0798c[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 20 15:11:13 2024 +0900
+
+    feat: 숙소 이름으로 검색기능 구현
+
+[33mcommit 7b3035b63132c8f72bb01f0563e9d1b5c92ecb35[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Thu Jun 20 14:47:47 2024 +0900
+
+    feat: elasticsearh 설정 추가
+
+[33mcommit f43bf6f7242b3d8018f571ae35fc98fcc735a920[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 20 14:04:25 2024 +0900
+
+    Refactor: 오류 해결
+
+[33mcommit 1b0cc05e9964f8833455ece5ff240ef3940b90e6[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 20 11:36:19 2024 +0900
+
+    Refactor: member 엔티티 닉네임 필드 제거
+
+[33mcommit a4c2d6a002ebadc759789bf7354d256e64b172c3[m
+Merge: b2ae4fa 7505a90
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 20 11:07:51 2024 +0900
+
+    충돌 해결
+
+[33mcommit b2ae4fa66dddf4f3fb12238625753c284b19c96f[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 20 10:57:20 2024 +0900
+
+    Local changes in ApiResponse.java
+
+[33mcommit 13a9e5a2d601e4550d18c7d92dc93ce5cc2cc617[m
+Merge: ca2558a bdb7b9e
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 10:56:53 2024 +0900
+
+    fix : 병합 충돌 해결
+
+[33mcommit ca2558a81e5d1cab287241fb53f7263f0139b9bf[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 10:53:39 2024 +0900
+
+    refactor : 변경사항 수정
+
+[33mcommit f7cbc89dc69256990f4cfc88c6171aace5a629bb[m
+Merge: 2f3b43d 2b0af37
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 10:29:20 2024 +0900
+
+    merge : 로그인 기능 병합
+
+[33mcommit 2f3b43d8a78b1f86ac68a692a3032cb1823975ba[m
+Merge: 86d28f4 8b90da9
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 10:27:33 2024 +0900
+
+    temerge : 장바구니, 예약 병합
+
+[33mcommit 86d28f4263d9737025d397b192014a5b8cb9707b[m
+Merge: 6325c9d 8275ddd
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 10:23:35 2024 +0900
+
+    Merge branch 'feature/cart' into test
+
+[33mcommit 8b90da9507b9347d3b39a7702e74f57aea905d27[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Thu Jun 20 02:45:21 2024 +0900
+
+    feat : AOP 이용한 동시성 제어
+
+[33mcommit 7505a9057f2c416a13278821ce677a78afe44007[m[33m ([m[1;31morigin/refactor/signup[m[33m)[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Thu Jun 20 01:21:32 2024 +0900
+
+    refactor: Auth json 출력 형식 통일
+    
+    성공 값과 에러 값 출력 형식 통일,
+    custom status code 적용
+
+[33mcommit a445917118ac99e97e89a2bce0571461973fae01[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Thu Jun 20 01:06:36 2024 +0900
+
+    feat. kakao oauth 기능 개발
+
+[33mcommit 797f0a43fbcfde8946e3a31efccead6a49ba5ecd[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 19 21:22:57 2024 +0900
+
+    충돌 해결
+
+[33mcommit 76e0d5f3e3899946561f8329abca0bda4770aaf8[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 19 21:22:45 2024 +0900
+
+    충돌 해결
+
+[33mcommit 5124768dde1134cee6e25bafa21ff80254915143[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 19 21:17:12 2024 +0900
+
+    Refactor: 충돌 해결
+
+[33mcommit 054e0ca8b3ee1bf7dce65b48cb49012972ed9ea9[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 19 17:04:44 2024 +0900
+
+    chore: 의존성 임의 수정
+
+[33mcommit 88a39e25e201d129b3fdd05ce2ebb79eab7a8f50[m
+Merge: 6325c9d 3eb7fa1
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 19 16:32:29 2024 +0900
+
+    Merge branch 'feature/accomodation-backup1' into feature/accomodation
+
+[33mcommit 6325c9d5183e1a12cbff5d970ede814406689b6c[m[33m ([m[1;31morigin/dev[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 16:27:17 2024 +0900
+
+    refactor : 엔티티 수정
+
+[33mcommit 04cc42cb1a502c339f63845643532ac54ef5c6d6[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 16:25:55 2024 +0900
+
+    fix : yml 설정 수정
+
+[33mcommit 3eb7fa1ba9eaf7d8ebccb07f661e0007d870a513[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 19 16:18:45 2024 +0900
+
+    refactor: 페이징처리 객체 통일
+
+[33mcommit 8275dddd95856709723e988c0da4720064f73ef8[m[33m ([m[1;31morigin/feature/cart[m[33m)[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 16:11:30 2024 +0900
+
+    fix : yml 설정 수정
+
+[33mcommit bdb7b9eb13eb0fd35dc24ee6020a5df48570b6d2[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Wed Jun 19 14:04:22 2024 +0900
+
+    refactor: Auth 에러처리
+
+[33mcommit 1574fd855c1c7f762b50ce7b864132f429b92839[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Wed Jun 19 14:02:52 2024 +0900
+
+    refactor: AuthService
+    
+    throw AuthErrorCode 이용
+
+[33mcommit 00da0ee87d6c87d1a40428574285dad63d7169af[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 19 13:06:04 2024 +0900
+
+    feat: 카테고리 조회 페이지네이션 구현
+
+[33mcommit ed59ab46bfdd543054bb50d0002b174fa2c68f15[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Wed Jun 19 13:05:38 2024 +0900
+
+    refactor: ErrorCode
+    
+    다른 조원들과 형식 통일
+
+[33mcommit 345db2f53006ecf00b970ecc638a2c320904f9ea[m
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Wed Jun 19 13:05:06 2024 +0900
+
+    feat: AuthErrorCode
+    
+    AuthService 에러 코드
+
+[33mcommit 205be89d017870e416e89c1d635364f559ef24f4[m
+Merge: b659d6c 2b0af37
+Author: myoungjin-kim <kaudwls58@naver.com>
+Date:   Wed Jun 19 12:34:42 2024 +0900
+
+    Merge branch 'feature/shinbi/signup' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into refactor/signup
+
+[33mcommit 2b0af37db111572e012a4133bf750f72db4f631d[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 19 12:27:30 2024 +0900
+
+    Refactor: gitignore 수정
+
+[33mcommit add231d3696123c8a7062623d5bedb5cfc8cb67c[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 19 12:20:59 2024 +0900
+
+    Refactor: 로그아웃 기능 수정
+
+[33mcommit 38706d52647a64b8512a7f2b1b8a5b79db67bd75[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 12:15:07 2024 +0900
+
+    추feat : 추가요금 합산 로직 ì추가
+
+[33mcommit b659d6c7a484107f4a552b107d7a154a25a45fbf[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 11:46:47 2024 +0900
+
+    refactor : 엔티티 수정
+
+[33mcommit dc276bbfd71b0fa21d9ef52e95b613724ebba078[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 11:41:27 2024 +0900
+
+    refactor : 예외처리 수정
+
+[33mcommit 04584dc99620a6bad619419869af8a28dc9210a4[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Wed Jun 19 11:11:31 2024 +0900
+
+    feat. 로그인, 회원가입 기능
+
+[33mcommit 2647e52ea98346b649e5e69af7c28ac1e2517a45[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 10:58:32 2024 +0900
+
+    추ê°feat : 추가요금 및 총합요금 기능 구현
+
+[33mcommit b93bfe7a4bcdeddbc67a1efc20aa92d2f89dbf15[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Wed Jun 19 08:59:03 2024 +0900
+
+    feat: 전체 조회 페이지네이션 구현
+
+[33mcommit 2bdd3aa031b23a55c185503ef3230a1d9cfc618b[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 03:11:38 2024 +0900
+
+    feat : 예약 기능 구현
+
+[33mcommit b7251ddd17d5e25576a315cfb7a8926f32bfe581[m
+Merge: 1d78240 5d18344
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 01:06:36 2024 +0900
+
+    Merge branch 'dev' of https://github.com/leeshinbi/KDT_BE8_Mini-Project into dev
+
+[33mcommit 1d78240378a32094602e395e5375cad82abfc13d[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 01:05:43 2024 +0900
+
+    refactor : 엔티티 카멜케이스 수정
+
+[33mcommit b9d27b630ae5628429ba06518fc9ae05b5e9e038[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Wed Jun 19 01:00:30 2024 +0900
+
+    refactor : 성공응답 ì구현
+
+[33mcommit f64d2ee2d866310ada571a19fe6923747ae5cf92[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Tue Jun 18 19:13:53 2024 +0900
+
+    ìrefactor : 에러처리 수정
+
+[33mcommit 85d81d34f679c0fc5f58c7f36eb424e6b670c914[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Tue Jun 18 18:44:08 2024 +0900
+
+    ãfeat : 장바구니 기능 구현
+
+[33mcommit 0476a16abbe171cb0644ee2735e55d9514cbb4d5[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Tue Jun 18 17:26:03 2024 +0900
+
+    feat: 카테고리 숙소 목록 조회 기능 구현
+
+[33mcommit 623dfc79b622a201814e4dd6e06e044a7da99433[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Tue Jun 18 17:02:57 2024 +0900
+
+    feat: 숙소 전체 데이터 조회 기능 구현
+
+[33mcommit 5d18344665552697932b4f4967a2aa37e99d15aa[m[33m ([m[1;32mdev[m[33m)[m
+Author: EomHyeYeong <hy30051@naver.com>
+Date:   Tue Jun 18 13:25:40 2024 +0900
+
+    chore: 로컬 설정파일 적용 되도록 수정
+
+[33mcommit 8450c2236fa03a9c8186751fdcbba90793a27ee5[m
+Author: 이유정 <epoint8989@gmail.com>
+Date:   Tue Jun 18 11:59:03 2024 +0900
+
+    공통부분 작성
+
+[33mcommit bceb7c6c09b927dc308576ce39279520843a23de[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Tue Jun 18 10:56:40 2024 +0900
+
+    feat. entity 설정
+
+[33mcommit afa2f2a94793df221dca78997bec81e25c3734ca[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Mon Jun 17 17:17:27 2024 +0900
+
+    초기 설정 추가
+
+[33mcommit 9be86faf6fce55b643cbb9b517c8ee8809b9556b[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Mon Jun 17 17:07:19 2024 +0900
+
+    초기 설정
+
+[33mcommit 650392407fe0f6f0d00e5df60c7a754d506ebb34[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Mon Jun 17 16:43:14 2024 +0900
+
+    yml 파일 설정
+
+[33mcommit 69c295378afc6c5c97550724929b11e1ad9a68c2[m
+Author: leeshinbi <tlsql6831@naver.com>
+Date:   Mon Jun 17 16:26:30 2024 +0900
+
+    first commit
+
+[33mcommit 4939f7f72d8b277205940176e23c4ba0e892e5e6[m
+Author: fc-lm <161300356+fc-lm@users.noreply.github.com>
+Date:   Thu Jun 13 16:49:56 2024 +0900
+
+    Update README.md
+
+[33mcommit 042519d626de42dcc36afa9c0807532fcb971544[m
+Author: fc-lm <161300356+fc-lm@users.noreply.github.com>
+Date:   Mon Jun 10 14:52:21 2024 +0900
+
+    Update README.md
+
+[33mcommit 9cf6cf1228c789a5b37f4d513b9ca5b7fdf31a8b[m
+Author: fc-lm <161300356+fc-lm@users.noreply.github.com>
+Date:   Mon Jun 10 14:51:23 2024 +0900
+
+    Update README.md
+
+[33mcommit 9d1e7d85220ef68327ddf46310746c0d61e4a382[m
+Author: fc-lm <161300356+fc-lm@users.noreply.github.com>
+Date:   Mon Jun 10 14:50:09 2024 +0900
+
+    Initial commit
