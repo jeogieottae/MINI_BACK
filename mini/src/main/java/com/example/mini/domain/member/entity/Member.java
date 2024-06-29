@@ -35,7 +35,7 @@ public class Member extends BaseEntity {
 	private String name;
 
 	@Setter
-	@Column (nullable = false)
+	@Column(nullable = false)
 	private String nickname;
 
 	@OneToOne(mappedBy = "member")
@@ -45,10 +45,10 @@ public class Member extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private MemberState state;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "member", cascade = CascadeType.ALL)
 	private List<Like> likes;
 
-	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
 	private List<Review> reviews;
 
 	public void setEmail(String email) {
@@ -68,7 +68,4 @@ public class Member extends BaseEntity {
 		this.name = name;
 		return this;
 	}
-
-
-
 }

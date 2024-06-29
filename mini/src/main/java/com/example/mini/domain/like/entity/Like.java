@@ -23,8 +23,8 @@ public class Like extends BaseEntity {
   private Member member;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "accomodation_id", nullable = false)
-  private Accomodation accomodation;
+  @JoinColumn(name = "accommodation_id", nullable = false)
+  private Accomodation accommodation;
 
   @Column(name = "is_liked", nullable = false)
   @Setter
