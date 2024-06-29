@@ -45,7 +45,6 @@ public class Member extends BaseEntity {
 	public void setEmail(String email) {
 	}
 
-
 	@Override
 	public String toString() {
 		return "Member{" +
