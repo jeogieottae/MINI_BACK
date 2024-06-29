@@ -17,14 +17,8 @@ let lockAcquisitionTime = new Trend('lock_acquisition_time');
 // Lock 실패율
 let lockFailureRate = new Rate('lock_failure_rate');
 
-// Redisson 락 성공 횟수
-let redissonLocksAcquired = new Trend('redisson_locks_acquired');
-
-// Redisson 락 실패 횟수
-let redissonLocksFailed = new Trend('redisson_locks_failed');
-
 const confirmItem = {
-  roomId: 42,
+  roomId: 78,
   peopleNumber: 2,
   checkIn: '2024-06-28T14:00:00',
   checkOut: '2024-06-30T10:00:00',
@@ -36,8 +30,8 @@ export default function () {
   let startTime = new Date().getTime();
 
   let itemsToSend = confirmItem || [];
-  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjM3OTcxLCJleHAiOjE3MTk2MzgwOTF9.EIJVWOQCPPVVZpSLYR7na_C4L1SyNTZTAK4DbOPYf8g';
-  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjM3OTcxLCJleHAiOjE3MjA4NDc1NzF9.GTcwQ48325GDVh6tdsE_EfRexqwMCfIfebKLnE84hHE';
+  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjYwNjU4LCJleHAiOjE3MTk2NjA3Nzh9.7uwzLyaksFqxf5FNMntWIIdOOBlGmXnBv1Tl1R86P74';
+  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjYwNjU4LCJleHAiOjE3MjA4NzAyNTh9.5QL0Tu4KoOlQ2BUojY4pT9e4SFx_l0SoXyzKbenzwZw';
 
   let confirmResponse = http.post(`${baseUrl}/api/reservation`, JSON.stringify(confirmItem), {
     headers: {

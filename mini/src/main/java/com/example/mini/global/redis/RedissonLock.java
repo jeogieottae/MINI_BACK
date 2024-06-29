@@ -13,7 +13,7 @@ public @interface RedissonLock {
 
   TimeUnit timeUnit() default TimeUnit.SECONDS;
 
-  long waitTime() default 1;
+  long waitTime() default 10L;
 
-  long leaseTime() default 10L;
+  long leaseTime() default 30L;
 }

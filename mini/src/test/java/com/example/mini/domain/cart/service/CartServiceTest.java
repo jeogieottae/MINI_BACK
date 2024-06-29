@@ -184,7 +184,6 @@ public class CartServiceTest {
         () -> cartService.confirmReservationItem(memberId, request));
 
     assertEquals(CartErrorCode.INVALID_CHECKOUT_DATE, exception.getErrorCode());
-    verify(reservationRepository, never()).updateReservationDetails(anyInt(), any(LocalDateTime.class), any(LocalDateTime.class), anyLong());
-    verify(reservationRepository, never()).updateReservationStatus(anyLong(), any(ReservationStatus.class));
+    verify(reservationRepository, never()).updateReservationDetails(anyInt(), any(LocalDateTime.class), any(LocalDateTime.class), any(ReservationStatus.class), anyLong());
   }
 }
