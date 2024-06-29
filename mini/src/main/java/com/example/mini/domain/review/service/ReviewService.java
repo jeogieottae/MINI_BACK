@@ -38,7 +38,13 @@ public class ReviewService {
 
     private final int pageSize = 10;
 
-    // 리뷰 생성
+    /**
+     * 리뷰 생성
+     *
+     * @param memberId  리뷰를 작성하는 유저의 id
+     * @param request   작성한 리뷰 정보를 담은 객체
+     * @return          db에 저장한 데이터 반환
+     */
     public ReviewResponse addReview(Long memberId, ReviewRequest request) {
         Member member = getMember(memberId);
         Accomodation accomodation = getValidAccomodation(request.getAccomodationId());
@@ -46,9 +52,7 @@ public class ReviewService {
                         memberId, request.getAccomodationId(), ReservationStatus.CONFIRMED)
                 .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND)); // 예약 상태 확인
 
-        // 예약의 체크아웃 시간
         LocalDateTime memberCheckoutDate = getMemberCheckoutDate(memberId, accomodation.getId());
-        // 리뷰 내용 검증
         validateReviewRequest(request, memberCheckoutDate, confirmedReservation);
 
         Review review = Review.builder()
@@ -63,7 +67,13 @@ public class ReviewService {
         return new ReviewResponse(review.getComment(), review.getStar());
     }
 
-    // 리뷰 조회
+    /**
+     * 리뷰 조회
+     *
+     * @param accomodationId    숙소 id
+     * @param page              조회할 리뷰의 페이지 번호
+     * @return                  리뷰 정보가 담긴 객체 리스트 반환
+     */
     public PagedResponse<AccomodationReviewResponse> getReviewsByAccomodationId(Long accomodationId, int page) {
         Accomodation accomodation = getValidAccomodation(accomodationId);
         Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page-1, pageSize));
@@ -71,7 +81,12 @@ public class ReviewService {
         return new PagedResponse<>(reviewPage.getTotalPages(), reviewPage.getTotalElements(), content);
     }
 
-    // 리뷰 내용 검증
+    /**
+     * 리뷰 데이터를 검증하는 메서드
+     * @param request
+     * @param memberCheckoutDate
+     * @param confirmedReservation
+     */
     private void validateReviewRequest(ReviewRequest request, LocalDateTime memberCheckoutDate, Reservation confirmedReservation) {
         // 별점이 비어있거나 이상한 값을 가지고 있음
         if (request.getStar() == null || request.getStar() < 1 || request.getStar() > 5) {
@@ -94,19 +109,33 @@ public class ReviewService {
         }
     }
 
-    // 회원정보 조회
+    /**
+     * 회원 정보를 조회해 반환하는 메서드
+     * @param memberId  조회할 id
+     * @return          해당하는 유저 객체를 반환
+     */
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
                 .orElseThrow(() -> new GlobalException(ReviewErrorCode.MEMBER_NOT_FOUND));
     }
 
-    // 존재하는 숙소 id인지 확인, 숙소 객체 반환
+
+    /**
+     * 해당 숙소의 존재 여부를 검증하는 메서드
+     * @param accomodationId    숙소 id
+     * @return                  해당 숙소 객체를 반환
+     */
     private Accomodation getValidAccomodation(Long accomodationId) {
         return accomodationRepository.findById(accomodationId)
                 .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
     }
 
-    // 예약의 체크아웃 정보 반환
+    /**
+     * 예약 내역의 체크아웃 정보를 반환하는 메서드
+     * @param memberId          리뷰를 작성하는 유저의 id
+     * @param accomodationId    리뷰를 작성할 숙소의 id
+     * @return
+     */
     private LocalDateTime getMemberCheckoutDate(Long memberId, Long accomodationId) {
         Reservation confirmedReservation = reservationRepository.findByMemberIdAndAccomodationIdAndStatus(memberId, accomodationId, ReservationStatus.CONFIRMED)
                 .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND));

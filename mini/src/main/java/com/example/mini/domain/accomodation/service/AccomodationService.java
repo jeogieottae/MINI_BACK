@@ -150,7 +150,6 @@ public class AccomodationService {
 
     /**
      * 해당 객실의 예약가능 여부를 반환하는 메서드
-     *
      * @param checkIn   예약할 checkIn 정보
      * @param checkOut  예약할 checkOut 정보
      * @param roomId    조회할 객실 id
@@ -163,13 +162,17 @@ public class AccomodationService {
         return reservations.isEmpty();
     }
 
+    /**
+     * 해당 숙소의 전 객실에 대한 예약가능 여부를 반환하는 메서드
+     * @param availables    각 객실의 예약가능 여부
+     * @return              숙소 예약가능 여부 (true: 예약 가능)
+     */
     private boolean checkAllReservationAvailable(List<Boolean> availables) {
         return availables.stream().anyMatch(available -> available);
     }
 
     /**
-     * 페이지네이션 공통 에러처리
-     *
+     * 페이지네이션 공통 에러처리 메서드
      * @param accommodations    검증할 객체
      */
     private void checkPageException(Page<Accomodation> accommodations) {
@@ -178,6 +181,13 @@ public class AccomodationService {
         }
     }
 
+    /**
+     * 숙소 상세정보의 객실 데이터 반환 메서드
+     * @param accomodationId    해당 숙소의 id
+     * @param checkIn           체크인 시간 ( default: 당일 ~ 익일 )
+     * @param checkOut          체크아웃 시간
+     * @return                  객실 정보가 담긴 객체 리스트 반환
+     */
     private List<RoomResponseDto> getRoomResponseDto(Long accomodationId, String checkIn, String checkOut) {
         List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
         return  rooms.stream().map(room -> {
@@ -187,6 +197,12 @@ public class AccomodationService {
         }).toList();
     }
 
+    /**
+     * 숙소 상세정보의 리뷰 데이터 반환 메서드
+     * @param accomodation  해당 숙소의 객체
+     * @param reviewPage    조회할 리뷰의 페이지
+     * @return              리뷰 정보가 담긴 객체 리스트 반환
+     */
     private List<ReviewResponse> getReviewResponse(Accomodation accomodation, int reviewPage) {
         List<Review> latestReviews = reviewRepository.findTop5ByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(reviewPage, reviewPageSize));
         return latestReviews.stream()
