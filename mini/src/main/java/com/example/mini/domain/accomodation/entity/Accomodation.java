@@ -58,4 +58,7 @@ public class Accomodation extends BaseEntity {
 	@OneToMany(mappedBy = "accomodation", cascade = CascadeType.ALL)
 	private List<Review> reviews;
 
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "accomodation", cascade = CascadeType.ALL)
+	private List<AccomodationImage> images = new ArrayList<>();
+
 }

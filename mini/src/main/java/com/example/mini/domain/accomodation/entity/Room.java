@@ -4,6 +4,7 @@ import com.example.mini.domain.cart.entity.Cart;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,5 +40,7 @@ public class Room extends BaseEntity {
 	@JoinColumn(name = "accomodation_id")
 	private Accomodation accomodation;
 
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "room", cascade = CascadeType.ALL)
+	private List<RoomImage> images = new ArrayList<>();
 
 }
