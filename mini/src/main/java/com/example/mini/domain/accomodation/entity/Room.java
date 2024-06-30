@@ -38,4 +38,6 @@ public class Room extends BaseEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "accomodation_id")
 	private Accomodation accomodation;
+
+
 }
