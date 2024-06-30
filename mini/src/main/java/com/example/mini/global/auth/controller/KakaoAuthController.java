@@ -53,7 +53,7 @@ public class KakaoAuthController {
     @GetMapping("/refresh")
     public ResponseEntity<ApiResponse<String>> kakaoRefresh(HttpServletRequest request) {
         kakaoAuthService.kakaoRefresh(request);
-        return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
+        return ResponseEntity.ok(ApiResponse.OK("엑세스 토큰 재발급 완료"));
     }
 
     @DeleteMapping("/withdraw")
