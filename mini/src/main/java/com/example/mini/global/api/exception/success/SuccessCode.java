@@ -23,15 +23,15 @@ public enum SuccessCode {
 
 
     /*AccomodationController*/
-    ACCOMMODATIONS_RETRIEVED(HttpStatus.OK,  "숙소 목록 조회 성공"),
+    ACCOMMODATIONS_RETRIEVED(HttpStatus.OK, "숙소 목록 조회 성공"),
     CATEGORY_RETRIEVED(HttpStatus.OK,  "카테고리 조회 성공"),
     ACCOMMODATION_DETAILS_RETRIEVED(HttpStatus.OK,  "숙소 상세 정보 조회 성공"),
     ROOM_DETAILS_RETRIEVED(HttpStatus.OK,  "객실 상세 정보 조회 성공"),
     ACCOMMODATION_SEARCH_SUCCESS(HttpStatus.OK,  "숙소 검색 성공"),
 
     /*CartController*/
-    CART_ITEMS_RETRIEVED(HttpStatus.OK,  "장바구니 품목 조회 성공"),
-    CART_ITEM_ADDED(HttpStatus.CREATED,  "장바구니 품목 추가 성공"),
+    CART_ITEMS_RETRIEVED(HttpStatus.OK, "장바구니 품목 조회 성공"),
+    CART_ITEM_ADDED(HttpStatus.CREATED, "장바구니 품목 추가 성공"),
     CART_ITEM_CONFIRMED(HttpStatus.OK,  "장바구니 품목 확정 성공"),
     CART_ITEM_DELETED(HttpStatus.OK, "장바구니 품목 삭제 성공"),
 
@@ -49,10 +49,10 @@ public enum SuccessCode {
     REVIEWS_RETRIEVED(HttpStatus.OK,  "리뷰 목록 조회 성공"),
 
     /*GoogleAuthController*/
-    GOOGLE_LOGIN_SUCCESS(HttpStatus.OK,  "구글 로그인 성공"),
+    GOOGLE_LOGIN_SUCCESS(HttpStatus.OK, "구글 로그인 성공"),
 
     /*KakaoAuthController*/
-    KAKAO_LOGIN_SUCCESS(HttpStatus.OK,  "카카오 로그인 성공")
+    KAKAO_LOGIN_SUCCESS(HttpStatus.OK, "카카오 로그인 성공")
 
     ;
 

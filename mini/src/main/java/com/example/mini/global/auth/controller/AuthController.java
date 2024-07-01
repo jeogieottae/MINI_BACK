@@ -28,8 +28,10 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
-		String response = authService.register(request);
-		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER, response));	}
+		authService.register(request);
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER));
+	}
+
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
