@@ -58,7 +58,7 @@ class LikeServiceTest {
         .thenReturn(Optional.of(like));
 
     // When
-    likeService.addLike(memberId, accomodationId);
+    likeService.toggleLike(memberId, accomodationId);
 
     // Then
     assertFalse(like.isLiked());
@@ -79,7 +79,7 @@ class LikeServiceTest {
         .thenReturn(Optional.empty());
 
     // When
-    likeService.addLike(memberId, accomodationId);
+    likeService.toggleLike(memberId, accomodationId);
 
     // Then
     verify(likeRepository).save(any(Like.class));
@@ -95,7 +95,7 @@ class LikeServiceTest {
 
     // When & Then
     GlobalException exception = assertThrows(GlobalException.class, () ->
-        likeService.addLike(memberId, accomodationId));
+        likeService.toggleLike(memberId, accomodationId));
     assertEquals(LikeErrorCode.MEMBER_NOT_FOUND, exception.getErrorCode());
   }
 
@@ -111,7 +111,7 @@ class LikeServiceTest {
 
     // When & Then
     GlobalException exception = assertThrows(GlobalException.class, () ->
-        likeService.addLike(memberId, accomodationId));
+        likeService.toggleLike(memberId, accomodationId));
     assertEquals(LikeErrorCode.ACCOMODATION_NOT_FOUND, exception.getErrorCode());
   }
 
