@@ -19,12 +19,12 @@ public class LikeController {
   private final LikeService likeService;
 
   @PostMapping("{accomodationId}")
-  public ResponseEntity addLike(
+  public ResponseEntity<ApiResponse<Boolean>> toggleLike(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @PathVariable Long accomodationId
   ) {
-    likeService.addLike(userDetails.getMemberId(), accomodationId);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+    boolean isLiked = likeService.toggleLike(userDetails.getMemberId(), accomodationId);
+    return ResponseEntity.ok(ApiResponse.OK(isLiked));
   }
 
 
