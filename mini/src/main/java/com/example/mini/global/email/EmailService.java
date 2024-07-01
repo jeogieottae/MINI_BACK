@@ -1,3 +1,4 @@
+/*
 package com.example.mini.global.email;
 
 import lombok.RequiredArgsConstructor;
@@ -19,3 +20,4 @@ public class EmailService {
     mailSender.send(message);
   }
 }
+*/

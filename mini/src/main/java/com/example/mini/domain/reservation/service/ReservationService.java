@@ -14,7 +14,7 @@ import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.email.EmailService;
+/*import com.example.mini.global.email.EmailService;*/
 import com.example.mini.global.redis.RedissonLock;
 import com.example.mini.global.model.dto.PagedResponse;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class ReservationService {
   private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
   private final MemberRepository memberRepository;
-  private final EmailService emailService;
+  /*private final EmailService emailService;*/
 
   private final int pageSize = 10;
 
@@ -71,6 +71,7 @@ public class ReservationService {
 
     reservationRepository.save(reservation);
 
+/*
     String to = member.getEmail();
     String subject = "예약 확정 되었습니다";
     String text = String.format("귀하의 %s에서 %s 객실 예약이 확정되었습니다.\n체크인: %s\n체크아웃: %s\n인원 수: %d명\n총 가격: %d원",
@@ -80,8 +81,11 @@ public class ReservationService {
         request.getCheckOut(),
         request.getPeopleNumber(),
         reservation.getTotalPrice());
+*/
 
+/*
     emailService.sendReservationConfirmationEmail(to, subject, text);
+*/
 
     return mapToReservationResponse(reservation);
   }

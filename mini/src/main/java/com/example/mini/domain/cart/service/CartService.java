@@ -17,12 +17,10 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
-import com.example.mini.global.email.EmailService;
+/*import com.example.mini.global.email.EmailService;*/
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.redis.RedissonLock;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,7 +37,9 @@ public class CartService {
   private final CartRepository cartRepository;
   private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
+/*
   private final EmailService emailService;
+*/
 
   private final int pageSize = 10;
 
@@ -210,7 +210,9 @@ public class CartService {
         request.getPeopleNumber(),
         reservation.getTotalPrice());
 
+/*
     emailService.sendReservationConfirmationEmail(to, subject, text);
+*/
 
     return CartConfirmResponse.builder()
         .roomId(reservation.getRoom().getId())
