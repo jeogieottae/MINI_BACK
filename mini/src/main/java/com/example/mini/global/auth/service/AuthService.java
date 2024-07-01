@@ -41,7 +41,7 @@ public class AuthService {
 	private final GoogleMemberService googleMemberService;
 	private final KakaoMemberService kakaoMemberService;
 
-	private String logoutRedirectUri = "http://localhost:8080/api/protected/home";
+	private String logoutRedirectUri = "https://api.miniteam2.store/api/protected/home";
 
 	@Value("${server.ssl.enabled:false}")
 	private boolean isSecure;
