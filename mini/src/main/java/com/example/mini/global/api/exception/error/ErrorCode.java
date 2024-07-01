@@ -7,4 +7,6 @@ public interface ErrorCode {
 
 	String getInfo();
 
+	String getCodeName();
+
 }

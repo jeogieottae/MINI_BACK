@@ -24,4 +24,9 @@ public enum LikeErrorCode implements ErrorCode {
   public String getInfo() {
     return info;
   }
+
+  @Override
+  public String getCodeName() {
+    return this.name();
+  }
 }

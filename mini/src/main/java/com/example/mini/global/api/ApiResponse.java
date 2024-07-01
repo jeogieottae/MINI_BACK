@@ -35,7 +35,7 @@ public class ApiResponse<T> {
 	}
 
 	public static ApiResponse<Object> ERROR(ErrorCode errorCode) {
-		ApiResponse apiResponse = new ApiResponse<Object>();
+		ApiResponse<Object> apiResponse = new ApiResponse<>();
 		apiResponse.result = Result.ERROR(errorCode);
 		return apiResponse;
 	}
