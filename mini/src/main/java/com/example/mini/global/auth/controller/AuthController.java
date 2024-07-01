@@ -4,6 +4,7 @@ import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.domain.member.model.response.UserProfileResponse;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.auth.service.AuthService;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -22,13 +25,11 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
 	private final AuthService authService;
-	private final JwtProvider jwtProvider;
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
 		String response = authService.register(request);
-		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER, response));
-	}
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER, response));	}
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
@@ -37,33 +38,38 @@ public class AuthController {
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGIN, loginResponse));
 	}
 
-	@PostMapping("/logout")
-	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response) {
-		String accessToken = jwtProvider.resolveToken(request);
-		authService.logout(accessToken);
-		authService.deleteTokenCookies(response);
+	@GetMapping("/logout")
+	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response)
+		throws IOException {
+		String redirectUri = authService.logout(request, response);
+		response.sendRedirect(redirectUri);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGOUT));
 	}
 
-	@PostMapping("/token/refresh")
+	@GetMapping("/token/refresh")
 	public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
 		authService.refreshToken(request, response);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.TOKEN_REFRESHED));
 	}
 
 	@DeleteMapping("/withdraw")
-	public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) {
-		String accessToken = jwtProvider.resolveToken(request);
-		authService.withdraw(accessToken);
-		authService.deleteTokenCookies(response);
+	public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response)
+		throws IOException {
+		String redirectUri = authService.withdraw(request, response);
+		response.sendRedirect(redirectUri);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.WITHDRAW));
 	}
 
-	@PostMapping("/nickname")
+	@PutMapping("/nickname")
 	public ResponseEntity<ApiResponse<String>> changeNickname(
-		HttpServletRequest request,
-		@RequestBody ChangeNicknameRequest changeNicknameRequest) {
+		HttpServletRequest request, @RequestBody ChangeNicknameRequest changeNicknameRequest) {
 		authService.updateNickname(request, changeNicknameRequest);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.NICKNAME_UPDATED));
+	}
+
+	@GetMapping("/userInfo")
+	public ResponseEntity<ApiResponse<UserProfileResponse>> userInfo(HttpServletRequest request) {
+		UserProfileResponse userInfo = authService.getUserInfo(request);
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.USER_INFO_RETRIEVED, userInfo));
 	}
 }

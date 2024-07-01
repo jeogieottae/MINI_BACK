@@ -161,3 +161,4 @@ public class GoogleAuthService {
         log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", userInfo.getEmail(), nickname);
     }
 }
+

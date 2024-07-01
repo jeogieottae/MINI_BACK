@@ -43,6 +43,7 @@ public class CartController {
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CART_ITEM_ADDED));
   }
 
+
   // 장바구니 품목 확정
   @PutMapping
   public ResponseEntity<ApiResponse<CartConfirmResponse>> confirmCartItems(
@@ -61,4 +62,5 @@ public class CartController {
   ) {
     cartService.deleteCartItem(userDetails.getMemberId(), request);
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CART_ITEM_DELETED));  }
+
 }

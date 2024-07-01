@@ -30,6 +30,7 @@ public class ReviewController {
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REVIEW_ADDED, response));
   }
 
+
   @GetMapping
   public ResponseEntity<ApiResponse<PagedResponse<AccomodationReviewResponse>>> getReviewsByAccomodationId(
       @RequestParam(value = "id", required = true) Long accommodationId,
@@ -38,5 +39,6 @@ public class ReviewController {
     PagedResponse<AccomodationReviewResponse> reviews = reviewService.getReviewsByAccomodationId(accommodationId, page);
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REVIEWS_RETRIEVED, reviews));
   }
+
 
 }

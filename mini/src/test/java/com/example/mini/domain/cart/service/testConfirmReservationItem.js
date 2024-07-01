@@ -18,7 +18,7 @@ let lockAcquisitionTime = new Trend('lock_acquisition_time');
 let lockFailureRate = new Rate('lock_failure_rate');
 
 const confirmItem = {
-  reservationId: 62,
+  reservationId: 30,
   roomId: 54,
   peopleNumber: 2,
   checkIn: '2024-06-28T14:00:00',

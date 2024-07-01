@@ -6,7 +6,10 @@ import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.domain.member.model.response.UserProfileResponse;
 import com.example.mini.domain.member.repository.MemberRepository;
+import com.example.mini.domain.member.service.GoogleMemberService;
+import com.example.mini.domain.member.service.KakaoMemberService;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
 import com.example.mini.global.security.jwt.JwtProvider;
@@ -33,6 +36,12 @@ public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtProvider jwtProvider;
 	private final TokenService tokenService;
+	private final GoogleAuthService googleAuthService;
+	private final KakaoAuthService kakaoAuthService;
+	private final GoogleMemberService googleMemberService;
+	private final KakaoMemberService kakaoMemberService;
+
+	private String logoutRedirectUri = "http://localhost:8080/api/protected/home";
 
 	@Value("${server.ssl.enabled:false}")
 	private boolean isSecure;
@@ -85,6 +94,130 @@ public class AuthService {
 
 	@Transactional
 	public void refreshToken(HttpServletRequest request, HttpServletResponse response) {
+		// 로그인 방식 판단
+		String cookenName = CookieUtil.getCookieNames(request);
+		log.info("로그인 방식: {}", cookenName);
+
+		if (cookenName == null) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		if(cookenName.equals("googleAccessToken")){
+			log.info("구글 토큰 재발급");
+			googleAuthService.googleRefresh(request);
+		}else if(cookenName.equals("kakaoAccessToken")){
+			log.info("카카오 토큰 재발급");
+			kakaoAuthService.kakaoRefresh(request);
+		}else if(cookenName.equals("accessToken")){
+			log.info("일반 토큰 재발급");
+			standardRefreshToken(request, response);
+		}
+
+	}
+
+	@Transactional
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
+		// 로그인 방식 판단
+		String cookenName = CookieUtil.getCookieNames(request);
+		log.info("로그인 방식: {}", cookenName);
+
+		if (cookenName == null) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		if(cookenName.equals("googleAccessToken")){
+			log.info("구글 로그아웃");
+			googleAuthService.googleLogout(request, response);
+			return logoutRedirectUri;
+		}else if(cookenName.equals("kakaoAccessToken")){
+			log.info("카카오 로그아웃");
+			kakaoAuthService.kakaoLogout(request, response);
+			return kakaoAuthService.getKakaoLogoutRedirectUri();
+		}else if(cookenName.equals("accessToken")){
+			log.info("일반 로그아웃");
+			standardLogout(request, response);
+			return logoutRedirectUri;
+		}
+
+		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+	}
+
+	@Transactional
+	public String withdraw(HttpServletRequest request, HttpServletResponse response) {
+		// 로그인 방식 판단
+		String cookenName = CookieUtil.getCookieNames(request);
+		log.info("로그인 방식: {}", cookenName);
+
+		if (cookenName == null) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		if(cookenName.equals("googleAccessToken")){
+			log.info("구글 회원 탈퇴");
+			googleAuthService.withdraw(request, response);
+			return logoutRedirectUri;
+		}else if(cookenName.equals("kakaoAccessToken")){
+			log.info("카카오 회원 탈퇴");
+			kakaoAuthService.withdraw(request, response);
+			return kakaoAuthService.getKakaoLogoutRedirectUri();
+		}else if(cookenName.equals("accessToken")){
+			log.info("일반 회원 탈퇴");
+			standardWithdraw(request, response);
+			return logoutRedirectUri;
+		}
+
+		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+	}
+
+	@Transactional
+	public void updateNickname(HttpServletRequest request, ChangeNicknameRequest changeNicknameRequest) {
+		// 로그인 방식 판단
+		String cookenName = CookieUtil.getCookieNames(request);
+		log.info("로그인 방식: {}", cookenName);
+
+		if (cookenName == null) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		if(cookenName.equals("googleAccessToken")){
+			log.info("구글 닉네임 변경");
+			googleAuthService.changeNickname(request, changeNicknameRequest.getNickname());
+		}else if(cookenName.equals("kakaoAccessToken")){
+			log.info("카카오 닉네임 변경");
+			kakaoAuthService.changeNickname(request, changeNicknameRequest.getNickname());
+		}else if(cookenName.equals("accessToken")){
+			log.info("일반 닉네임 변경");
+			standardUpdateNickname(request, changeNicknameRequest.getNickname());
+		}
+
+	}
+
+	@Transactional
+	public UserProfileResponse getUserInfo(HttpServletRequest request) {
+		// 로그인 방식 판단
+		String cookenName = CookieUtil.getCookieNames(request);
+		log.info("로그인 방식: {}", cookenName);
+
+		if (cookenName == null) {
+			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		if(cookenName.equals("googleAccessToken")){
+			log.info("구글 로그아웃");
+			return googleMemberService.getGoogleUserInfo(request);
+		}else if(cookenName.equals("kakaoAccessToken")){
+			log.info("카카오 로그아웃");
+			return kakaoMemberService.getKakaoUserInfo(request);
+		}else if(cookenName.equals("accessToken")){
+			log.info("일반 로그아웃");
+			return getStandardUserInfo(request);
+		}
+
+		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+	}
+
+	@Transactional
+	public void standardRefreshToken(HttpServletRequest request, HttpServletResponse response) {
 		Cookie refreshTokenCookie = CookieUtil.getCookie(request, "refreshToken");
 		if (refreshTokenCookie == null) {
 			throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
@@ -114,23 +247,26 @@ public class AuthService {
 	}
 
 	@Transactional
-	public void logout(String accessToken) {
-		if (accessToken == null || accessToken.isEmpty()) {
-			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
-		}
+	public void standardLogout(HttpServletRequest request, HttpServletResponse response) {
 
+		String accessToken = CookieUtil.getCookie(request, "accessToken").getValue();
 		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
 		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+				.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
 		member.setState(MemberState.INACTIVE);
 
 		tokenService.blacklistToken(accessToken);
+
+		deleteTokenCookies(response);
+
 		log.info("로그아웃 성공: 이메일={}", email);
 	}
 
 	@Transactional
-	public void withdraw(String accessToken) {
+	public void standardWithdraw(HttpServletRequest request, HttpServletResponse response) {
+		String accessToken = CookieUtil.getCookie(request, "accessToken").getValue();
+
 		if (accessToken == null || accessToken.isEmpty()) {
 			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
@@ -143,23 +279,39 @@ public class AuthService {
 		tokenService.blacklistToken(accessToken);
 		tokenService.removeToken(tokenService.getRefreshToken(email));
 
+		deleteTokenCookies(response);
+
 		log.info("회원 탈퇴 성공: 이메일={}", email);
 	}
 
-
 	@Transactional
-	public void updateNickname(HttpServletRequest request, ChangeNicknameRequest changeNicknameRequest) {
+	public void standardUpdateNickname(HttpServletRequest request, String newNickname) {
 		String accessToken = jwtProvider.resolveToken(request);
 		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
 		Member member = memberRepository.findByEmail(email)
 			.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
-		member.setNickname(changeNicknameRequest.getNickname());
+		member.setNickname(newNickname);
 		memberRepository.save(member);
 
-		log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, changeNicknameRequest.getNickname());
+		log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, newNickname);
 	}
 
+
+
+	@Transactional
+	public UserProfileResponse getStandardUserInfo(HttpServletRequest request) {
+		String accessToken = CookieUtil.getCookie(request, "accessToken").getValue();
+		String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
+		Member member = memberRepository.findByEmail(email)
+			.orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
+
+		return UserProfileResponse.builder()
+				.name(member.getName())
+				.nickname(member.getNickname())
+				.email(email)
+				.build();
+	}
 
 	// todo : 이 부분을 어떻게 할지 고민 중
 	public void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {

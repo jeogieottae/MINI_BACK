@@ -22,6 +22,7 @@ public class ReservationController {
 
   private final ReservationService reservationService;
 
+
   @PostMapping
   public ResponseEntity<ApiResponse<ReservationResponse>> confirmReservation(
       @RequestBody ReservationRequest request,
@@ -39,6 +40,7 @@ public class ReservationController {
     PagedResponse<ReservationSummaryResponse> reservations = reservationService.getAllReservations(userDetails.getMemberId(), page);
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATIONS_RETRIEVED, reservations));
   }
+
 
   @GetMapping("/detail/{reservationId}")
   public ResponseEntity<ApiResponse<ReservationDetailResponse>> getReservationDetail(
