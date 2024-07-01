@@ -9,5 +9,4 @@ public interface ErrorCode {
 
 	String getCodeName();
 
-
 }
