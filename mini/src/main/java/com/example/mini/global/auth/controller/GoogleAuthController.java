@@ -36,12 +36,6 @@ public class GoogleAuthController {
         response.sendRedirect(googleAuthService.getGoogleAuthUrl());
     }
 
-    @GetMapping("/logout")
-    public void googleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        googleAuthService.googleLogout(request, response);
-        response.sendRedirect("http://localhost:8080/api/protected/home");
-    }
-
     @GetMapping("/callback")
     public ResponseEntity<ApiResponse<LoginResponse>> googleCallback(@RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "error", required = false) String error) {
@@ -53,24 +47,4 @@ public class GoogleAuthController {
         return ResponseEntity.ok(ApiResponse.OK(loginResponse));
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity<ApiResponse<String>> googleRefresh(HttpServletRequest request) {
-        googleAuthService.googleRefresh(request);
-        return ResponseEntity.ok(ApiResponse.OK("엑세스 토큰이 재발급 되었습니다."));
-    }
-
-    @DeleteMapping("/withdraw")
-    public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) {
-        googleAuthService.withdraw(request, response);
-        return ResponseEntity.ok(ApiResponse.DELETE());
-    }
-
-    @PostMapping("/nickname")
-    public ResponseEntity<ApiResponse<String>> changeNickname(
-        HttpServletRequest request,
-        @RequestBody ChangeNicknameRequest changeNicknameRequest) {
-
-        googleAuthService.changeNickname(request, changeNicknameRequest.getNickname());
-        return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
-    }
 }

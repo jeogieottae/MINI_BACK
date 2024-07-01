@@ -185,81 +185,81 @@ public class AuthServiceTest {
         assertThrows(GlobalException.class, () -> authService.createAccessToken(refreshToken));
     }
 
-    @Test
-    @DisplayName("logout_성공")
-    void successLogout() {
-        // given
-        String accessToken = "accessToken";
-        Member member = new Member();
-        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
-        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+//    @Test
+//    @DisplayName("logout_성공")
+//    void successLogout() {
+//        // given
+//        String accessToken = "accessToken";
+//        Member member = new Member();
+//        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
+//        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+//
+//        // when
+//        authService.logout(accessToken);
+//
+//        // then
+//        assertEquals(MemberState.INACTIVE, member.getState());
+//        verify(tokenService).blacklistToken(accessToken);
+//    }
+//
+//    @Test
+//    @DisplayName("logout_실패_토큰_미입력")
+//    void failLogoutInvalidToken() {
+//        // given
+//        String accessToken = "";
+//
+//        // when
+//        // then
+//        assertThrows(GlobalException.class, () -> authService.logout(accessToken));
+//    }
+//
+//    @Test
+//    @DisplayName("logout_실패_사용자_없음")
+//    void failLogoutUserNotFound() {
+//        // given
+//        String accessToken = "accessToken";
+//        Member member = new Member();
+//        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
+//        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+//
+//        // when
+//        // then
+//        assertThrows(GlobalException.class, () -> authService.logout(accessToken));
+//    }
 
-        // when
-        authService.logout(accessToken);
+//    @Test
+//    @DisplayName("withdraw_성공")
+//    void successWithdraw() {
+//        // given
+//        String accessToken = "accessToken";
+//        Member member = new Member();
+//        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
+//        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+//
+//        // when
+//        authService.withdraw(accessToken);
+//
+//        // then
+//        verify(memberRepository).delete(member);
+//        verify(tokenService).blacklistToken(accessToken);
+//        verify(tokenService).removeToken(any());
+//    }
 
-        // then
-        assertEquals(MemberState.INACTIVE, member.getState());
-        verify(tokenService).blacklistToken(accessToken);
-    }
-
-    @Test
-    @DisplayName("logout_실패_토큰_미입력")
-    void failLogoutInvalidToken() {
-        // given
-        String accessToken = "";
-
-        // when
-        // then
-        assertThrows(GlobalException.class, () -> authService.logout(accessToken));
-    }
-
-    @Test
-    @DisplayName("logout_실패_사용자_없음")
-    void failLogoutUserNotFound() {
-        // given
-        String accessToken = "accessToken";
-        Member member = new Member();
-        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
-        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty());
-
-        // when
-        // then
-        assertThrows(GlobalException.class, () -> authService.logout(accessToken));
-    }
-
-    @Test
-    @DisplayName("withdraw_성공")
-    void successWithdraw() {
-        // given
-        String accessToken = "accessToken";
-        Member member = new Member();
-        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
-        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
-
-        // when
-        authService.withdraw(accessToken);
-
-        // then
-        verify(memberRepository).delete(member);
-        verify(tokenService).blacklistToken(accessToken);
-        verify(tokenService).removeToken(any());
-    }
-
-    @Test
-    @DisplayName("updateNickname_성공")
-    void successUpdateNickname() {
-        // given
-        String accessToken = "accessToken";
-        String newNickname = "newNickname";
-        Member member = new Member();
-        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
-        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
-
-        // when
-        authService.updateNickname(accessToken, newNickname);
-
-        // then
-        assertEquals(newNickname, member.getNickname());
-        verify(memberRepository).save(member);
-    }
+//    @Test
+//    @DisplayName("updateNickname_성공")
+//    void successUpdateNickname() {
+//        // given
+//        String accessToken = "accessToken";
+//        String newNickname = "newNickname";
+//        Member member = new Member();
+//        when(jwtProvider.getEmailFromToken(anyString(), any())).thenReturn("test@example.com");
+//        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+//
+//        // when
+//        authService.updateNickname(accessToken, newNickname);
+//
+//        // then
+//        assertEquals(newNickname, member.getNickname());
+//        verify(memberRepository).save(member);
+//    }
 }

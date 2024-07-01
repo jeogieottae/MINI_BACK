@@ -41,7 +41,6 @@ public class KakaoAuthService {
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
-    @Getter
     private String kakaoLogoutRedirectUri = "http://localhost:8080/api/protected/home";
 
     public String getKakaoAuthUrl() {
@@ -160,5 +159,10 @@ public class KakaoAuthService {
         KakaoUserInfo userInfo = kakaoApiClient.getKakaoUserInfo(accessToken);
         kakaoMemberService.updateNickname(userInfo.getEmail(), nickname);
         log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", userInfo.getEmail(), nickname);
+    }
+
+    public String getKakaoLogoutRedirectUri() {
+        return "https://kauth.kakao.com/oauth/logout?client_id=" + kakaoClientId
+                + "&logout_redirect_uri=" + kakaoLogoutRedirectUri;
     }
 }

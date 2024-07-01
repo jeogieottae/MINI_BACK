@@ -33,12 +33,6 @@ public class KakaoAuthController {
         response.sendRedirect(kakaoAuthService.getKakaoAuthUrl());
     }
 
-    @GetMapping("/logout")
-    public void kakaoLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        kakaoAuthService.kakaoLogout(request, response);
-        response.sendRedirect(kakaoAuthService.getKakaoLogoutRedirectUri());
-    }
-
     @GetMapping("/callback")
     public ResponseEntity<ApiResponse<LoginResponse>> kakaoCallback(@RequestParam(value = "code", required = false) String code,
         @RequestParam(value = "error", required = false) String error) {
@@ -50,24 +44,4 @@ public class KakaoAuthController {
         return ResponseEntity.ok(ApiResponse.OK(loginResponse));
     }
 
-    @GetMapping("/refresh")
-    public ResponseEntity<ApiResponse<String>> kakaoRefresh(HttpServletRequest request) {
-        kakaoAuthService.kakaoRefresh(request);
-        return ResponseEntity.ok(ApiResponse.OK("Access token refreshed"));
-    }
-
-    @DeleteMapping("/withdraw")
-    public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        kakaoAuthService.withdraw(request, response);
-        return ResponseEntity.ok(ApiResponse.DELETE());
-    }
-
-    @PostMapping("/nickname")
-    public ResponseEntity<ApiResponse<String>> changeNickname(
-        HttpServletRequest request,
-        @RequestBody ChangeNicknameRequest changeNicknameRequest) {
-
-        kakaoAuthService.changeNickname(request, changeNicknameRequest.getNickname());
-        return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
-    }
 }
