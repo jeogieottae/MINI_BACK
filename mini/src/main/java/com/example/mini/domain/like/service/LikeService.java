@@ -30,21 +30,18 @@ public class LikeService {
 
   private final int pageSize = 10;
 
-  // todo : addLike에 좋아요 취소하는 동작도 넣는게 맞는지 고민
   @Transactional
-  public void addLike(Long memberId, Long accomodationId) {
+  public boolean toggleLike(Long memberId, Long accomodationId) {
     Member member = getMember(memberId);
     Accomodation accomodation = getAccomodation(accomodationId);
 
-    likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId)
-        .ifPresentOrElse(
-            like -> {
-              like.setLiked(!like.isLiked());
-              },
-            () -> likeRepository.save(new Like(
-                member, accomodation, true
-            ))
-        );
+    Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId)
+        .orElse(new Like(member, accomodation, false));
+
+    like.setLiked(!like.isLiked());
+    likeRepository.save(like);
+
+    return like.isLiked();
   }
 
   private Member getMember(Long memberId) {
