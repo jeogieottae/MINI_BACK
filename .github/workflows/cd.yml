@@ -72,8 +72,8 @@ jobs:
         echo "  mail:" >> ./mini/src/main/resources/application-mail.yml
         echo "    host: smtp.gmail.com" >> ./mini/src/main/resources/application-mail.yml
         echo "    port: 587" >> ./mini/src/main/resources/application-mail.yml
-        echo "    username: ${secrets.GMAIL_MAIL}" >> ./mini/src/main/resources/application-mail.yml
-        echo "    password: ${secrets.GMAIL_PASSWORD}" >> ./mini/src/main/resources/application-mail.yml
+        echo "    username: ${{ secrets.GMAIL_MAIL }}" >> ./mini/src/main/resources/application-mail.yml
+        echo "    password: ${{ secrets.GMAIL_PASSWORD }}" >> ./mini/src/main/resources/application-mail.yml
         echo "    properties:" >> ./mini/src/main/resources/application-mail.yml
         echo "      mail:" >> ./mini/src/main/resources/application-mail.yml
         echo "        smtp:" >> ./mini/src/main/resources/application-mail.yml
