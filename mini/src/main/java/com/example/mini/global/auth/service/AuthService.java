@@ -43,11 +43,15 @@ public class AuthService {
 	private String logoutRedirectUri = "http://localhost:8080/api/protected/home";
 
 	@Transactional
-	public String register(RegisterRequest request) {
+	public void register(RegisterRequest request) {
 		log.info("회원가입 시도: 이메일={}, 이름={}, 닉네임={}", request.getEmail(), request.getName(), request.getNickname());
 
 		if (memberRepository.existsByEmail(request.getEmail())) {
 			throw new GlobalException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
+		}
+
+		if (memberRepository.existsByNickname(request.getNickname())) {
+			throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS); // 추가
 		}
 
 		Member member = Member.builder()
@@ -61,8 +65,9 @@ public class AuthService {
 		memberRepository.save(member);
 
 		log.info("회원가입 성공: 이메일={}", member.getEmail());
-		return "회원가입이 성공적으로 완료되었습니다.";
 	}
+
+
 
 	@Transactional
 	public LoginResponse login(LoginRequest request) {
@@ -173,6 +178,10 @@ public class AuthService {
 
 		if (cookenName == null) {
 			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		}
+
+		if (memberRepository.existsByNickname(changeNicknameRequest.getNickname())) { //추가
+			throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
 		}
 
 		if(cookenName.equals("googleAccessToken")){

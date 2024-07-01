@@ -110,6 +110,7 @@ public class GoogleAuthService {
             throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
 
+
         String accessToken = accessTokenCookie.getValue();
         updateNickname(accessToken, newNickname);
     }
