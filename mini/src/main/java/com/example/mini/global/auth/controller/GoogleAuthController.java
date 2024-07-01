@@ -6,6 +6,7 @@ import com.example.mini.domain.member.service.GoogleMemberService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.auth.external.GoogleApiClient;
 import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
@@ -44,7 +45,7 @@ public class GoogleAuthController {
         }
 
         LoginResponse loginResponse = googleAuthService.googleCallback(code);
-        return ResponseEntity.ok(ApiResponse.OK(loginResponse));
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.GOOGLE_LOGIN_SUCCESS, loginResponse));
     }
 
 }
