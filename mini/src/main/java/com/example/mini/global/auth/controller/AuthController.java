@@ -5,6 +5,7 @@ import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,14 +27,14 @@ public class AuthController {
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
 		String response = authService.register(request);
-		return ResponseEntity.ok(ApiResponse.CREATED(response));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER, response));
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
 		LoginResponse loginResponse = authService.login(request);
 		authService.addTokenCookies(response, loginResponse.getAccessToken(), loginResponse.getRefreshToken());
-		return ResponseEntity.ok(ApiResponse.OK(loginResponse));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGIN, loginResponse));
 	}
 
 	@PostMapping("/logout")
@@ -41,13 +42,13 @@ public class AuthController {
 		String accessToken = jwtProvider.resolveToken(request);
 		authService.logout(accessToken);
 		authService.deleteTokenCookies(response);
-		return ResponseEntity.ok(ApiResponse.DELETE());
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGOUT));
 	}
 
 	@PostMapping("/token/refresh")
 	public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
 		authService.refreshToken(request, response);
-		return ResponseEntity.ok(ApiResponse.OK("엑세스 토큰 재발급 완료"));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.TOKEN_REFRESHED));
 	}
 
 	@DeleteMapping("/withdraw")
@@ -55,7 +56,7 @@ public class AuthController {
 		String accessToken = jwtProvider.resolveToken(request);
 		authService.withdraw(accessToken);
 		authService.deleteTokenCookies(response);
-		return ResponseEntity.ok(ApiResponse.DELETE());
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.WITHDRAW));
 	}
 
 	@PostMapping("/nickname")
@@ -63,6 +64,6 @@ public class AuthController {
 		HttpServletRequest request,
 		@RequestBody ChangeNicknameRequest changeNicknameRequest) {
 		authService.updateNickname(request, changeNicknameRequest);
-		return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.NICKNAME_UPDATED));
 	}
 }

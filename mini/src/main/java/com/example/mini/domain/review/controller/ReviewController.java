@@ -5,6 +5,7 @@ import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
 import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.service.ReviewService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,12 @@ public class ReviewController {
   private final ReviewService reviewService;
 
   @PostMapping
-  public ResponseEntity<ReviewResponse> addReview(
+  public ResponseEntity<ApiResponse<ReviewResponse>> addReview(
       @RequestBody ReviewRequest request,
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
     ReviewResponse response = reviewService.addReview(userDetails.getMemberId(), request);
-    return new ResponseEntity<>(response, HttpStatus.CREATED);
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REVIEW_ADDED, response));
   }
 
   @GetMapping
@@ -35,7 +36,7 @@ public class ReviewController {
       @RequestParam(defaultValue = "1") int page
   ) {
     PagedResponse<AccomodationReviewResponse> reviews = reviewService.getReviewsByAccomodationId(accommodationId, page);
-    return ResponseEntity.ok(ApiResponse.OK(reviews));
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REVIEWS_RETRIEVED, reviews));
   }
 
 }

@@ -3,6 +3,7 @@ package com.example.mini.domain.accomodation.controller;
 import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ public class AccomodationController {
             @RequestParam(value="page", defaultValue = "1") int page
     ) {
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page);
-        return ResponseEntity.ok(ApiResponse.OK(response));
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATIONS_RETRIEVED, response));
     }
 
     @GetMapping("/category")
@@ -34,7 +35,7 @@ public class AccomodationController {
     ) {
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAccommodationsByCategory(region, page, checkIn, checkOut);
 
-        return ResponseEntity.ok(ApiResponse.OK(response));
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CATEGORY_RETRIEVED, response));
     }
 
 
@@ -60,8 +61,9 @@ public class AccomodationController {
     ) {
         AccomodationDetailsResponseDto response = accomodationService
                 .getAccomodationDetails(accomodationId, checkIn, checkOut);
-        return ResponseEntity.ok(ApiResponse.OK(response));
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_DETAILS_RETRIEVED, response));
     }
+
 
     @GetMapping("/{accomodationId}/room/{roomId}")
     public ResponseEntity<ApiResponse<RoomResponseDto>> getRoomDetail(
@@ -69,7 +71,7 @@ public class AccomodationController {
         @PathVariable Long roomId
     ) {
         RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId);
-        return ResponseEntity.ok(ApiResponse.OK(response));
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ROOM_DETAILS_RETRIEVED, response));
     }
 
 }
