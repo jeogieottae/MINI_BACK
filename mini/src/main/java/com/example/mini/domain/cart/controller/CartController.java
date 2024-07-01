@@ -7,6 +7,7 @@ import com.example.mini.domain.cart.model.response.CartConfirmResponse;
 import com.example.mini.domain.cart.model.response.CartResponse;
 import com.example.mini.domain.cart.service.CartService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class CartController {
       @RequestParam(value = "page", defaultValue = "1") int page
   ) {
     PagedResponse<CartResponse> cartItems = cartService.getAllCartItems(userDetails.getMemberId(), page);
-    return ResponseEntity.ok(ApiResponse.OK(cartItems));
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CART_ITEMS_RETRIEVED, cartItems));
   }
 
   //장바구니 품목 추가
@@ -39,17 +40,18 @@ public class CartController {
       @RequestBody AddCartItemRequest request
   ) {
     cartService.addCartItem(userDetails.getMemberId(), request);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CART_ITEM_ADDED));
   }
+
 
   // 장바구니 품목 확정
   @PutMapping
-  public ResponseEntity<CartConfirmResponse> confirmCartItems(
+  public ResponseEntity<ApiResponse<CartConfirmResponse>> confirmCartItems(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @RequestBody ConfirmCartItemRequest request) {
     Long memberId = userDetails.getMemberId();
     CartConfirmResponse response = cartService.confirmReservationItem(memberId, request);
-    return new ResponseEntity<>(response, HttpStatus.OK);
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CART_ITEM_CONFIRMED, response));
   }
 
   //장바구니 품목 삭제
@@ -59,6 +61,6 @@ public class CartController {
       @RequestBody DeleteCartItemRequest request
   ) {
     cartService.deleteCartItem(userDetails.getMemberId(), request);
-    return ResponseEntity.ok(ApiResponse.DELETE());
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CART_ITEM_DELETED));
   }
 }
