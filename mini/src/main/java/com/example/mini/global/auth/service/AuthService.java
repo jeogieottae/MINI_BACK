@@ -168,11 +168,11 @@ public class AuthService {
 	}
 
 	public void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
-		CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000, isSecure);
+		CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000, true);
 	}
 
 	public void deleteTokenCookies(HttpServletResponse response) {
-		CookieUtil.deleteCookie(response, "accessToken", isSecure);
-		CookieUtil.deleteCookie(response, "refreshToken", isSecure);
+		CookieUtil.deleteCookie(response, "accessToken", true);
+		CookieUtil.deleteCookie(response, "refreshToken", true);
 	}
 }

@@ -30,8 +30,9 @@ public class LikeService {
 
   private final int pageSize = 10;
 
+  // todo : addLike에 좋아요 취소하는 동작도 넣는게 맞는지 고민
   @Transactional
-  public void addLike(Long memberId, Long accomodationId) { // todo : addLike에 좋아요 취소하는 동작도 넣는게 맞는지 고민
+  public void addLike(Long memberId, Long accomodationId) {
     Member member = getMember(memberId);
     Accomodation accomodation = getAccomodation(accomodationId);
 

@@ -95,7 +95,6 @@ public class SecurityConfig {
 			"https://kauth.kakao.com/oauth/authorize",
 			"https://kauth.kakao.com/oauth/token",
 			"https://kapi.kakao.com/v2/user/me"
-
 		));
 		config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH"));
 		config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
