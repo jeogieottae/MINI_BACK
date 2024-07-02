@@ -4,7 +4,7 @@ import { Trend, Rate } from 'k6/metrics';
 
 // 동시 사용자 수 설정
 export let options = {
-  vus: 100,
+  vus: 1,
   duration: '1s',
 };
 
@@ -18,7 +18,7 @@ let lockAcquisitionTime = new Trend('lock_acquisition_time');
 let lockFailureRate = new Rate('lock_failure_rate');
 
 const confirmItem = {
-  roomId: 78,
+  roomId: 3,
   peopleNumber: 2,
   checkIn: '2024-06-28T14:00:00',
   checkOut: '2024-06-30T10:00:00',
@@ -30,8 +30,8 @@ export default function () {
   let startTime = new Date().getTime();
 
   let itemsToSend = confirmItem || [];
-  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjYwNjU4LCJleHAiOjE3MTk2NjA3Nzh9.7uwzLyaksFqxf5FNMntWIIdOOBlGmXnBv1Tl1R86P74';
-  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlQGV4YW1wbGUuY29tIiwiaWF0IjoxNzE5NjYwNjU4LCJleHAiOjE3MjA4NzAyNTh9.5QL0Tu4KoOlQ2BUojY4pT9e4SFx_l0SoXyzKbenzwZw';
+  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlcG9pbnQxMTI2QGdtYWlsLmNvbSIsImlhdCI6MTcxOTgyMjEzMSwiZXhwIjoxNzE5ODIzOTMxfQ.HaZUX0XzQtzzaPhlP4Vly5D55CsXmfBm5q-IaYYuLD0';
+  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlcG9pbnQxMTI2QGdtYWlsLmNvbSIsImlhdCI6MTcxOTgyMjEzMSwiZXhwIjoxNzIxMDMxNzMxfQ.yX-RokGnea2rjIInNCF7UjVcsbNWcZSdh0ys7YySMbI';
 
   let confirmResponse = http.post(`${baseUrl}/api/reservation`, JSON.stringify(confirmItem), {
     headers: {

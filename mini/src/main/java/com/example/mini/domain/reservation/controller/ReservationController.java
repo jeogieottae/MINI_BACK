@@ -6,6 +6,7 @@ import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
 import com.example.mini.domain.reservation.service.ReservationService;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +22,14 @@ public class ReservationController {
 
   private final ReservationService reservationService;
 
+
   @PostMapping
-  public ResponseEntity<ReservationResponse> confirmReservation(
+  public ResponseEntity<ApiResponse<ReservationResponse>> confirmReservation(
       @RequestBody ReservationRequest request,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
     Long memberId = userDetails.getMemberId();
     ReservationResponse response = reservationService.createConfirmedReservation(memberId, request);
-    return new ResponseEntity<>(response, HttpStatus.CREATED);
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATION_CONFIRMED, response));
   }
 
   @GetMapping
@@ -36,17 +38,18 @@ public class ReservationController {
       @RequestParam(value = "page", defaultValue = "1") int page
   ) {
     PagedResponse<ReservationSummaryResponse> reservations = reservationService.getAllReservations(userDetails.getMemberId(), page);
-    return ResponseEntity.ok(ApiResponse.OK(reservations));
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATIONS_RETRIEVED, reservations));
   }
 
+
   @GetMapping("/detail/{reservationId}")
-  public ResponseEntity<ReservationDetailResponse> getReservationDetail(
+  public ResponseEntity<ApiResponse<ReservationDetailResponse>> getReservationDetail(
       @PathVariable("reservationId") Long reservationId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
     Long memberId = userDetails.getMemberId();
     ReservationDetailResponse reservationDetail = reservationService.getReservationDetail(
         reservationId, memberId);
-    return ResponseEntity.ok(reservationDetail);
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATION_DETAIL_RETRIEVED, reservationDetail));
   }
 }

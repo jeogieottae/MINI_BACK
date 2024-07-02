@@ -6,6 +6,7 @@ import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.domain.member.model.response.UserProfileResponse;
 import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,19 +25,19 @@ import java.io.IOException;
 public class AuthController {
 
 	private final AuthService authService;
-	private final JwtProvider jwtProvider;
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
-		String response = authService.register(request);
-		return ResponseEntity.ok(ApiResponse.CREATED(response));
+		authService.register(request);
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER));
 	}
+
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
 		LoginResponse loginResponse = authService.login(request);
 		authService.addTokenCookies(response, loginResponse.getAccessToken(), loginResponse.getRefreshToken());
-		return ResponseEntity.ok(ApiResponse.OK(loginResponse));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGIN, loginResponse));
 	}
 
 	@GetMapping("/logout")
@@ -44,13 +45,13 @@ public class AuthController {
 	throws IOException {
 		String redirectUri = authService.logout(request, response);
 		response.sendRedirect(redirectUri);
-		return ResponseEntity.ok(ApiResponse.DELETE());
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGOUT));
 	}
 
 	@GetMapping("/token/refresh")
 	public ResponseEntity<ApiResponse<String>> refreshToken(HttpServletRequest request, HttpServletResponse response) {
 		authService.refreshToken(request, response);
-		return ResponseEntity.ok(ApiResponse.OK("엑세스 토큰 재발급 완료"));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.TOKEN_REFRESHED));
 	}
 
 	@DeleteMapping("/withdraw")
@@ -58,25 +59,25 @@ public class AuthController {
 		throws IOException {
 		String redirectUri = authService.withdraw(request, response);
 		response.sendRedirect(redirectUri);
-		return ResponseEntity.ok(ApiResponse.DELETE());
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.WITHDRAW));
 	}
 
 	@PutMapping("/nickname")
 	public ResponseEntity<ApiResponse<String>> changeNickname(
 		HttpServletRequest request, @RequestBody ChangeNicknameRequest changeNicknameRequest) {
 		authService.updateNickname(request, changeNicknameRequest);
-		return ResponseEntity.ok(ApiResponse.OK("닉네임이 성공적으로 변경되었습니다."));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.NICKNAME_UPDATED));
 	}
 
 	@GetMapping("/userInfo")
 	public ResponseEntity<ApiResponse<UserProfileResponse>> userInfo(HttpServletRequest request) {
 		UserProfileResponse userInfo = authService.getUserInfo(request);
-		return ResponseEntity.ok(ApiResponse.OK(userInfo));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.USER_INFO_RETRIEVED, userInfo));
 	}
 
 	@GetMapping("/isLoggedIn")
 	public ResponseEntity<ApiResponse<Boolean>> isLoggedIn(HttpServletRequest request) {
 		Boolean isLoggedIn = authService.isLoggedIn(request);
-		return ResponseEntity.ok(ApiResponse.OK(isLoggedIn));
+		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.OK, isLoggedIn));
 	}
 }

@@ -17,6 +17,7 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
+import com.example.mini.global.email.EmailService;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.redis.RedissonLock;
 import java.time.LocalDateTime;
@@ -38,6 +39,7 @@ public class CartService {
   private final CartRepository cartRepository;
   private final ReservationRepository reservationRepository;
   private final RoomRepository roomRepository;
+  private final EmailService emailService;
 
   private final int pageSize = 10;
 
@@ -197,6 +199,18 @@ public class CartService {
 
     reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
         request.getCheckOut(), ReservationStatus.CONFIRMED, request.getReservationId());
+
+    String to = member.getEmail();
+    String subject = "예약 확정 되었습니다";
+    String text = String.format("귀하의 %s에서 %s 객실 예약이 확정되었습니다.\n체크인: %s\n체크아웃: %s\n인원 수: %d명\n총 가격: %d원",
+        reservation.getRoom().getAccomodation().getName(),
+        reservation.getRoom().getName(),
+        request.getCheckIn(),
+        request.getCheckOut(),
+        request.getPeopleNumber(),
+        reservation.getTotalPrice());
+
+    emailService.sendReservationConfirmationEmail(to, subject, text);
 
     return CartConfirmResponse.builder()
         .roomId(reservation.getRoom().getId())

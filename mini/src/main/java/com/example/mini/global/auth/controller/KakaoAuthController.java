@@ -5,6 +5,7 @@ import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
+import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.auth.service.KakaoAuthService;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.Cookie;
@@ -41,7 +42,7 @@ public class KakaoAuthController {
         }
 
         LoginResponse loginResponse = kakaoAuthService.kakaoCallback(code);
-        return ResponseEntity.ok(ApiResponse.OK(loginResponse));
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.KAKAO_LOGIN_SUCCESS, loginResponse));
     }
 
 }
