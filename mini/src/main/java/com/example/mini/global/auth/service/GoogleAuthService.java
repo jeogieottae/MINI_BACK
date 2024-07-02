@@ -77,13 +77,13 @@ public class GoogleAuthService {
             .build();
     }
 
-    public void googleRefresh(HttpServletRequest request) {
+    public TokenResponse googleRefresh(HttpServletRequest request) {
         Cookie refreshTokenCookie = CookieUtil.getCookie(request, "googleRefreshToken");
         if (refreshTokenCookie == null) {
             throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
 
-        refreshGoogleToken(refreshTokenCookie.getValue());
+        return refreshGoogleToken(refreshTokenCookie.getValue());
     }
 
     public void withdraw(HttpServletRequest request, HttpServletResponse response) {
