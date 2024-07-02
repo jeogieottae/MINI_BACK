@@ -71,16 +71,16 @@ public class AuthServiceTest {
     private AuthService authService;
 
     private RegisterRequest registerRequest= new RegisterRequest().builder()
-            .name("John Doe")
-            .nickname("johndoe")
-            .email("example@example.com")
-            .password("password")
-            .build();;
+        .name("John Doe")
+        .nickname("johndoe")
+        .email("example@example.com")
+        .password("password")
+        .build();;
 
     private LoginRequest loginRequest = new LoginRequest().builder()
-            .email("example@example.com")
-            .password("password")
-            .build();
+        .email("example@example.com")
+        .password("password")
+        .build();
 
     @Test
     @DisplayName("register_성공")
@@ -111,15 +111,15 @@ public class AuthServiceTest {
     void successLogin() {
         // given
         Member member = Member.builder()
-                .email("example@example.com")
-                .password("encodedPassword")
-                .build();
+            .email("example@example.com")
+            .password("encodedPassword")
+            .build();
         when(memberRepository.findByEmail(anyString()))
-                .thenReturn(Optional.of(member));
+            .thenReturn(Optional.of(member));
         when(passwordEncoder.matches(anyString(), anyString()))
-                .thenReturn(true);
+            .thenReturn(true);
         when(jwtProvider.createToken(anyString(), any(TokenType.class), anyBoolean()))
-                .thenReturn("token");
+            .thenReturn("token");
 
         //when
         LoginResponse result = authService.login(loginRequest);
@@ -133,11 +133,11 @@ public class AuthServiceTest {
     void failLoginUserNotFound() {
         // given
         Member member = Member.builder()
-                .email("example@example.com")
-                .password("encodedPassword")
-                .build();
+            .email("example@example.com")
+            .password("encodedPassword")
+            .build();
         when(memberRepository.findByEmail(anyString()))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
 
         //when
         //then
@@ -149,13 +149,13 @@ public class AuthServiceTest {
     void failLoginPasswordMismatch() {
         // given
         Member member = Member.builder()
-                .email("example@example.com")
-                .password("encodedPassword")
-                .build();
+            .email("example@example.com")
+            .password("encodedPassword")
+            .build();
         when(memberRepository.findByEmail(anyString()))
-                .thenReturn(Optional.of(member));
+            .thenReturn(Optional.of(member));
         when(passwordEncoder.matches(anyString(), anyString()))
-                .thenReturn(false);
+            .thenReturn(false);
 
         //when
         //then
@@ -615,10 +615,10 @@ public class AuthServiceTest {
         String accessToken = "validAccessToken";
         String email = "test@example.com";
         Member mockMember = Member.builder()
-                .name("Test User")
-                .nickname("testuser")
-                .email(email)
-                .build();
+            .name("Test User")
+            .nickname("testuser")
+            .email(email)
+            .build();
 
         Cookie mockCookie = new Cookie("accessToken", accessToken);
 

@@ -63,11 +63,12 @@ public class ReservationConcurrencyServiceTest {
       executorService.submit(() -> {
         try {
           latch.await();
-          ReservationRequest request = new ReservationRequest();
-          request.setRoomId(roomId);
-          request.setCheckIn(checkIn);
-          request.setCheckOut(checkOut);
-          request.setPeopleNumber(peopleNumber);
+          ReservationRequest request = ReservationRequest.builder()
+              .roomId(roomId)
+              .checkIn(checkIn)
+              .checkOut(checkOut)
+              .peopleNumber(peopleNumber)
+              .build();
 
           reservationService.createConfirmedReservation(any(), eq(request));
 

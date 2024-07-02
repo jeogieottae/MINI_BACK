@@ -55,7 +55,6 @@ public enum SuccessCode {
     KAKAO_LOGIN_SUCCESS(HttpStatus.OK, "카카오 로그인 성공")
 
     ;
-
     private final HttpStatus httpStatus;
     private final String description;
 }

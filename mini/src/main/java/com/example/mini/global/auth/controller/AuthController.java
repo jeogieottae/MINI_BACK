@@ -11,6 +11,7 @@ import com.example.mini.global.auth.service.AuthService;
 import com.example.mini.global.security.jwt.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +28,10 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/register")
-	public ResponseEntity<ApiResponse<String>> register(@RequestBody RegisterRequest request) {
+	public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
 		authService.register(request);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER));
 	}
-
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
@@ -42,7 +42,7 @@ public class AuthController {
 
 	@GetMapping("/logout")
 	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response)
-	throws IOException {
+		throws IOException {
 		String redirectUri = authService.logout(request, response);
 		response.sendRedirect(redirectUri);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGOUT));
