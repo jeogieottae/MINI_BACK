@@ -73,4 +73,10 @@ public class AuthController {
 		UserProfileResponse userInfo = authService.getUserInfo(request);
 		return ResponseEntity.ok(ApiResponse.OK(userInfo));
 	}
+
+	@GetMapping("/isLoggedIn")
+	public ResponseEntity<ApiResponse<Boolean>> isLoggedIn(HttpServletRequest request) {
+		Boolean isLoggedIn = authService.isLoggedIn(request);
+		return ResponseEntity.ok(ApiResponse.OK(isLoggedIn));
+	}
 }

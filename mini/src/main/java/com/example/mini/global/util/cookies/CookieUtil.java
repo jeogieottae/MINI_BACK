@@ -47,16 +47,18 @@ public class CookieUtil {
 	public static String getCookieNames(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
 
-		for(Cookie cookie : cookies) {
-			if(cookie.getName().equals("accessToken")){
-				return "accessToken";
-			}else if(cookie.getName().equals("googleAccessToken")){
-				return "googleAccessToken";
-			}else if(cookie.getName().equals("kakaoAccessToken")){
-				return "kakaoAccessToken";
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("accessToken")) {
+					return "accessToken";
+				} else if (cookie.getName().equals("googleAccessToken")) {
+					return "googleAccessToken";
+				} else if (cookie.getName().equals("kakaoAccessToken")) {
+					return "kakaoAccessToken";
+				}
 			}
 		}
 
-		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+		return null;
 	}
 }
