@@ -15,14 +15,12 @@ import com.example.mini.domain.accomodation.repository.AccomodationSearchReposit
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.response.ReviewResponse;
-import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Comparator;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -44,7 +42,6 @@ public class AccomodationService {
     private final AccomodationRepository accomodationRepository;
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
-    private final ReviewRepository reviewRepository;
     private final ReservationRepository reservationRepository;
     private final int PageSize = 20;        // 숙소 목록 페이지 크기
 
@@ -94,22 +91,17 @@ public class AccomodationService {
      * @param accomodationId    숙소 id
      * @return                  숙소 정보 및 객실 목록을 포함한 응답 객체
      */
+
     public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
-                .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
-
-        AccomodationResponseDto accomodationResponseDto = AccomodationResponseDto.toDto(accomodation);
-        List<Review> reviews = accomodation.getReviews();
-        Double avgStar = calculateAverageStar(reviews);
-        List<ReviewResponse> reviewResponses = getReviewResponse(accomodation.getReviews());
-        List<RoomResponseDto> roomResponseDtos = getRoomResponseDto(accomodationId, checkIn, checkOut);
+            .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
         return AccomodationDetailsResponseDto.builder()
-                .accomodation(accomodationResponseDto)
-                .rooms(roomResponseDtos)
-                .reviews(reviewResponses)
-                .avgStar(avgStar)
-                .build();
+            .accomodation(AccomodationResponseDto.toDto(accomodation))
+            .rooms(getRoomResponseDto(accomodationId, checkIn, checkOut))
+            .reviews(getReviewResponse(accomodation.getReviews()))
+            .avgStar(calculateAverageStar(accomodation.getReviews()))
+            .build();
     }
 
     /**
@@ -133,21 +125,20 @@ public class AccomodationService {
      * @param accommodations    변환할 객체
      * @return                  숙소 정보 목록을 포함한 응답 객체
      */
-    private PagedResponse<AccomodationCardResponseDto> setResponse(
-            Page<Accomodation> accommodations,
-            String checkIn,
-            String checkOut
-    ) {
+
+    private PagedResponse<AccomodationCardResponseDto> setResponse(Page<Accomodation> accommodations, String checkIn, String checkOut) {
         List<AccomodationCardResponseDto> content = accommodations.getContent().stream().map(accommodation -> {
-                    Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
-                    List<Room> rooms = roomRepository.findByAccomodationId(accommodation.getId());
-                    List<Boolean> availables = rooms.stream().map(room -> reservationAvailable(checkIn, checkOut, room.getId())).toList();
-                    boolean isAvailable = checkAllReservationAvailable(availables);
-                    return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
-                }).toList();
+            Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
+            boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
+                .stream()
+                .map(room -> reservationAvailable(checkIn, checkOut, room.getId()))
+                .anyMatch(Boolean::booleanValue);
+            return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
+        }).toList();
 
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
+
 
     /**
      * 해당 객실의 예약가능 여부를 반환하는 메서드
@@ -163,14 +154,6 @@ public class AccomodationService {
         return reservations.isEmpty();
     }
 
-    /**
-     * 해당 숙소의 전 객실에 대한 예약가능 여부를 반환하는 메서드
-     * @param availables    각 객실의 예약가능 여부
-     * @return              숙소 예약가능 여부 (true: 예약 가능)
-     */
-    private boolean checkAllReservationAvailable(List<Boolean> availables) {
-        return availables.stream().anyMatch(available -> available);
-    }
 
     /**
      * 페이지네이션 공통 에러처리 메서드
@@ -189,15 +172,12 @@ public class AccomodationService {
      * @param checkOut          체크아웃 시간
      * @return                  객실 정보가 담긴 객체 리스트 반환
      */
-    private List<RoomResponseDto> getRoomResponseDto(Long accomodationId, String checkIn, String checkOut) {
-        List<Room> rooms = roomRepository.findByAccomodationId(accomodationId);
-        return  rooms.stream().map(room -> {
-            Boolean isAvailable = reservationAvailable(checkIn, checkOut, room.getId());
-            RoomResponseDto dto = RoomResponseDto.toDto(room, isAvailable);
-            return dto;
-        }).toList();
-    }
 
+    private List<RoomResponseDto> getRoomResponseDto(Long accomodationId, String checkIn, String checkOut) {
+        return roomRepository.findByAccomodationId(accomodationId).stream()
+            .map(room -> RoomResponseDto.toDto(room, reservationAvailable(checkIn, checkOut, room.getId())))
+            .toList();
+    }
 
     /**
      * 리뷰 리스트를 이용하여 평균 별점을 계산하는 메서드
@@ -205,17 +185,12 @@ public class AccomodationService {
      * @param reviews 리뷰 리스트
      * @return 평균 별점
      */
-    private Double calculateAverageStar(List<Review> reviews) {
-        if (reviews.isEmpty()) {
-            return 0.0;
-        }
-        double sum = reviews.stream()
-            .mapToDouble(Review::getStar)
-            .sum();
-        BigDecimal average = BigDecimal.valueOf(sum).divide(BigDecimal.valueOf(reviews.size()), 1, RoundingMode.HALF_UP);
-        return average.doubleValue();
-    }
 
+    private Double calculateAverageStar(List<Review> reviews) {
+        return reviews.isEmpty() ? 0.0 :
+            BigDecimal.valueOf(reviews.stream().mapToDouble(Review::getStar).average().orElse(0.0))
+                .setScale(1, RoundingMode.HALF_UP).doubleValue();
+    }
 
     /**
      * 해당 숙소의 최근 작성된 리뷰 5개를 반환하는 메서드
@@ -223,14 +198,10 @@ public class AccomodationService {
      * @return         최근 작성된 리뷰 객체 리스트 반환
      */
     private List<ReviewResponse> getReviewResponse(List<Review> reviews) {
-        List<Review> latestReviews = reviews.stream()
+        return reviews.stream()
             .sorted(Comparator.comparing(Review::getCreatedAt).reversed())
             .limit(5)
-            .collect(Collectors.toList());
-
-        return latestReviews.stream()
             .map(review -> new ReviewResponse(review.getComment(), review.getStar()))
-            .collect(Collectors.toList());
+            .toList();
     }
-
 }

@@ -45,23 +45,28 @@ public class ReviewService {
      * @param request   작성한 리뷰 정보를 담은 객체
      * @return          db에 저장한 데이터 반환
      */
-    public ReviewResponse addReview(Long memberId, ReviewRequest request) {
-        Member member = getMember(memberId);
-        Accomodation accomodation = getValidAccomodation(request.getAccomodationId());
-        Reservation confirmedReservation = reservationRepository.findByMemberIdAndAccomodationIdAndStatus(
-                        memberId, request.getAccomodationId(), ReservationStatus.CONFIRMED)
-                .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND)); // 예약 상태 확인
 
-        LocalDateTime memberCheckoutDate = getMemberCheckoutDate(memberId, accomodation.getId());
+    public ReviewResponse addReview(Long memberId, ReviewRequest request) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new GlobalException(ReviewErrorCode.MEMBER_NOT_FOUND));
+
+        Accomodation accomodation = accomodationRepository.findById(request.getAccomodationId())
+            .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
+
+        Reservation confirmedReservation = reservationRepository.findByMemberIdAndAccomodationIdAndStatus(
+                memberId, request.getAccomodationId(), ReservationStatus.CONFIRMED)
+            .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND));
+
+        LocalDateTime memberCheckoutDate = confirmedReservation.getCheckOut();
         validateReviewRequest(request, memberCheckoutDate, confirmedReservation);
 
         Review review = Review.builder()
-                .comment(request.getComment())
-                .star(request.getStar())
-                .member(member)
-                .accomodation(accomodation)
-                .reservation(confirmedReservation)
-                .build();
+            .comment(request.getComment())
+            .star(request.getStar())
+            .member(member)
+            .accomodation(accomodation)
+            .reservation(confirmedReservation)
+            .build();
         reviewRepository.save(review);
 
         return new ReviewResponse(review.getComment(), review.getStar());
@@ -75,12 +80,16 @@ public class ReviewService {
      * @return                  리뷰 정보가 담긴 객체 리스트 반환
      */
     public PagedResponse<AccomodationReviewResponse> getReviewsByAccomodationId(Long accomodationId, int page) {
-        Accomodation accomodation = getValidAccomodation(accomodationId);
-        Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page-1, pageSize));
-        List<AccomodationReviewResponse> content = reviewPage.stream().map(AccomodationReviewResponse::toDto).toList();
+        Accomodation accomodation = accomodationRepository.findById(accomodationId)
+            .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
+
+        Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1, pageSize));
+        List<AccomodationReviewResponse> content = reviewPage.stream()
+            .map(AccomodationReviewResponse::toDto)
+            .toList();
+
         return new PagedResponse<>(reviewPage.getTotalPages(), reviewPage.getTotalElements(), content);
     }
-
     /**
      * 리뷰 데이터를 검증하는 메서드
      * @param request
@@ -107,38 +116,5 @@ public class ReviewService {
         if (reviewRepository.existsByReservation(confirmedReservation)) {
             throw new GlobalException(ReviewErrorCode.DUPLICATE_REVIEW);
         }
-    }
-
-    /**
-     * 회원 정보를 조회해 반환하는 메서드
-     * @param memberId  조회할 id
-     * @return          해당하는 유저 객체를 반환
-     */
-    private Member getMember(Long memberId) {
-        return memberRepository.findById(memberId)
-                .orElseThrow(() -> new GlobalException(ReviewErrorCode.MEMBER_NOT_FOUND));
-    }
-
-
-    /**
-     * 해당 숙소의 존재 여부를 검증하는 메서드
-     * @param accomodationId    숙소 id
-     * @return                  해당 숙소 객체를 반환
-     */
-    private Accomodation getValidAccomodation(Long accomodationId) {
-        return accomodationRepository.findById(accomodationId)
-                .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
-    }
-
-    /**
-     * 예약 내역의 체크아웃 정보를 반환하는 메서드
-     * @param memberId          리뷰를 작성하는 유저의 id
-     * @param accomodationId    리뷰를 작성할 숙소의 id
-     * @return
-     */
-    private LocalDateTime getMemberCheckoutDate(Long memberId, Long accomodationId) {
-        Reservation confirmedReservation = reservationRepository.findByMemberIdAndAccomodationIdAndStatus(memberId, accomodationId, ReservationStatus.CONFIRMED)
-                .orElseThrow(() -> new GlobalException(ReviewErrorCode.RESERVATION_NOT_FOUND));
-        return confirmedReservation.getCheckOut();
     }
 }
