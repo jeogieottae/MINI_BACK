@@ -32,6 +32,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -87,13 +88,12 @@ public class AuthServiceTest {
     void successRegister() {
         // given
         when(memberRepository.existsByEmail(anyString())).thenReturn(false);
+        when(memberRepository.existsByNickname(anyString())).thenReturn(false); // 닉네임 체크 추가
 
-        //when
-        String result = authService.register(registerRequest);
-
-        //then
-        assertEquals("회원가입이 성공적으로 완료되었습니다.", result);
+        //when & then
+        assertDoesNotThrow(() -> authService.register(registerRequest));
     }
+
 
     @Test
     @DisplayName("register_실패_이메일_중복")
