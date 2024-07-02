@@ -28,7 +28,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class ReviewServiceTest {
+class ReviewServiceTest { /*모두 통과 완료*/
 
   @Mock
   private ReviewRepository reviewRepository;
