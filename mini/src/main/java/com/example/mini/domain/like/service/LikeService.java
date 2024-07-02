@@ -32,11 +32,14 @@ public class LikeService {
 
   @Transactional
   public boolean toggleLike(Long memberId, Long accomodationId) {
-    Member member = getMember(memberId);
-    Accomodation accomodation = getAccomodation(accomodationId);
+    Member member = memberRepository.findById(memberId)
+        .orElseThrow(() -> new GlobalException(LikeErrorCode.MEMBER_NOT_FOUND));
+
+    Accomodation accomodation = accomodationRepository.findById(accomodationId)
+        .orElseThrow(() -> new GlobalException(LikeErrorCode.ACCOMODATION_NOT_FOUND));
 
     Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId)
-        .orElse(new Like(member, accomodation, false));
+        .orElseGet(() -> new Like(member, accomodation, false));
 
     like.setLiked(!like.isLiked());
     likeRepository.save(like);
@@ -44,15 +47,6 @@ public class LikeService {
     return like.isLiked();
   }
 
-  private Member getMember(Long memberId) {
-    return memberRepository.findById(memberId)
-        .orElseThrow(() -> new GlobalException(LikeErrorCode.MEMBER_NOT_FOUND));
-  }
-
-  private Accomodation getAccomodation(Long accomodationId) {
-    return accomodationRepository.findById(accomodationId)
-        .orElseThrow(() -> new GlobalException(LikeErrorCode.ACCOMODATION_NOT_FOUND));
-  }
 
   @Transactional(readOnly = true)
   public PagedResponse<AccomodationResponse> getLikedAccomodations(Long memberId, int page) {
