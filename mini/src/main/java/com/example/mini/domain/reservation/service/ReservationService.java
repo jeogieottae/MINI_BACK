@@ -109,11 +109,7 @@ public class ReservationService {
   }
 
   private int calculateAdditionalCharge(Room room, int totalPeople) {
-    int additionalCharge = 0;
-    if (totalPeople > room.getBaseGuests()) {
-      additionalCharge = (totalPeople - room.getBaseGuests()) * room.getExtraPersonCharge();
-    }
-    return additionalCharge;
+    return totalPeople > room.getBaseGuests() ? (totalPeople - room.getBaseGuests()) * room.getExtraPersonCharge() : 0;
   }
 
   private void validateDates(LocalDateTime checkIn, LocalDateTime checkOut) {
@@ -127,10 +123,11 @@ public class ReservationService {
         List.of(roomId), checkIn, checkOut
     );
 
-    for (Reservation overlappingReservation : overlappingReservations) {
-      if (overlappingReservation.getStatus() == ReservationStatus.CONFIRMED) {
-        throw new GlobalException(ReservationErrorCode.CONFLICTING_RESERVATION);
-      }
+    boolean hasConflictingReservation = overlappingReservations.stream()
+        .anyMatch(reservation -> reservation.getStatus() == ReservationStatus.CONFIRMED);
+
+    if (hasConflictingReservation) {
+      throw new GlobalException(ReservationErrorCode.CONFLICTING_RESERVATION);
     }
   }
 

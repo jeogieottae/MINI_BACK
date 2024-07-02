@@ -44,21 +44,18 @@ public class CookieUtil {
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
+
 	public static String getCookieNames(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
 
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("accessToken")) {
-					return "accessToken";
-				} else if (cookie.getName().equals("googleAccessToken")) {
-					return "googleAccessToken";
-				} else if (cookie.getName().equals("kakaoAccessToken")) {
-					return "kakaoAccessToken";
-				}
-			}
+		if (cookies == null) {
+			return null;
 		}
 
-		return null;
+		return Arrays.stream(cookies)
+			.map(Cookie::getName)
+			.filter(name -> name.equals("accessToken") || name.equals("googleAccessToken") || name.equals("kakaoAccessToken"))
+			.findFirst()
+			.orElse(null);
 	}
 }

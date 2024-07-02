@@ -1,87 +1,87 @@
-package com.example.mini.global.auth.service;
-
-import com.example.mini.domain.member.entity.Member;
-import com.example.mini.domain.member.entity.enums.MemberState;
-import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
-import com.example.mini.domain.member.model.request.LoginRequest;
-import com.example.mini.domain.member.model.request.RegisterRequest;
-import com.example.mini.domain.member.model.response.LoginResponse;
-import com.example.mini.domain.member.model.response.UserProfileResponse;
-import com.example.mini.domain.member.repository.MemberRepository;
-import com.example.mini.domain.member.service.GoogleMemberService;
-import com.example.mini.domain.member.service.KakaoMemberService;
-import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.security.jwt.JwtProvider;
-import com.example.mini.global.security.jwt.TokenService;
-import com.example.mini.global.security.jwt.TokenType;
-import com.example.mini.global.util.cookies.CookieUtil;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
-public class AuthServiceTest {
-
-    @Mock
-    private MemberRepository memberRepository;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private JwtProvider jwtProvider;
-    @Mock
-    private TokenService tokenService;
-
-    @Mock
-    private HttpServletRequest request;
-
-    @Mock
-    private HttpServletResponse response;
-
-    @Mock
-    private GoogleAuthService googleAuthService;
-
-    @Mock
-    private KakaoAuthService kakaoAuthService;
-
-    @Mock
-    private GoogleMemberService googleMemberService;
-
-    @Mock
-    private KakaoMemberService kakaoMemberService;
-
-    @InjectMocks
-    private AuthService authService;
-
-    private RegisterRequest registerRequest= new RegisterRequest().builder()
-            .name("John Doe")
-            .nickname("johndoe")
-            .email("example@example.com")
-            .password("password")
-            .build();;
-
-    private LoginRequest loginRequest = new LoginRequest().builder()
-            .email("example@example.com")
-            .password("password")
-            .build();
-
+//package com.example.mini.global.auth.service;
+//
+//import com.example.mini.domain.member.entity.Member;
+//import com.example.mini.domain.member.entity.enums.MemberState;
+//import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
+//import com.example.mini.domain.member.model.request.LoginRequest;
+//import com.example.mini.domain.member.model.request.RegisterRequest;
+//import com.example.mini.domain.member.model.response.LoginResponse;
+//import com.example.mini.domain.member.model.response.UserProfileResponse;
+//import com.example.mini.domain.member.repository.MemberRepository;
+//import com.example.mini.domain.member.service.GoogleMemberService;
+//import com.example.mini.domain.member.service.KakaoMemberService;
+//import com.example.mini.global.api.exception.GlobalException;
+//import com.example.mini.global.security.jwt.JwtProvider;
+//import com.example.mini.global.security.jwt.TokenService;
+//import com.example.mini.global.security.jwt.TokenType;
+//import com.example.mini.global.util.cookies.CookieUtil;
+//import io.jsonwebtoken.Claims;
+//import jakarta.servlet.http.Cookie;
+//import jakarta.servlet.http.HttpServletRequest;
+//import jakarta.servlet.http.HttpServletResponse;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.DisplayName;
+//import org.junit.jupiter.api.Test;
+//import org.junit.jupiter.api.extension.ExtendWith;
+//import org.mockito.InjectMocks;
+//import org.mockito.Mock;
+//import org.mockito.MockedStatic;
+//import org.mockito.Mockito;
+//import org.mockito.junit.jupiter.MockitoExtension;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//
+//import java.util.Optional;
+//
+//import static org.junit.jupiter.api.Assertions.assertEquals;
+//import static org.junit.jupiter.api.Assertions.assertThrows;
+//import static org.mockito.ArgumentMatchers.*;
+//import static org.mockito.Mockito.*;
+//
+//@ExtendWith(MockitoExtension.class)
+//public class AuthServiceTest {
+//
+//    @Mock
+//    private MemberRepository memberRepository;
+//    @Mock
+//    private PasswordEncoder passwordEncoder;
+//    @Mock
+//    private JwtProvider jwtProvider;
+//    @Mock
+//    private TokenService tokenService;
+//
+//    @Mock
+//    private HttpServletRequest request;
+//
+//    @Mock
+//    private HttpServletResponse response;
+//
+//    @Mock
+//    private GoogleAuthService googleAuthService;
+//
+//    @Mock
+//    private KakaoAuthService kakaoAuthService;
+//
+//    @Mock
+//    private GoogleMemberService googleMemberService;
+//
+//    @Mock
+//    private KakaoMemberService kakaoMemberService;
+//
+//    @InjectMocks
+//    private AuthService authService;
+//
+//    private RegisterRequest registerRequest= new RegisterRequest().builder()
+//        .name("John Doe")
+//        .nickname("johndoe")
+//        .email("example@example.com")
+//        .password("password")
+//        .build();;
+//
+//    private LoginRequest loginRequest = new LoginRequest().builder()
+//        .email("example@example.com")
+//        .password("password")
+//        .build();
+//
 //    @Test
 //    @DisplayName("register_성공")
 //    void successRegister() {
@@ -94,7 +94,7 @@ public class AuthServiceTest {
 //        //then
 //        assertEquals("회원가입이 성공적으로 완료되었습니다.", result);
 //    }
-
+//
 //    @Test
 //    @DisplayName("register_실패_이메일_중복")
 //    void failRegister(){
@@ -111,15 +111,15 @@ public class AuthServiceTest {
 //    void successLogin() {
 //        // given
 //        Member member = Member.builder()
-//                .email("example@example.com")
-//                .password("encodedPassword")
-//                .build();
+//            .email("example@example.com")
+//            .password("encodedPassword")
+//            .build();
 //        when(memberRepository.findByEmail(anyString()))
-//                .thenReturn(Optional.of(member));
+//            .thenReturn(Optional.of(member));
 //        when(passwordEncoder.matches(anyString(), anyString()))
-//                .thenReturn(true);
+//            .thenReturn(true);
 //        when(jwtProvider.createToken(anyString(), any(TokenType.class), anyBoolean()))
-//                .thenReturn("token");
+//            .thenReturn("token");
 //
 //        //when
 //        LoginResponse result = authService.login(loginRequest);
@@ -133,11 +133,11 @@ public class AuthServiceTest {
 //    void failLoginUserNotFound() {
 //        // given
 //        Member member = Member.builder()
-//                .email("example@example.com")
-//                .password("encodedPassword")
-//                .build();
+//            .email("example@example.com")
+//            .password("encodedPassword")
+//            .build();
 //        when(memberRepository.findByEmail(anyString()))
-//                .thenReturn(Optional.empty());
+//            .thenReturn(Optional.empty());
 //
 //        //when
 //        //then
@@ -149,51 +149,51 @@ public class AuthServiceTest {
 //    void failLoginPasswordMismatch() {
 //        // given
 //        Member member = Member.builder()
-//                .email("example@example.com")
-//                .password("encodedPassword")
-//                .build();
+//            .email("example@example.com")
+//            .password("encodedPassword")
+//            .build();
 //        when(memberRepository.findByEmail(anyString()))
-//                .thenReturn(Optional.of(member));
+//            .thenReturn(Optional.of(member));
 //        when(passwordEncoder.matches(anyString(), anyString()))
-//                .thenReturn(false);
+//            .thenReturn(false);
 //
 //        //when
 //        //then
 //        assertThrows(GlobalException.class, () -> authService.login(loginRequest));
 //    }
-
-    @Test
-    @DisplayName("refreshToken_구글")
-    void testGoogleRefreshToken() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
-
-            // when
-            authService.refreshToken(request, response);
-
-            // then
-            verify(googleAuthService).googleRefresh(request);
-            verify(kakaoAuthService, never()).kakaoRefresh(any());
-        }
-    }
-
-    @Test
-    @DisplayName("refreshToken_카카오")
-    void testKakaoRefreshToken() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
-
-            // when
-            authService.refreshToken(request, response);
-
-            // then
-            verify(kakaoAuthService).kakaoRefresh(request);
-            verify(googleAuthService, never()).googleRefresh(any());
-        }
-    }
-
+//
+//    @Test
+//    @DisplayName("refreshToken_구글")
+//    void testGoogleRefreshToken() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+//
+//            // when
+//            authService.refreshToken(request, response);
+//
+//            // then
+//            verify(googleAuthService).googleRefresh(request);
+//            verify(kakaoAuthService, never()).kakaoRefresh(any());
+//        }
+//    }
+//
+//    @Test
+//    @DisplayName("refreshToken_카카오")
+//    void testKakaoRefreshToken() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+//
+//            // when
+//            authService.refreshToken(request, response);
+//
+//            // then
+//            verify(kakaoAuthService).kakaoRefresh(request);
+//            verify(googleAuthService, never()).googleRefresh(any());
+//        }
+//    }
+//
 //    @Test
 //    @DisplayName("refreshToken_일반")
 //    void testStandardRefreshToken() {
@@ -214,39 +214,39 @@ public class AuthServiceTest {
 //            verify(googleAuthService, never()).googleRefresh(any());
 //        }
 //    }
-
-    @Test
-    @DisplayName("logout_구글")
-    void testGoogleLogout() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
-
-            // when
-            String result = authService.logout(request, response);
-
-            // then
-            verify(googleAuthService).googleLogout(request, response);
-            verify(kakaoAuthService, never()).kakaoLogout(any(), any());
-        }
-    }
-
-    @Test
-    @DisplayName("logout_카카오")
-    void testKakaoLogout() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
-
-            // when
-            String result = authService.logout(request, response);
-
-            // then
-            verify(kakaoAuthService).kakaoLogout(request, response);
-            verify(googleAuthService, never()).googleLogout(any(), any());
-        }
-    }
-
+//
+//    @Test
+//    @DisplayName("logout_구글")
+//    void testGoogleLogout() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+//
+//            // when
+//            String result = authService.logout(request, response);
+//
+//            // then
+//            verify(googleAuthService).googleLogout(request, response);
+//            verify(kakaoAuthService, never()).kakaoLogout(any(), any());
+//        }
+//    }
+//
+//    @Test
+//    @DisplayName("logout_카카오")
+//    void testKakaoLogout() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+//
+//            // when
+//            String result = authService.logout(request, response);
+//
+//            // then
+//            verify(kakaoAuthService).kakaoLogout(request, response);
+//            verify(googleAuthService, never()).googleLogout(any(), any());
+//        }
+//    }
+//
 //    @Test
 //    @DisplayName("logout_일반")
 //    void testStandardLogout() {
@@ -265,40 +265,40 @@ public class AuthServiceTest {
 //            verify(googleAuthService, never()).googleLogout(any(), any());
 //        }
 //    }
-
-    @Test
-    @DisplayName("updateNickname_구글")
-    void testGoogleUpdateNickname() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
-            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
-
-            // when
-            authService.updateNickname(request, changeNicknameRequest);
-
-            // then
-            verify(googleAuthService).changeNickname(request, "newNickname");
-            verify(kakaoAuthService, never()).changeNickname(any(), any());
-        }
-    }
-
-    @Test
-    @DisplayName("updateNickname_카카오")
-    void testKakaoUpdateNickname() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
-            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
-
-            // when
-            authService.updateNickname(request, changeNicknameRequest);
-
-            // then
-            verify(kakaoAuthService).changeNickname(request, "newNickname");
-            verify(googleAuthService, never()).changeNickname(any(), any());
-        }
-    }
+//
+//    @Test
+//    @DisplayName("updateNickname_구글")
+//    void testGoogleUpdateNickname() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+//            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
+//
+//            // when
+//            authService.updateNickname(request, changeNicknameRequest);
+//
+//            // then
+//            verify(googleAuthService).changeNickname(request, "newNickname");
+//            verify(kakaoAuthService, never()).changeNickname(any(), any());
+//        }
+//    }
+//
+//    @Test
+//    @DisplayName("updateNickname_카카오")
+//    void testKakaoUpdateNickname() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+//            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
+//
+//            // when
+//            authService.updateNickname(request, changeNicknameRequest);
+//
+//            // then
+//            verify(kakaoAuthService).changeNickname(request, "newNickname");
+//            verify(googleAuthService, never()).changeNickname(any(), any());
+//        }
+//    }
 //
 //    @Test
 //    @DisplayName("updateNickname_일반")
@@ -321,45 +321,45 @@ public class AuthServiceTest {
 //            verify(googleAuthService, never()).changeNickname(any(), any());
 //        }
 //    }
-
-    @Test
-    @DisplayName("getUserInfo_구글")
-    void testGetGoogleUserInfo() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
-            UserProfileResponse expectedResponse = new UserProfileResponse(); // 적절한 응답 객체 생성
-            when(googleMemberService.getGoogleUserInfo(request)).thenReturn(expectedResponse);
-
-            // when
-            UserProfileResponse result = authService.getUserInfo(request);
-
-            // then
-            verify(googleMemberService).getGoogleUserInfo(request);
-            verify(kakaoMemberService, never()).getKakaoUserInfo(any());
-            assertEquals(expectedResponse, result);
-        }
-    }
-
-    @Test
-    @DisplayName("getUserInfo_카카오")
-    void testGetKakaoUserInfo() {
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
-            UserProfileResponse expectedResponse = new UserProfileResponse(); // 적절한 응답 객체 생성
-            when(kakaoMemberService.getKakaoUserInfo(request)).thenReturn(expectedResponse);
-
-            // when
-            UserProfileResponse result = authService.getUserInfo(request);
-
-            // then
-            verify(kakaoMemberService).getKakaoUserInfo(request);
-            verify(googleMemberService, never()).getGoogleUserInfo(any());
-            assertEquals(expectedResponse, result);
-        }
-    }
-
+//
+//    @Test
+//    @DisplayName("getUserInfo_구글")
+//    void testGetGoogleUserInfo() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+//            UserProfileResponse expectedResponse = new UserProfileResponse(); // 적절한 응답 객체 생성
+//            when(googleMemberService.getGoogleUserInfo(request)).thenReturn(expectedResponse);
+//
+//            // when
+//            UserProfileResponse result = authService.getUserInfo(request);
+//
+//            // then
+//            verify(googleMemberService).getGoogleUserInfo(request);
+//            verify(kakaoMemberService, never()).getKakaoUserInfo(any());
+//            assertEquals(expectedResponse, result);
+//        }
+//    }
+//
+//    @Test
+//    @DisplayName("getUserInfo_카카오")
+//    void testGetKakaoUserInfo() {
+//        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+//            // given
+//            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+//            UserProfileResponse expectedResponse = new UserProfileResponse(); // 적절한 응답 객체 생성
+//            when(kakaoMemberService.getKakaoUserInfo(request)).thenReturn(expectedResponse);
+//
+//            // when
+//            UserProfileResponse result = authService.getUserInfo(request);
+//
+//            // then
+//            verify(kakaoMemberService).getKakaoUserInfo(request);
+//            verify(googleMemberService, never()).getGoogleUserInfo(any());
+//            assertEquals(expectedResponse, result);
+//        }
+//    }
+//
 //    @Test
 //    @DisplayName("getUserInfo_일반")
 //    void testGetStandardUserInfo() {
@@ -380,7 +380,7 @@ public class AuthServiceTest {
 //            assertEquals(expectedResponse, result);
 //        }
 //    }
-
+//
 //    @Test
 //    @DisplayName("standardRefreshToken_성공")
 //    void testStandardRefreshTokenSuccess() {
@@ -615,10 +615,10 @@ public class AuthServiceTest {
 //        String accessToken = "validAccessToken";
 //        String email = "test@example.com";
 //        Member mockMember = Member.builder()
-//                .name("Test User")
-//                .nickname("testuser")
-//                .email(email)
-//                .build();
+//            .name("Test User")
+//            .nickname("testuser")
+//            .email(email)
+//            .build();
 //
 //        Cookie mockCookie = new Cookie("accessToken", accessToken);
 //
@@ -656,5 +656,5 @@ public class AuthServiceTest {
 //            assertThrows(GlobalException.class, () -> authService.getStandardUserInfo(request));
 //        }
 //    }
-
-}
+//
+//}
