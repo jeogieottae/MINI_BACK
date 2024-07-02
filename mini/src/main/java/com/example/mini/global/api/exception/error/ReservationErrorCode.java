@@ -12,7 +12,8 @@ public enum ReservationErrorCode implements ErrorCode {
   EXCEEDS_MAX_GUESTS(HttpStatus.CONFLICT, "예약 인원이 최대 인원을 초과합니다"),
   INVALID_CHECKOUT_DATE(HttpStatus.CONFLICT, "체크아웃 시간이 체크인 시간을 앞설 수 없습니다."),
   CONFLICTING_RESERVATION(HttpStatus.CONFLICT, "해당 기간에는 예약하실 수 없습니다"),
-  DUPLICATED_RESERVATION(HttpStatus.BAD_REQUEST, "이미 예약된 항목입니다");
+  DUPLICATED_RESERVATION(HttpStatus.BAD_REQUEST, "이미 예약된 항목입니다"),
+  EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "이메일 전송 실패했습니다");
 
   private final HttpStatus code;
   private final String info;

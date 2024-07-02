@@ -15,6 +15,7 @@ public enum AuthErrorCode implements ErrorCode {
 	NICKNAME_ALREADY_EXISTS(HttpStatus.UNAUTHORIZED, "이미 존재하는 닉네임입니다."),
 	TOKEN_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "토큰 요청에 실패했습니다.");
 
+
 	private final HttpStatus code;
 	private final String info;
 
@@ -37,4 +38,6 @@ public enum AuthErrorCode implements ErrorCode {
 	public String getCodeName() {
 		return this.name();
 	}
+
 }
+

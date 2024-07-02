@@ -126,9 +126,9 @@ public class AuthService {
 		String cookenName = CookieUtil.getCookieNames(request);
 		log.info("로그인 방식: {}", cookenName);
 
-		if (cookenName == null) {
-			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
-		}
+        if (cookenName == null) {
+            throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
+        }
 
 		if(cookenName.equals("googleAccessToken")){
 			log.info("구글 로그아웃");
@@ -199,6 +199,7 @@ public class AuthService {
 			standardUpdateNickname(request, changeNicknameRequest.getNickname());
 		}
 
+		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 	}
 
 	@Transactional
@@ -212,18 +213,46 @@ public class AuthService {
 		}
 
 		if(cookenName.equals("googleAccessToken")){
-			log.info("구글 로그아웃");
+			log.info("구글 회원 정보 조회");
 			return googleMemberService.getGoogleUserInfo(request);
 		}else if(cookenName.equals("kakaoAccessToken")){
-			log.info("카카오 로그아웃");
+			log.info("카카오 회원 정보 조회");
 			return kakaoMemberService.getKakaoUserInfo(request);
 		}else if(cookenName.equals("accessToken")){
-			log.info("일반 로그아웃");
+			log.info("일반 회원 정보 조회");
 			return getStandardUserInfo(request);
 		}
 
 		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 	}
+
+
+	@Transactional
+	public Boolean isLoggedIn(HttpServletRequest request) {
+		// 로그인 방식 판단
+		String cookieName = CookieUtil.getCookieNames(request);
+		log.info("로그인 방식: {}", cookieName);
+
+		if (cookieName == null) {
+			log.info("No login cookie found");
+			return false;
+		}
+
+		switch (cookieName) {
+			case "googleAccessToken":
+				log.info("구글 로그인 확인");
+				return true;
+			case "kakaoAccessToken":
+				log.info("카카오 로그인 확인");
+				return true;
+			case "accessToken":
+				log.info("일반 로그인 확인");
+				return true;
+			default:
+				return false;
+		}
+	}
+
 
 	@Transactional
 	public void standardRefreshToken(HttpServletRequest request, HttpServletResponse response) {

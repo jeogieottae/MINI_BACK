@@ -91,11 +91,12 @@ class ReservationServiceTest {
   void createConfirmedReservationValidRequestReturnsReservationResponse() {
     // Given
     Long memberId = 1L;
-    ReservationRequest request = new ReservationRequest();
-    request.setRoomId(room.getId());
-    request.setPeopleNumber(2);
-    request.setCheckIn(LocalDateTime.of(2024, 7, 1, 0, 0));
-    request.setCheckOut(LocalDateTime.of(2024, 7, 5, 0, 0));
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .peopleNumber(2)
+        .checkIn(LocalDateTime.of(2024, 7, 1, 0, 0))
+        .checkOut(LocalDateTime.of(2024, 7, 5, 0, 0))
+        .build();
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.of(room));
@@ -120,8 +121,8 @@ class ReservationServiceTest {
   void createConfirmedReservationRoomNotFoundThrowsGlobalException() {
     // Given
     Long memberId = 1L;
-    ReservationRequest request = new ReservationRequest();
-    request.setRoomId(999L); // Non-existent room ID
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(999L).build();// Non-existent room ID
 
     when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
     when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.empty());

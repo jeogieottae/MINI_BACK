@@ -161,6 +161,7 @@ public class ReservationService {
 
   private ReservationSummaryResponse mapToSummaryResponse(Reservation reservation) {
     return ReservationSummaryResponse.builder()
+        .reservationId(reservation.getId())
         .accomodationName(reservation.getRoom().getAccomodation().getName())
         .accomodationAddress(reservation.getRoom().getAccomodation().getAddress())
         .roomName(reservation.getRoom().getName())
