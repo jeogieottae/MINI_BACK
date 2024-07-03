@@ -2,11 +2,10 @@ package com.example.mini.domain.review.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 import com.example.mini.domain.review.WithMockUserDetails;
 import com.example.mini.domain.review.model.request.ReviewRequest;
@@ -16,35 +15,31 @@ import com.example.mini.domain.review.service.ReviewService;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 
-class ReviewControllerTest { /*리뷰 추가 실패*/
+@WebMvcTest(ReviewController.class)
+class ReviewControllerTest { /*리뷰 추가는 실패함*/
 
-	@Mock
+	@Autowired
+	private MockMvc mockMvc;
+
+	@MockBean
 	private ReviewService reviewService;
 
-	@InjectMocks
-	private ReviewController reviewController;
+	@MockBean
+	private JpaMetamodelMappingContext jpaMetamodelMappingContext;
 
-	private MockMvc mockMvc;
+	@Autowired
 	private ObjectMapper objectMapper;
-
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-		this.mockMvc = MockMvcBuilders.standaloneSetup(reviewController).build();
-		this.objectMapper = new ObjectMapper();
-	}
 
 	@Test
 	@WithMockUserDetails

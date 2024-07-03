@@ -139,12 +139,15 @@ public class AuthService {
 		if(cookenName.equals("googleAccessToken")){
 			log.info("구글 닉네임 변경");
 			googleAuthService.changeNickname(request, changeNicknameRequest.getNickname());
+			return;
 		}else if(cookenName.equals("kakaoAccessToken")){
 			log.info("카카오 닉네임 변경");
 			kakaoAuthService.changeNickname(request, changeNicknameRequest.getNickname());
+			return;
 		}else if(cookenName.equals("accessToken")){
 			log.info("일반 닉네임 변경");
 			standardAuthService.standardUpdateNickname(request, changeNicknameRequest.getNickname());
+			return;
 		}
 
 		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);

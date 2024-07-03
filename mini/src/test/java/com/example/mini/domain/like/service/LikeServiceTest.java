@@ -58,11 +58,11 @@ class LikeServiceTest {
         .thenReturn(Optional.of(like));
 
     // When
-    likeService.toggleLike(memberId, accomodationId);
+    boolean result = likeService.toggleLike(memberId, accomodationId);
 
     // Then
-    assertFalse(like.isLiked());
-    verify(likeRepository, never()).save(any(Like.class));
+    assertFalse(result);
+    verify(likeRepository).save(any(Like.class));
   }
 
   @Test

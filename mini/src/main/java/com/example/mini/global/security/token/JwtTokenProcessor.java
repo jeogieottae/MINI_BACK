@@ -3,7 +3,6 @@ package com.example.mini.global.security.token;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
-import com.example.mini.global.auth.service.StandardAuthService;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
 import com.example.mini.global.security.jwt.TokenType;

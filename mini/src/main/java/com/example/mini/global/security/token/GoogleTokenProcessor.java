@@ -5,8 +5,6 @@ import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.service.GoogleAuthService;
 import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.util.cookies.CookieUtil;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
