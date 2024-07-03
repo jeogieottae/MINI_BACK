@@ -16,7 +16,6 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.email.EmailService;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.redis.RedissonLock;
@@ -208,7 +207,7 @@ public class CartService {
         .anyMatch(reservation -> reservation.getStatus() == ReservationStatus.CONFIRMED);
 
     if (hasConflictingReservation) {
-      throw new GlobalException(ReservationErrorCode.CONFLICTING_RESERVATION);
+      throw new GlobalException(CartErrorCode.CONFLICTING_RESERVATION);
     }
   }
 
