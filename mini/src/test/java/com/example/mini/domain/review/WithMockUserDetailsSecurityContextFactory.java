@@ -21,9 +21,9 @@ public class WithMockUserDetailsSecurityContextFactory implements
 			.id(customUser.id())
 			.email(customUser.username())
 			.password("password")
-			.name("홍길동")
-			.nickname("길동이")
-			.state(MemberState.ACTIVE)
+			.name(customUser.name())
+			.nickname(customUser.nickname())
+			.state(customUser.state())
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
 			.build();
