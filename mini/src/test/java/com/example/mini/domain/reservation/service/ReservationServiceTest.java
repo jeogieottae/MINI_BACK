@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -58,6 +59,8 @@ class ReservationServiceTest {
   private Room room;
   private Accomodation accomodation;
   private Reservation reservation;
+  private Reservation existingReservation;
+  private final int pageSize = 10;
 
   @BeforeEach
   void setUp() {
@@ -88,11 +91,22 @@ class ReservationServiceTest {
 
     reservation = Reservation.builder()
         .id(1L)
+        .accomodation(accomodation)
         .room(room)
         .member(member)
         .checkIn(LocalDateTime.of(2023, 6, 20, 14, 0))
         .checkOut(LocalDateTime.of(2023, 6, 23, 11, 0))
         .status(ReservationStatus.PENDING)
+        .peopleNumber(2)
+        .build();
+
+    existingReservation = Reservation.builder()
+        .id(2L)
+        .room(room)
+        .member(member)
+        .checkIn(LocalDateTime.of(2023, 6, 20, 14, 0))
+        .checkOut(LocalDateTime.of(2023, 6, 23, 11, 0))
+        .status(ReservationStatus.CONFIRMED)
         .peopleNumber(2)
         .build();
   }
@@ -167,10 +181,26 @@ class ReservationServiceTest {
     assertEquals(room.getId(), response.getRoomId());
   }
 
+  @Test
+  void createConfirmedReservationInvalidMemberIdThrowsException() { //유효하지 않은 사용자 예외
+    // Given
+    Long invalidMemberId = 999L;
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .peopleNumber(2)
+        .checkIn(LocalDateTime.of(2024, 7, 1, 0, 0))
+        .checkOut(LocalDateTime.of(2024, 7, 5, 0, 0))
+        .build();
 
+    when(memberRepository.findById(invalidMemberId)).thenReturn(Optional.empty());
+
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.createConfirmedReservation(invalidMemberId, request));
+    assertEquals(ReservationErrorCode.MEMBER_NOT_FOUND, exception.getErrorCode());
+  }
 
   @Test
-  void createConfirmedReservationRoomNotFoundThrowsGlobalException() {
+  void createConfirmedReservationRoomNotFoundThrowsGlobalException() { //유효하지 않은 객실 예외
     // Given
     Long memberId = 1L;
     ReservationRequest request = ReservationRequest.builder()
@@ -187,32 +217,146 @@ class ReservationServiceTest {
   }
 
   @Test
-  void getAllReservationsReturnsPageOfReservationSummaryResponse() {
+  void createConfirmedReservationInvalidRequestThrowsException() { //인원 초과 예외
     // Given
     Long memberId = 1L;
-    Pageable pageable = Pageable.unpaged();
-    Page<Reservation> page = new PageImpl<>(Collections.emptyList());
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .peopleNumber(5) // Exceeding max guests
+        .checkIn(LocalDateTime.of(2024, 7, 1, 0, 0))
+        .checkOut(LocalDateTime.of(2024, 7, 5, 0, 0))
+        .build();
 
-    when(reservationRepository.findReservationsByMemberId(memberId, ReservationStatus.CONFIRMED,
-        pageable))
-        .thenReturn(page);
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.of(room));
+    when(reservationRepository.findOverlappingReservations(anyList(), any(LocalDateTime.class),
+        any(LocalDateTime.class)))
+        .thenReturn(Collections.emptyList());
 
-    // When
-    PagedResponse<ReservationSummaryResponse> result = reservationService.getAllReservations(memberId,
-        pageable.getPageNumber());
-
-    // Then
-    assertNotNull(result);
-    assertTrue(result.getContent().isEmpty());
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.createConfirmedReservation(memberId, request));
+    assertEquals(ReservationErrorCode.EXCEEDS_MAX_GUESTS, exception.getErrorCode());
   }
 
   @Test
-  void getReservationDetailValidReservationReturnsReservationDetailResponse() {
+  void validateReservationInvalidRequestWithConflictingReservationsThrowsException() { //중복예약 예외
     // Given
-    Long reservationId = 1L;
+    Long memberId = 1L;
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .peopleNumber(2)
+        .checkIn(LocalDateTime.of(2024, 7, 1, 0, 0))
+        .checkOut(LocalDateTime.of(2024, 7, 5, 0, 0))
+        .build();
+
+    List<Reservation> conflictingReservations = Collections.singletonList(existingReservation);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.of(room));
+    when(reservationRepository.findOverlappingReservationsByMemberId(eq(memberId), eq(request.getRoomId()),
+        eq(request.getCheckIn()), eq(request.getCheckOut())))
+        .thenReturn(conflictingReservations);
+
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.createConfirmedReservation(memberId, request));
+    assertEquals(ReservationErrorCode.DUPLICATED_RESERVATION, exception.getErrorCode());
+  }
+
+  @Test
+  void validateReservationWithConflictingReservationsThrowsException() { //예약 기간 예외
+    // Given
+    Long memberId = 1L;
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .peopleNumber(2)
+        .checkIn(LocalDateTime.of(2024, 7, 1, 0, 0))
+        .checkOut(LocalDateTime.of(2024, 7, 5, 0, 0))
+        .build();
+
+    List<Reservation> conflictingReservations = Collections.singletonList(existingReservation);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.of(room));
+    when(reservationRepository.findOverlappingReservations(eq(List.of(request.getRoomId())), eq(request.getCheckIn()), eq(request.getCheckOut())))
+        .thenReturn(conflictingReservations);
+
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.createConfirmedReservation(memberId, request));
+    assertEquals(ReservationErrorCode.CONFLICTING_RESERVATION, exception.getErrorCode());
+  }
+
+  @Test
+  void createConfirmedReservationInvalidCheckoutDateThrowsException() { //유효하지 않은 기간 예외
+    // Given
+    Long memberId = 1L;
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .peopleNumber(2)
+        .checkIn(LocalDateTime.of(2024, 7, 5, 0, 0))
+        .checkOut(LocalDateTime.of(2024, 7, 1, 0, 0))
+        .build();
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.of(room));
+
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.createConfirmedReservation(memberId, request));
+    assertEquals(ReservationErrorCode.INVALID_CHECKOUT_DATE, exception.getErrorCode());
+  }
+
+
+  @Test
+  void getAllReservationsReturnsPagedResponse() { //예약 전체조회
+    // Given
+    Long memberId = 1L;
+    int page = 1;
+
+    Page<Reservation> reservationsPage = new PageImpl<>(List.of(reservation), PageRequest.of(page - 1, pageSize), 1);
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
+    when(reservationRepository.findReservationsByMemberId(eq(memberId), eq(ReservationStatus.CONFIRMED), eq(PageRequest.of(page - 1, pageSize))))
+        .thenReturn(reservationsPage);
+
+    // When
+    PagedResponse<ReservationSummaryResponse> response = reservationService.getAllReservations(memberId, page);
+
+    // Then
+    assertNotNull(response);
+    assertEquals(1, response.getTotalPages());
+    assertEquals(1, response.getTotalElements());
+    assertEquals(1, response.getContent().size());
+
+    ReservationSummaryResponse summary = response.getContent().get(0);
+    assertEquals(reservation.getId(), summary.getReservationId());
+    assertEquals(reservation.getRoom().getAccomodation().getName(), summary.getAccomodationName());
+    assertEquals(reservation.getRoom().getAccomodation().getAddress(), summary.getAccomodationAddress());
+    assertEquals(reservation.getRoom().getName(), summary.getRoomName());
+    assertEquals(reservation.getTotalPrice(), summary.getTotalPrice());
+    assertEquals(reservation.getPeopleNumber(), summary.getPeopleNumber());
+    assertEquals(reservation.getCheckIn(), summary.getCheckIn());
+    assertEquals(reservation.getCheckOut(), summary.getCheckOut());
+  }
+
+  @Test
+  void getAllReservationsThrowsExceptionForNonExistentMember() { //유효하지 않은 사용자 예외
+    // Given
+    Long memberId = 1L;
+    int page = 1;
+
+    when(memberRepository.findById(memberId)).thenReturn(Optional.empty());
+
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.getAllReservations(memberId, page));
+    assertEquals(ReservationErrorCode.MEMBER_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  void getReservationDetailReturnsDetailResponse() { //예약 상세조회
+    // Given
+    Long reservationId = 2L;
     Long memberId = 1L;
 
-    when(reservationRepository.findByIdAndMemberId(reservationId, memberId))
+    when(reservationRepository.findByIdAndMemberId(eq(reservationId), eq(memberId)))
         .thenReturn(Optional.of(reservation));
 
     // When
@@ -220,16 +364,29 @@ class ReservationServiceTest {
 
     // Then
     assertNotNull(response);
+    assertEquals(reservation.getMember().getName(), response.getMemberName());
+    assertEquals(reservation.getRoom().getAccomodation().getName(), response.getAccomodationName());
+    assertEquals(reservation.getRoom().getName(), response.getRoomName());
     assertEquals(reservation.getRoom().getPrice(), response.getRoomPrice());
     assertEquals(reservation.getRoom().getBaseGuests(), response.getBaseGuests());
+    assertEquals(reservation.getExtraCharge(), response.getExtraCharge());
+    assertEquals(reservation.getCheckIn(), response.getCheckIn());
+    assertEquals(reservation.getCheckOut(), response.getCheckOut());
+    assertEquals(reservation.getRoom().getAccomodation().getParkingAvailable(), response.getParkingAvailable());
+    assertEquals(reservation.getRoom().getAccomodation().getCookingAvailable(), response.getCookingAvailable());
+  }
 
-    int totalGuests = reservation.getPeopleNumber();
-    int baseGuests = reservation.getRoom().getBaseGuests();
-    int extraPersonCharge = reservation.getRoom().getExtraPersonCharge();
-    int expectedExtraCharge = totalGuests > baseGuests ? (totalGuests - baseGuests) * extraPersonCharge : 0;
-    assertEquals(expectedExtraCharge, response.getExtraCharge());
+  @Test
+  void getReservationDetailThrowsExceptionForNonExistentReservation() { //유효하지않은 예약 예외
+    // Given
+    Long reservationId = 2L;
+    Long memberId = 1L;
 
-    assertTrue(response.getParkingAvailable());
-    assertTrue(response.getCookingAvailable());
+    when(reservationRepository.findByIdAndMemberId(eq(reservationId), eq(memberId)))
+        .thenReturn(Optional.empty());
+
+    // When / Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reservationService.getReservationDetail(reservationId, memberId));
+    assertEquals(ReservationErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());
   }
 }
