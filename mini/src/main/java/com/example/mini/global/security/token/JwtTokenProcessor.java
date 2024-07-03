@@ -83,7 +83,7 @@ public class JwtTokenProcessor implements TokenProcessor {
         }
 
         String newAccessToken = jwtProvider.createToken(email, TokenType.ACCESS, false);
-        CookieUtil.addCookie(response, "accessToken", newAccessToken, TokenType.ACCESS.getExpireTime() / 1000);
+        CookieUtil.addCookie(response, "accessToken", newAccessToken, TokenType.ACCESS.getExpireTime() / 1000,true);
         log.info("Access 토큰 재발급: 이메일={}, NewAccessToken={}", email, newAccessToken);
         return newAccessToken;
     }

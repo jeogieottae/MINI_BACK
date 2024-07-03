@@ -84,9 +84,9 @@ public class GoogleAuthServiceTest {
 
             // then
             verify(googleMemberService).setMemberInactive("test@example.com");
-            mockedCookieUtil.verify(() -> CookieUtil.deleteCookie(response, "googleAccessToken"));
-            mockedCookieUtil.verify(() -> CookieUtil.deleteCookie(response, "googleRefreshToken"));
-            mockedCookieUtil.verify(() -> CookieUtil.deleteCookie(response, "JSESSIONID"));
+            mockedCookieUtil.verify(() -> CookieUtil.deleteCookie(response, "googleAccessToken",true));
+            mockedCookieUtil.verify(() -> CookieUtil.deleteCookie(response, "googleRefreshToken",true));
+            mockedCookieUtil.verify(() -> CookieUtil.deleteCookie(response, "JSESSIONID",true));
             verify(session).invalidate();
         }
     }

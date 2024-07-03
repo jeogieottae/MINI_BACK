@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,9 @@ public class StandardAuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final TokenService tokenService;
+
+    @Value("${server.ssl.enabled:false}")
+    private boolean isSecure;
 
     @Transactional
     public void register(RegisterRequest request) {
@@ -185,16 +189,16 @@ public class StandardAuthService {
 
     // todo : 이 부분을 어떻게 할지 고민 중
     public void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
-        CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000);
-        CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000);
+        CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000, isSecure);
+        CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000, isSecure);
     }
 
     public void addAccessTokenCookie(HttpServletResponse response, String accessToken) {
-        CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000);
+        CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000,true);
     }
 
     public void deleteTokenCookies(HttpServletResponse response) {
-        CookieUtil.deleteCookie(response, "accessToken");
-        CookieUtil.deleteCookie(response, "refreshToken");
+        CookieUtil.deleteCookie(response, "accessToken",true);
+        CookieUtil.deleteCookie(response, "refreshToken",true);
     }
 }
