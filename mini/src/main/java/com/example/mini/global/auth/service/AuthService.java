@@ -39,7 +39,7 @@ public class AuthService {
 	private final KakaoMemberService kakaoMemberService;
 
 
-	private String logoutRedirectUri = "http://localhost:8080/api/protected/home";
+	private String logoutRedirectUri = "https://api.miniteam2.store/api/protected/home";
 
 
 
