@@ -22,13 +22,14 @@ import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReviewErrorCode;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-class ReviewServiceTest { /*모두 통과 완료*/
+class ReviewServiceTest { /*모두 성공*/
 
   @Mock
   private ReviewRepository reviewRepository;
@@ -82,6 +83,38 @@ class ReviewServiceTest { /*모두 통과 완료*/
     verify(reviewRepository, times(1)).save(any(Review.class));
     assertEquals(request.getComment(), response.getComment());
     assertEquals(request.getStar(), response.getStar());
+  }
+
+  @Test
+  void 리뷰_추가_회원_없음_예외_발생() {
+    // Given
+    ReviewRequest request = ReviewRequest.builder()
+        .accomodationId(1L)
+        .comment("좋았습니다!")
+        .star(5)
+        .build();
+
+    when(memberRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+
+    // When & Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reviewService.addReview(1L, request));
+    assertEquals(ReviewErrorCode.MEMBER_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  void 리뷰_추가_숙소_없음_예외_발생() {
+    // Given
+    ReviewRequest request = ReviewRequest.builder()
+        .accomodationId(1L)
+        .comment("좋았습니다!")
+        .star(5)
+        .build();
+
+    when(accomodationRepository.findById(1L)).thenReturn(java.util.Optional.empty());
+
+    // When & Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reviewService.addReview(1L, request));
+    assertEquals(ReviewErrorCode.ACCOMODATION_NOT_FOUND, exception.getErrorCode());
   }
 
   @Test
@@ -143,5 +176,38 @@ class ReviewServiceTest { /*모두 통과 완료*/
     GlobalException exception = assertThrows(GlobalException.class, () -> reviewService.addReview(1L, request));
     assertEquals(ReviewErrorCode.EMPTY_REVIEW_COMMENT, exception.getErrorCode());
   }
-}
 
+  @Test
+  void 리뷰_추가_유효하지_않은_리뷰_작성_기간_예외_발생() {
+    // Given
+    ReviewRequest request = ReviewRequest.builder()
+        .accomodationId(1L)
+        .comment("좋았습니다!")
+        .star(5)
+        .build();
+
+    // Fixture를 사용하여 예약 객체 생성
+    Reservation originalReservation = ReservationEntityFixture.getReservation(member, accomodation, room);
+
+    // 생성된 예약 객체를 빌더 패턴을 사용하여 복사하고, 체크아웃 시간을 수정
+    Reservation reservation = Reservation.builder()
+        .id(originalReservation.getId())
+        .peopleNumber(originalReservation.getPeopleNumber())
+        .extraCharge(originalReservation.getExtraCharge())
+        .totalPrice(originalReservation.getTotalPrice())
+        .checkIn(originalReservation.getCheckIn())
+        .checkOut(LocalDateTime.now().plusDays(1)) // 체크아웃 시간을 현재 시점보다 1일 후로 설정
+        .accomodation(originalReservation.getAccomodation())
+        .member(originalReservation.getMember())
+        .room(originalReservation.getRoom())
+        .status(originalReservation.getStatus())
+        .build();
+
+    when(reservationRepository.findByMemberIdAndAccomodationIdAndStatus(1L, 1L, ReservationStatus.CONFIRMED)).thenReturn(java.util.Optional.of(reservation));
+
+    // When & Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reviewService.addReview(1L, request));
+    assertEquals(ReviewErrorCode.INVALID_REVIEW_DATE, exception.getErrorCode());
+  }
+
+}
