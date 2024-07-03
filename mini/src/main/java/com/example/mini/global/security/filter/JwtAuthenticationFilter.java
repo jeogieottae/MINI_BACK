@@ -47,10 +47,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 		throws ServletException, IOException {
 
-		String cookenName = CookieUtil.getCookieNames(request);
-		log.info("cookenName: {}", cookenName);
-		String tokenType = determineTokenType(cookenName);
-
+		String cookieName = CookieUtil.getCookieNames(request);
+		log.info("cookieName: {}", cookieName);
+		String tokenType = determineTokenType(cookieName);
 
 		if(tokenType != null){
 			TokenProcessor processor = tokenProcessorFactory.getProcessor(tokenType);
@@ -62,11 +61,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private String determineTokenType(String cookenName) {
-		if(cookenName == null) return null;
-		if (cookenName.equals("googleAccessToken")) return "Google";
-		if (cookenName.equals("kakaoAccessToken")) return "Kakao";
-		if (cookenName.equals("accessToken")) return "Jwt";
+	private String determineTokenType(String cookieName) {
+		if(cookieName == null) return null;
+		if (cookieName.equals("googleAccessToken")) return "Google";
+		if (cookieName.equals("kakaoAccessToken")) return "Kakao";
+		if (cookieName.equals("accessToken")) return "Jwt";
 		return null;
 	}
 
