@@ -1,23 +1,16 @@
 /*
 package com.example.mini.global.auth.service;
 
-import com.example.mini.domain.member.entity.Member;
-import com.example.mini.domain.member.entity.enums.MemberState;
-import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
-import com.example.mini.domain.member.model.request.LoginRequest;
-import com.example.mini.domain.member.model.request.RegisterRequest;
-import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.domain.member.model.response.UserProfileResponse;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.member.service.GoogleMemberService;
 import com.example.mini.domain.member.service.KakaoMemberService;
 import com.example.mini.global.api.exception.GlobalException;
+import com.example.mini.global.auth.fixture.AuthServiceTestFixture;
+import com.example.mini.global.auth.model.TokenResponse;
 import com.example.mini.global.security.jwt.JwtProvider;
 import com.example.mini.global.security.jwt.TokenService;
-import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.cookies.CookieUtil;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -26,13 +19,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
@@ -57,6 +46,9 @@ public class AuthServiceTest {
     private HttpServletResponse response;
 
     @Mock
+    private StandardAuthService standardAuthService;
+
+    @Mock
     private GoogleAuthService googleAuthService;
 
     @Mock
@@ -71,103 +63,14 @@ public class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-    private RegisterRequest registerRequest= new RegisterRequest().builder()
-        .name("John Doe")
-        .nickname("johndoe")
-        .email("example@example.com")
-        .password("password")
-        .build();;
-
-    private LoginRequest loginRequest = new LoginRequest().builder()
-        .email("example@example.com")
-        .password("password")
-        .build();
-
-    @Test
-    @DisplayName("register_성공")
-    void successRegister() {
-        // given
-        when(memberRepository.existsByEmail(anyString())).thenReturn(false);
-        when(memberRepository.existsByNickname(anyString())).thenReturn(false); // 닉네임 체크 추가
-
-        //when & then
-        assertDoesNotThrow(() -> authService.register(registerRequest));
-    }
-
-
-    @Test
-    @DisplayName("register_실패_이메일_중복")
-    void failRegister(){
-        // given
-        when(memberRepository.existsByEmail(anyString())).thenReturn(true);
-
-        //when
-        //then
-        assertThrows(GlobalException.class, () -> authService.register(registerRequest));
-    }
-
-    @Test
-    @DisplayName("login_성공")
-    void successLogin() {
-        // given
-        Member member = Member.builder()
-            .email("example@example.com")
-            .password("encodedPassword")
-            .build();
-        when(memberRepository.findByEmail(anyString()))
-            .thenReturn(Optional.of(member));
-        when(passwordEncoder.matches(anyString(), anyString()))
-            .thenReturn(true);
-        when(jwtProvider.createToken(anyString(), any(TokenType.class), anyBoolean()))
-            .thenReturn("token");
-
-        //when
-        LoginResponse result = authService.login(loginRequest);
-
-        //then
-        assertEquals("token", result.getAccessToken());
-    }
-
-    @Test
-    @DisplayName("login_실패_사용자_없음")
-    void failLoginUserNotFound() {
-        // given
-        Member member = Member.builder()
-            .email("example@example.com")
-            .password("encodedPassword")
-            .build();
-        when(memberRepository.findByEmail(anyString()))
-            .thenReturn(Optional.empty());
-
-        //when
-        //then
-        assertThrows(GlobalException.class, () -> authService.login(loginRequest));
-    }
-
-    @Test
-    @DisplayName("login_비밀번호_불일치")
-    void failLoginPasswordMismatch() {
-        // given
-        Member member = Member.builder()
-            .email("example@example.com")
-            .password("encodedPassword")
-            .build();
-        when(memberRepository.findByEmail(anyString()))
-            .thenReturn(Optional.of(member));
-        when(passwordEncoder.matches(anyString(), anyString()))
-            .thenReturn(false);
-
-        //when
-        //then
-        assertThrows(GlobalException.class, () -> authService.login(loginRequest));
-    }
-
     @Test
     @DisplayName("refreshToken_구글")
     void testGoogleRefreshToken() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+            TokenResponse mockTokenResponse = AuthServiceTestFixture.createTokenResponse();
+            when(CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+            when(googleAuthService.googleRefresh(request)).thenReturn(mockTokenResponse);
 
             // when
             authService.refreshToken(request, response);
@@ -183,7 +86,9 @@ public class AuthServiceTest {
     void testKakaoRefreshToken() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+            TokenResponse mockTokenResponse = AuthServiceTestFixture.createTokenResponse();
+            when(CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+            when(kakaoAuthService.kakaoRefresh(request)).thenReturn(mockTokenResponse);
 
             // when
             authService.refreshToken(request, response);
@@ -201,17 +106,25 @@ public class AuthServiceTest {
             // given
             mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("accessToken");
 
-            // standardRefreshToken 메서드를 스파이로 만듭니다.
-            AuthService spyAuthService = spy(authService);
-            doNothing().when(spyAuthService).standardRefreshToken(any(), any());
-
             // when
-            spyAuthService.refreshToken(request, response);
+            authService.refreshToken(request, response);
 
             // then
-            verify(spyAuthService).standardRefreshToken(request, response);
+            verify(standardAuthService).standardRefreshToken(request, response);
             verify(kakaoAuthService, never()).kakaoRefresh(any());
             verify(googleAuthService, never()).googleRefresh(any());
+        }
+    }
+
+    @Test
+    @DisplayName("refreshToken_실패_지원하는_로그인_방식의_토큰_없음")
+    void testFailedRefreshToken() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn(null);
+
+            // when & then
+            assertThrows(GlobalException.class, () -> authService.refreshToken(request, response));
         }
     }
 
@@ -253,16 +166,87 @@ public class AuthServiceTest {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
             mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("accessToken");
-            AuthService spyAuthService = spy(authService);
-            doNothing().when(spyAuthService).standardLogout(any(), any());
 
             // when
-            String result = spyAuthService.logout(request, response);
+            String result = authService.logout(request, response);
 
             // then
-            verify(spyAuthService).standardLogout(request, response);
+            verify(standardAuthService).standardLogout(request, response);
             verify(kakaoAuthService, never()).kakaoLogout(any(), any());
             verify(googleAuthService, never()).googleLogout(any(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("logout_실패_지원하는_로그인_방식의_토큰_없음")
+    void testFailedLogout() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn(null);
+
+            // when & then
+            assertThrows(GlobalException.class, () -> authService.logout(request, response));
+        }
+    }
+
+    @Test
+    @DisplayName("withdraw_구글")
+    void testGoogleWithdraw() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
+
+            // when
+            String result = authService.withdraw(request, response);
+
+            // then
+            verify(googleAuthService).withdraw(request, response);
+            verify(kakaoAuthService, never()).withdraw(any(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("withdraw_카카오")
+    void testKakaoWithdraw() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
+
+            // when
+            String result = authService.withdraw(request, response);
+
+            // then
+            verify(kakaoAuthService).withdraw(request, response);
+            verify(googleAuthService, never()).withdraw(any(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("withdraw_일반")
+    void testStandardWithdraw() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("accessToken");
+
+            // when
+            String result = authService.withdraw(request, response);
+
+            // then
+            verify(standardAuthService).standardWithdraw(request, response);
+            verify(kakaoAuthService, never()).withdraw(any(), any());
+            verify(googleAuthService, never()).withdraw(any(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("withdraw_실패_지원하는_로그인_방식의_토큰_없음")
+    void testFailedWithdraw() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn(null);
+
+            // when & then
+            assertThrows(GlobalException.class, () -> authService.withdraw(request, response));
         }
     }
 
@@ -272,14 +256,14 @@ public class AuthServiceTest {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
             mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
-            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
 
             // when
-            authService.updateNickname(request, changeNicknameRequest);
+            authService.updateNickname(request, AuthServiceTestFixture.createChangeNicknameRequest());
 
             // then
-            verify(googleAuthService).changeNickname(request, "newNickname");
-            verify(kakaoAuthService, never()).changeNickname(any(), any());
+            verify(googleAuthService)
+                    .changeNickname(request, AuthServiceTestFixture.createChangeNicknameRequest().getNickname());
+            verify(kakaoAuthService, never()).withdraw(any(), any());
         }
     }
 
@@ -289,14 +273,14 @@ public class AuthServiceTest {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
             mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
-            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
 
             // when
-            authService.updateNickname(request, changeNicknameRequest);
+            authService.updateNickname(request, AuthServiceTestFixture.createChangeNicknameRequest());
 
             // then
-            verify(kakaoAuthService).changeNickname(request, "newNickname");
-            verify(googleAuthService, never()).changeNickname(any(), any());
+            verify(kakaoAuthService)
+                    .changeNickname(request, AuthServiceTestFixture.createChangeNicknameRequest().getNickname());
+            verify(googleAuthService, never()).withdraw(any(), any());
         }
     }
 
@@ -306,19 +290,28 @@ public class AuthServiceTest {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
             mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("accessToken");
-            ChangeNicknameRequest changeNicknameRequest = new ChangeNicknameRequest("newNickname");
-
-            // standardUpdateNickname 메서드를 스파이로 만듭니다.
-            AuthService spyAuthService = spy(authService);
-            doNothing().when(spyAuthService).standardUpdateNickname(any(), any());
 
             // when
-            spyAuthService.updateNickname(request, changeNicknameRequest);
+            authService.updateNickname(request, AuthServiceTestFixture.createChangeNicknameRequest());
 
             // then
-            verify(spyAuthService).standardUpdateNickname(request, "newNickname");
-            verify(kakaoAuthService, never()).changeNickname(any(), any());
-            verify(googleAuthService, never()).changeNickname(any(), any());
+            verify(standardAuthService)
+                    .standardUpdateNickname(request, AuthServiceTestFixture.createChangeNicknameRequest().getNickname());
+            verify(kakaoAuthService, never()).withdraw(any(), any());
+            verify(googleAuthService, never()).withdraw(any(), any());
+        }
+    }
+
+    @Test
+    @DisplayName("updateNickname_실패_지원하는_로그인_방식의_토큰_없음")
+    void testFailedUpdateNickname() {
+        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn(null);
+
+            // when & then
+            assertThrows(GlobalException.class,
+                    () -> authService.updateNickname(request, AuthServiceTestFixture.createChangeNicknameRequest()));
         }
     }
 
@@ -366,15 +359,14 @@ public class AuthServiceTest {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
             mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("accessToken");
-            AuthService spyAuthService = spy(authService);
-            UserProfileResponse expectedResponse = new UserProfileResponse(); // 적절한 응답 객체 생성
-            doReturn(expectedResponse).when(spyAuthService).getStandardUserInfo(request);
+            UserProfileResponse expectedResponse = new UserProfileResponse();
+            when(standardAuthService.getStandardUserInfo(request)).thenReturn(expectedResponse);
 
             // when
-            UserProfileResponse result = spyAuthService.getUserInfo(request);
+            UserProfileResponse result = authService.getUserInfo(request);
 
             // then
-            verify(spyAuthService).getStandardUserInfo(request);
+            verify(standardAuthService).getStandardUserInfo(request);
             verify(kakaoMemberService, never()).getKakaoUserInfo(any());
             verify(googleMemberService, never()).getGoogleUserInfo(any());
             assertEquals(expectedResponse, result);
@@ -382,281 +374,76 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("standardRefreshToken_성공")
-    void testStandardRefreshTokenSuccess() {
+    @DisplayName("getUserInfo_실패_지원하는_로그인_방식의_토큰_없음")
+    void testFailedGetUserInfo() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
-            Cookie mockCookie = new Cookie("refreshToken", "validRefreshToken");
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "refreshToken")).thenReturn(mockCookie);
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn(null);
 
-            String newAccessToken = "newAccessToken";
-            AuthService spyAuthService = spy(authService);
-            doReturn(newAccessToken).when(spyAuthService).createAccessToken("validRefreshToken");
-            doNothing().when(spyAuthService).addAccessTokenCookie(any(), anyString());
-
-            // when
-            spyAuthService.standardRefreshToken(request, response);
-
-            // then
-            verify(spyAuthService).createAccessToken("validRefreshToken");
-            verify(spyAuthService).addAccessTokenCookie(response, newAccessToken);
+            // when & then
+            assertThrows(GlobalException.class, () -> authService.getUserInfo(request));
         }
     }
 
     @Test
-    @DisplayName("standardRefreshToken_실패_리프레시토큰없음")
-    void testStandardRefreshTokenFailNoRefreshToken() {
+    @DisplayName("isLoggedIn_구글")
+    void testGoogleIsLoggedIn() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
             // given
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "refreshToken")).thenReturn(null);
-
-            // when & then
-            assertThrows(GlobalException.class, () -> authService.standardRefreshToken(request, response));
-        }
-    }
-
-
-    @Test
-    @DisplayName("createAccessToken_성공")
-    void successCreateAccessToken() {
-        // given
-        String refreshToken = "refreshToken";
-        Claims claims = Mockito.mock(Claims.class);
-        when(jwtProvider.getUserInfoFromToken(anyString(), any())).thenReturn(claims);
-        when(claims.getSubject()).thenReturn("test@example.com");
-        when(tokenService.getRefreshToken(anyString())).thenReturn(refreshToken);
-        when(jwtProvider.validateToken(anyString(), any())).thenReturn(true);
-        when(jwtProvider.createToken(anyString(), any(), anyBoolean())).thenReturn("newAccessToken");
-
-        // when
-        String result = authService.createAccessToken(refreshToken);
-
-        // then
-        assertEquals("newAccessToken", result);
-    }
-
-    @Test
-    @DisplayName("createAccessToken_토큰_불일치")
-    void failCreateAccessTokenInvalidRefreshToken() {
-        // given
-        String refreshToken = "InvalidRefreshToken";
-        Claims claims = Mockito.mock(Claims.class);
-        when(jwtProvider.getUserInfoFromToken(anyString(), any())).thenReturn(claims);
-        when(claims.getSubject()).thenReturn("test@example.com");
-        when(tokenService.getRefreshToken(anyString())).thenReturn(refreshToken);
-
-        // when
-        // then
-        assertThrows(GlobalException.class, () -> authService.createAccessToken(refreshToken));
-    }
-
-    @Test
-    @DisplayName("createAccessToken_유효하지_않은_토큰")
-    void failCreateAccessTokenInvalidToken() {
-        // given
-        String refreshToken = "refreshToken";
-        Claims claims = Mockito.mock(Claims.class);
-        when(jwtProvider.getUserInfoFromToken(anyString(), any())).thenReturn(claims);
-        when(claims.getSubject()).thenReturn("test@example.com");
-        when(tokenService.getRefreshToken(anyString())).thenReturn(refreshToken);
-        when(jwtProvider.validateToken(anyString(), any())).thenReturn(false);
-
-        // when
-        // then
-        assertThrows(GlobalException.class, () -> authService.createAccessToken(refreshToken));
-    }
-
-    @Test
-    @DisplayName("standardLogout_성공")
-    void successStandardLogout() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        Member mockMember = mock(Member.class);
-        Cookie mockCookie = new Cookie("accessToken", accessToken);
-
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-            when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-            when(memberRepository.findByEmail(email)).thenReturn(Optional.of(mockMember));
-            doNothing().when(tokenService).blacklistToken(accessToken);
-
-            // authService를 spy로 만들어 일부 메서드만 모의 처리
-            AuthService spyAuthService = spy(authService);
-            doNothing().when(spyAuthService).deleteTokenCookies(response);
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("googleAccessToken");
 
             // when
-            spyAuthService.standardLogout(request, response);
+            Boolean result = authService.isLoggedIn(request);
 
             // then
-            verify(mockMember).setState(MemberState.INACTIVE);
-            verify(tokenService).blacklistToken(accessToken);
-            verify(spyAuthService).deleteTokenCookies(response);
+            assertEquals(true, result);
         }
     }
 
     @Test
-    @DisplayName("standardLogout_실패_사용자_없음")
-    void testStandardLogoutFailUserNotFound() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        Cookie mockCookie = new Cookie("accessToken", accessToken);
-
+    @DisplayName("isLoggedIn_카카오")
+    void testKakaoIsLoggedIn() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-            when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-            when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-            // when & then
-            assertThrows(GlobalException.class, () -> authService.standardLogout(request, response));
-        }
-    }
-
-    @Test
-    @DisplayName("standardWithdraw_성공")
-    void testStandardWithdrawSuccess() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        Member mockMember = mock(Member.class);
-        Cookie mockCookie = new Cookie("accessToken", accessToken);
-
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-            when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-            when(memberRepository.findByEmail(email)).thenReturn(Optional.of(mockMember));
-            when(tokenService.getRefreshToken(email)).thenReturn("refreshToken");
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("kakaoAccessToken");
 
             // when
-            authService.standardWithdraw(request, response);
+            Boolean result = authService.isLoggedIn(request);
 
             // then
-            verify(memberRepository).delete(mockMember);
-            verify(tokenService).blacklistToken(accessToken);
-            verify(tokenService).removeToken("refreshToken");
+            assertEquals(true, result);
         }
     }
 
     @Test
-    @DisplayName("standardWithdraw_실패_유효하지_않은_액세스토큰")
-    void testStandardWithdrawFailInvalidAccessToken() {
-        // given
-        Cookie mockCookie = new Cookie("accessToken", "");
-
+    @DisplayName("isLoggedIn_일반")
+    void testStandardIsLoggedIn() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-
-            // when & then
-            assertThrows(GlobalException.class, () -> authService.standardWithdraw(request, response));
-        }
-    }
-
-    @Test
-    @DisplayName("standardWithdraw_실패_사용자_없음")
-    void testStandardWithdrawFailUserNotFound() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        Cookie mockCookie = new Cookie("accessToken", accessToken);
-
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-            when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-            when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-            // when & then
-            assertThrows(GlobalException.class, () -> authService.standardWithdraw(request, response));
-        }
-    }
-
-    @Test
-    @DisplayName("standardUpdateNickname_성공")
-    void testStandardUpdateNicknameSuccess() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        String newNickname = "newNickname";
-        Member mockMember = new Member();
-        mockMember.setEmail(email);
-
-        when(jwtProvider.resolveToken(request)).thenReturn(accessToken);
-        when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(mockMember));
-
-        // when
-        authService.standardUpdateNickname(request, newNickname);
-
-        // then
-        verify(memberRepository).save(mockMember);
-        assertEquals(newNickname, mockMember.getNickname());
-    }
-
-    @Test
-    @DisplayName("standardUpdateNickname_실패_사용자_없음")
-    void testStandardUpdateNicknameFailUserNotFound() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        String newNickname = "newNickname";
-
-        when(jwtProvider.resolveToken(request)).thenReturn(accessToken);
-        when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-        // when & then
-        assertThrows(GlobalException.class, () -> authService.standardUpdateNickname(request, newNickname));
-    }
-
-    @Test
-    @DisplayName("getStandardUserInfo_성공")
-    void testGetStandardUserInfoSuccess() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        Member mockMember = Member.builder()
-            .name("Test User")
-            .nickname("testuser")
-            .email(email)
-            .build();
-
-        Cookie mockCookie = new Cookie("accessToken", accessToken);
-
-        // CookieUtil.getCookie() 메서드를 모킹
-        try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-
-            when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-            when(memberRepository.findByEmail(email)).thenReturn(Optional.of(mockMember));
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn("accessToken");
 
             // when
-            UserProfileResponse response = authService.getStandardUserInfo(request);
+            Boolean result = authService.isLoggedIn(request);
 
             // then
-            assertEquals("Test User", response.getName());
-            assertEquals("testuser", response.getNickname());
-            assertEquals(email, response.getEmail());
+            assertEquals(true, result);
         }
     }
 
     @Test
-    @DisplayName("getStandardUserInfo_실패_사용자_없음")
-    void testGetStandardUserInfoFailUserNotFound() {
-        // given
-        String accessToken = "validAccessToken";
-        String email = "test@example.com";
-        Cookie mockCookie = new Cookie("accessToken", accessToken);
-
+    @DisplayName("isLoggedIn_실패_지원하는_로그인_방식의_토큰_없음")
+    void testFailedIsLoggedIn() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
-            mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "accessToken")).thenReturn(mockCookie);
-            when(jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS)).thenReturn(email);
-            when(memberRepository.findByEmail(email)).thenReturn(Optional.empty());
+            // given
+            mockedCookieUtil.when(() -> CookieUtil.getCookieNames(request)).thenReturn(null);
 
-            // when & then
-            assertThrows(GlobalException.class, () -> authService.getStandardUserInfo(request));
+            // when
+            Boolean result = authService.isLoggedIn(request);
+
+            // then
+            assertEquals(false, result);
         }
     }
-
 }
 
 */
