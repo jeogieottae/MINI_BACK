@@ -5,6 +5,7 @@ import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.model.entity.BaseEntity;
 import com.example.mini.global.util.datetime.DateTimeUtil;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
@@ -21,7 +22,9 @@ import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,29 +64,21 @@ public class AccomodationService {
     }
 
     /**
-     * 숙소 카테고리별 조회 (지역)
+     * 검색된 숙소 목록 조회
      *
-     * @param categoryName  조회할 카테고리(지역) 이름
-     * @param page          조회할 페이지 번호
-     * @return              숙소 정보 목록을 포함한 응답 객체
+     * @param keyword   숙소 이름
+     * @param region    지역명
+     * @param checkIn   체크인 시간
+     * @param checkOut  체크아웃 시간
+     * @param page      조회할 페이지 번호
+     * @return          입력된 옵션에 대한 숙소 검색결과 반환
      */
-    public PagedResponse<AccomodationCardResponseDto> getAccommodationsByCategory(String categoryName, int page, String checkIn, String checkOut) {
-        AccomodationCategory category = AccomodationCategory.fromName(categoryName);
-        Page<Accomodation> accommodations = accomodationRepository.findByCategoryName(category, PageRequest.of(page-1, PageSize));
-        checkPageException(accommodations);
-        return setResponse(accommodations, checkIn, checkOut);
-    }
+    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(String keyword, String region, String checkIn, String checkOut, int page) {
+        List<Long> keywordIList = getIdByKeyword(keyword);
+        List<Long> regionIdList = getIdByRegion(region);
+        List<Long> commonIds = getCommonId(keywordIList, regionIdList);
 
-    /**
-     * 숙소 이름으로 검색
-     *
-     * @param keyword   검색 키워드
-     * @return          숙소 정보 목록을 포함한 응답 객체
-     */
-    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(String keyword, int page, String checkIn, String checkOut) {
-        List<AccomodationSearch> searches = accomodationSearchRepository.findAccommodationsByName(keyword);
-        List<Long> idList = searches.stream().map(AccomodationSearch::getId).toList();
-        Page<Accomodation> accommodations = accomodationRepository.findByIdList(idList, PageRequest.of(page-1, PageSize));
+        Page<Accomodation> accommodations = accomodationRepository.findByIdList(commonIds, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
         return setResponse(accommodations, checkIn, checkOut);
     }
@@ -231,6 +226,62 @@ public class AccomodationService {
         return latestReviews.stream()
             .map(review -> new ReviewResponse(review.getComment(), review.getStar()))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * 입력된 숙소명에 대한 숙소 id를 반환하는 메서드
+     * @param keyword   검색할 숙소명
+     * @return          검색결과 id 리스트
+     */
+    private List<Long> getIdByKeyword(String keyword) {
+        List<Long> idList;
+        if (!keyword.isEmpty()) {
+            List<AccomodationSearch> searches = accomodationSearchRepository.findAccommodationsByName(keyword);
+            idList = searches.stream().map(AccomodationSearch::getId).toList();
+        } else {
+            idList = new ArrayList<>();
+        }
+        return idList;
+    }
+
+    /**
+     * 입력된 지역명에 대한 숙소 id를 반환하는 메서드
+     * @param region    검색할 지역명
+     * @return          검색결과 id 리스트
+     */
+    private List<Long> getIdByRegion(String region) {
+        List<Long> idList;
+        if (!region.isEmpty()) {
+            AccomodationCategory category = AccomodationCategory.fromName(region);
+            idList = accomodationRepository.findByCategoryName(category);
+        } else {
+            idList = new ArrayList<>();
+        }
+        return idList;
+    }
+
+    /**
+     * 두 리스트의 공통 id를 추출해 반환하는 메서드
+     * 만약 한 리스트가 비어있을 경우 다른 리스트 전체를 반환
+     * @param keywordIList  숙소명 검색결과 리스트
+     * @param regionIdList  지역명 검색결과 리스트
+     * @return              두 리스트의 공통 id 리스트
+     */
+    private List<Long> getCommonId(List<Long> keywordIList, List<Long> regionIdList) {
+        List<Long> commonIds;
+        if (regionIdList.isEmpty() && keywordIList.isEmpty()) {
+            throw new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND);
+        } else if (regionIdList.isEmpty()) {
+            commonIds = keywordIList;
+        } else if (keywordIList.isEmpty()) {
+            commonIds = regionIdList;
+        } else {
+            Set<Long> idSet1 = keywordIList.stream().collect(Collectors.toSet());
+            commonIds = regionIdList.stream()
+                    .filter(idSet1::contains)
+                    .collect(Collectors.toList());
+        }
+        return commonIds;
     }
 
 }
