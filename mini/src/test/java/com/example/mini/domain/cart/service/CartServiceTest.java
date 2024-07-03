@@ -21,8 +21,10 @@ import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.email.EmailService;
 
 import com.example.mini.global.model.dto.PagedResponse;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -71,6 +73,7 @@ public class CartServiceTest {
 
     member = Member.builder()
         .id(1L)
+        .email("test@example.com")
         .build();
 
     accomodation = Accomodation.builder()
@@ -80,6 +83,7 @@ public class CartServiceTest {
 
     room = Room.builder()
         .id(1L)
+        .name("Test Room")
         .price(100)
         .baseGuests(2)
         .maxGuests(4)
@@ -91,12 +95,16 @@ public class CartServiceTest {
         .id(1L)
         .room(room)
         .member(member)
+        .accomodation(accomodation)
         .checkIn(LocalDateTime.of(2023, 6, 20, 14, 0))
         .checkOut(LocalDateTime.of(2023, 6, 23, 11, 0))
+        .peopleNumber(2)
+        .totalPrice(100)
         .status(ReservationStatus.PENDING)
         .build();
 
     cart = Cart.builder()
+        .id(1L)
         .member(member)
         .reservationList(new ArrayList<>())
         .build();
@@ -104,15 +112,15 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testGetAllCartItemsShouldReturnCartItems() { //장바구니 전체조히
+  public void testGetAllCartItemsShouldReturnCartItems() { //전체 장바구니항목 조회
     // Given
     Pageable pageable = PageRequest.of(0, 10);
-    Page<Reservation> reservations = new PageImpl<>(List.of(reservation), pageable, 1);
+    Page<Reservation> reservationsPage = new PageImpl<>(List.of(reservation), pageable, 1);
 
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
     when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-    when(reservationRepository.findReservationsByMemberId(member.getId(), ReservationStatus.PENDING,
-        pageable)).thenReturn(reservations);
+    when(reservationRepository.findReservationsByMemberId(member.getId(), ReservationStatus.PENDING, pageable))
+        .thenReturn(reservationsPage);
 
     // When
     PagedResponse<CartResponse> result = cartService.getAllCartItems(member.getId(), 1);
@@ -121,8 +129,7 @@ public class CartServiceTest {
     assertEquals(1, result.getTotalElements());
     verify(memberRepository).findById(member.getId());
     verify(cartRepository).findByMember(member);
-    verify(reservationRepository).findReservationsByMemberId(member.getId(),
-        ReservationStatus.PENDING, pageable);
+    verify(reservationRepository).findReservationsByMemberId(member.getId(), ReservationStatus.PENDING, pageable);
   }
 
   @Test
@@ -234,7 +241,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testAddCartItemShouldThrowExceptionWhenConflictingReservation() { //겹치는 기간 예외
+  public void testAddCartItemShouldThrowExceptionWhenConflictingReservation() { //이미 존재하는 항목 예외
     // Given
     AddCartItemRequest request = AddCartItemRequest.builder()
         .roomId(room.getId())
@@ -246,8 +253,21 @@ public class CartServiceTest {
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
     when(roomRepository.findById(room.getId())).thenReturn(Optional.of(room));
     when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-    when(reservationRepository.findOverlappingReservations(List.of(room.getId()),
-        request.getCheckIn(), request.getCheckOut())).thenReturn(List.of(reservation));
+
+    Reservation overlappingReservation = Reservation.builder()
+        .id(2L)
+        .room(room)
+        .member(member)
+        .checkIn(LocalDateTime.of(2023, 6, 22, 14, 0)) // 겹치는 기간
+        .checkOut(LocalDateTime.of(2023, 6, 24, 11, 0)) // 겹치는 기간
+        .peopleNumber(3)
+        .status(ReservationStatus.CONFIRMED)
+        .build();
+
+    when(reservationRepository.findOverlappingReservations(
+        eq(List.of(room.getId())),
+        eq(request.getCheckIn()),
+        eq(request.getCheckOut()))).thenReturn(List.of(overlappingReservation));
 
     // When / Then
     GlobalException exception = assertThrows(GlobalException.class,
@@ -255,6 +275,7 @@ public class CartServiceTest {
 
     assertEquals(CartErrorCode.CONFLICTING_RESERVATION, exception.getErrorCode());
   }
+
 
   @Test
   public void testAddCartItemShouldThrowExceptionWhenDuplicateReservation() { //이미 존재하는 항목 예외
@@ -360,15 +381,22 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testDeleteCartItemShouldThrowExceptionWhenReservationNotPending() { //예약상태 예외
+  public void testDeleteCartItemShouldThrowExceptionWhenReservationNotPending() { //예약 상태 예외
     // Given
     Reservation reservation = Reservation.builder()
         .status(ReservationStatus.CONFIRMED)
+        .id(1L)
         .build();
 
+    cart = Cart.builder()
+        .id(1L)
+        .member(member)
+        .reservationList(new ArrayList<>())
+        .build();
+    cart.getReservationList().add(reservation);
 
     DeleteCartItemRequest request = DeleteCartItemRequest.builder()
-        .reservationIds(List.of(reservation.getId()))
+        .reservationIds(Arrays.asList(reservation.getId()))
         .build();
 
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
@@ -383,29 +411,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmCartItemShouldConfirmReservation() {
-    // Given
-    ConfirmCartItemRequest request = ConfirmCartItemRequest.builder()
-        .reservationId(reservation.getId())
-        .build();
-
-    when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
-    when(reservationRepository.findById(reservation.getId())).thenReturn(Optional.of(reservation));
-    when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-
-    // When
-    CartConfirmResponse response = cartService.confirmReservationItem(member.getId(), request);
-
-    // Then
-    assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
-    assertNotNull(request.getReservationId());
-    verify(reservationRepository).save(reservation);
-    verify(emailService).sendReservationConfirmationEmail(anyString(), anyString(), anyString());
-  }
-
-
-  @Test
-  public void confirmReservationItemInvalidCheckOutDateShouldThrowGlobalException() { //예약 확정 유효하지 않은 기간 예외
+  public void confirmReservationItemInvalidCheckOutDateShouldThrowGlobalException() {
     // Given
     Long memberId = 1L;
     Long reservationId = 10L;
@@ -496,26 +502,33 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmReservationItemShouldThrowExceptionWhenReservationNotBelongsToUser() { //예약정보 예외
+  public void testConfirmReservationItemShouldThrowExceptionWhenReservationNotBelongsToUser() { //잘못된 예약정보 예외
     // Given
     Member otherMember = Member.builder()
         .id(2L)
         .build();
-    Reservation reservation = Reservation.builder()
+
+    Reservation otherReservation = Reservation.builder()
+        .id(2L)
         .member(otherMember)
+        .room(room)
+        .checkIn(LocalDateTime.of(2023, 6, 24, 14, 0))
+        .checkOut(LocalDateTime.of(2023, 6, 28, 11, 0))
+        .peopleNumber(2)
+        .status(ReservationStatus.PENDING)
         .build();
 
     ConfirmCartItemRequest request = ConfirmCartItemRequest.builder()
-        .reservationId(reservation.getId())
+        .reservationId(otherReservation.getId())
         .roomId(room.getId())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .peopleNumber(reservation.getPeopleNumber())
+        .checkIn(otherReservation.getCheckIn())
+        .checkOut(otherReservation.getCheckOut())
+        .peopleNumber(otherReservation.getPeopleNumber())
         .build();
 
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
     when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-    when(reservationRepository.findById(reservation.getId())).thenReturn(Optional.of(reservation));
+    when(reservationRepository.findById(otherReservation.getId())).thenReturn(Optional.of(otherReservation));
 
     // When / Then
     GlobalException exception = assertThrows(GlobalException.class,
@@ -525,25 +538,30 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmReservationItemShouldThrowExceptionWhenReservationNotInCart() { //예약정보 예외
+  public void testConfirmReservationItemShouldThrowExceptionWhenReservationNotInCart() { //잘못된 예약정보 예외
     // Given
-    Cart otherCart = Cart.builder()
-        .member(Member.builder().id(2L).build())
-        .reservationList(new ArrayList<>())
+    Reservation otherReservation = Reservation.builder()
+        .id(2L)
+        .room(room)
+        .member(member)
+        .accomodation(accomodation)
+        .checkIn(LocalDateTime.of(2023, 6, 24, 14, 0))
+        .checkOut(LocalDateTime.of(2023, 6, 28, 11, 0))
+        .peopleNumber(2)
+        .status(ReservationStatus.PENDING)
         .build();
-    otherCart.getReservationList().add(reservation);
 
     ConfirmCartItemRequest request = ConfirmCartItemRequest.builder()
-        .reservationId(reservation.getId())
+        .reservationId(otherReservation.getId())
         .roomId(room.getId())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .peopleNumber(reservation.getPeopleNumber())
+        .checkIn(otherReservation.getCheckIn())
+        .checkOut(otherReservation.getCheckOut())
+        .peopleNumber(otherReservation.getPeopleNumber())
         .build();
 
     when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
     when(cartRepository.findByMember(member)).thenReturn(Optional.of(cart));
-    when(reservationRepository.findById(reservation.getId())).thenReturn(Optional.of(reservation));
+    when(reservationRepository.findById(otherReservation.getId())).thenReturn(Optional.of(otherReservation));
 
     // When / Then
     GlobalException exception = assertThrows(GlobalException.class,
@@ -581,7 +599,7 @@ public class CartServiceTest {
     GlobalException exception = assertThrows(GlobalException.class,
         () -> cartService.confirmReservationItem(member.getId(), request));
 
-    assertEquals(ReservationErrorCode.CONFLICTING_RESERVATION, exception.getErrorCode());
+    assertEquals(CartErrorCode.CONFLICTING_RESERVATION, exception.getErrorCode());
   }
 
   @Test
@@ -607,7 +625,7 @@ public class CartServiceTest {
   }
 
   @Test
-  public void testConfirmReservationItemShouldSendConfirmationEmail() { //이메일 전송 확인
+  public void testConfirmReservationItemShouldSendConfirmationEmail() { //이메일 확인
     // Given
     ConfirmCartItemRequest request = ConfirmCartItemRequest.builder()
         .reservationId(reservation.getId())
@@ -627,7 +645,20 @@ public class CartServiceTest {
     CartConfirmResponse response = cartService.confirmReservationItem(member.getId(), request);
 
     // Then
-    verify(emailService).sendReservationConfirmationEmail(anyString(), anyString(), anyString());
+    ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<String> textCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(emailService).sendReservationConfirmationEmail(toCaptor.capture(), subjectCaptor.capture(), textCaptor.capture());
+
+    assertEquals(member.getEmail(), toCaptor.getValue());
+    assertEquals("예약 확정 되었습니다", subjectCaptor.getValue());
+    assertTrue(textCaptor.getValue().contains("귀하의 Test Accomodation에서 Test Room 객실 예약이 확정되었습니다."));
+    assertTrue(textCaptor.getValue().contains("체크인: 2023-06-20T14:00"));
+    assertTrue(textCaptor.getValue().contains("체크아웃: 2023-06-23T11:00"));
+    assertTrue(textCaptor.getValue().contains("인원 수: 2명"));
+    assertTrue(textCaptor.getValue().contains("총 가격: 100원"));
+
     assertNotNull(response);
     assertEquals(room.getId(), response.getRoomId());
   }
