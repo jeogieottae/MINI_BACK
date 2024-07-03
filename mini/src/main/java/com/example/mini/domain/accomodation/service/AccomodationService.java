@@ -91,16 +91,11 @@ public class AccomodationService {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
-        List<String> imageUrls = accomodation.getImages().stream()
-            .map(AccomodationImage::getImgUrl)
-            .collect(Collectors.toList());
-
         return AccomodationDetailsResponseDto.builder()
             .accomodation(AccomodationResponseDto.toDto(accomodation))
             .rooms(getRoomResponseDto(accomodationId, checkIn, checkOut))
             .reviews(getReviewResponse(accomodation.getReviews()))
             .avgStar(calculateAverageStar(accomodation.getReviews()))
-            .imageUrls(imageUrls)
             .build();
     }
 
