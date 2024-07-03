@@ -70,7 +70,6 @@ class ReviewControllerTest {
 
 		ReviewResponse response = new ReviewResponse("좋아요", 5);
 
-		// Mocking the behavior of the ReviewService and its dependencies
 		Member member = Member.builder()
 			.id(1L)
 			.email("test@example.com")
