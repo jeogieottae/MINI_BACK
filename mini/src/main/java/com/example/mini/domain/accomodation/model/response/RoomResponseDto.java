@@ -1,6 +1,9 @@
 package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.entity.RoomImage;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.*;
 
 @Getter
@@ -15,16 +18,22 @@ public class RoomResponseDto {
     int maxGuests;
     int extraPersonCharge;
     boolean reservationAvailable;
+    private List<String> imageUrls;
 
     public static RoomResponseDto toDto(Room room, boolean isAvailable) {
+        List<String> imageUrls = room.getImages().stream()
+            .map(RoomImage::getImgUrl)
+            .collect(Collectors.toList());
+
         return RoomResponseDto.builder()
-                .id(room.getId())
-                .name(room.getName())
-                .baseGuests(room.getBaseGuests())
-                .price(room.getPrice())
-                .maxGuests(room.getMaxGuests())
-                .extraPersonCharge(room.getExtraPersonCharge())
-                .reservationAvailable(isAvailable)
-                .build();
+            .id(room.getId())
+            .name(room.getName())
+            .baseGuests(room.getBaseGuests())
+            .price(room.getPrice())
+            .maxGuests(room.getMaxGuests())
+            .extraPersonCharge(room.getExtraPersonCharge())
+            .reservationAvailable(isAvailable)
+            .imageUrls(imageUrls)
+            .build();
     }
 }

@@ -6,7 +6,6 @@ import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +18,7 @@ public class AccomodationController {
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> getAllAccommodations(
-            @RequestParam(value="page", defaultValue = "1") int page
+        @RequestParam(value="page", defaultValue = "1") int page
     ) {
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATIONS_RETRIEVED, response));
@@ -27,11 +26,11 @@ public class AccomodationController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> searchByAccommodationName(
-            @RequestParam(value = "query", defaultValue = "") String query,
-            @RequestParam(value = "region", defaultValue = "") String region,
-            @RequestParam(value = "check-in", defaultValue = "")String checkIn,
-            @RequestParam(value = "check-out", defaultValue = "")String checkOut,
-            @RequestParam(value= "page", defaultValue = "1") int page
+        @RequestParam(value = "query", defaultValue = "") String query,
+        @RequestParam(value = "region", defaultValue = "") String region,
+        @RequestParam(value = "check-in", defaultValue = "")String checkIn,
+        @RequestParam(value = "check-out", defaultValue = "")String checkOut,
+        @RequestParam(value= "page", defaultValue = "1") int page
     ) {
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.searchByAccommodationName(query, region, checkIn, checkOut, page);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }
@@ -43,7 +42,7 @@ public class AccomodationController {
         @RequestParam(value = "check-out", defaultValue = "")String checkOut
     ) {
         AccomodationDetailsResponseDto response = accomodationService
-                .getAccomodationDetails(accomodationId, checkIn, checkOut);
+            .getAccomodationDetails(accomodationId, checkIn, checkOut);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_DETAILS_RETRIEVED, response));
     }
 
