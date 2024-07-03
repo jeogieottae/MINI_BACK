@@ -100,6 +100,7 @@ public class AccomodationService {
             .rooms(getRoomResponseDto(accomodationId, checkIn, checkOut))
             .reviews(getReviewResponse(accomodation.getReviews()))
             .avgStar(calculateAverageStar(accomodation.getReviews()))
+            .imageUrls(imageUrls)
             .build();
     }
 
