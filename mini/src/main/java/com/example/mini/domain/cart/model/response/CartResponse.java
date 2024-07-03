@@ -23,6 +23,7 @@ public class CartResponse {
   private LocalDateTime checkOut;
   private Integer peopleNumber;
   private Integer totalPrice;
+  private Integer extraPersonCharge;
 
   public static CartResponse toDto(Reservation reservation) {
     return CartResponse.builder()
@@ -35,6 +36,7 @@ public class CartResponse {
             .checkOut(reservation.getCheckOut())
             .peopleNumber(reservation.getPeopleNumber())
             .totalPrice(reservation.getTotalPrice())
+            .extraPersonCharge(reservation.getRoom().getExtraPersonCharge())
             .build();
   }
 }

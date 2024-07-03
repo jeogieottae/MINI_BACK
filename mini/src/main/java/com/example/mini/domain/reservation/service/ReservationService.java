@@ -1,6 +1,7 @@
 package com.example.mini.domain.reservation.service;
 
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
@@ -71,6 +72,12 @@ public class ReservationService {
 
     reservationRepository.save(reservation);
 
+    sendConfirmationEmail(member, reservation, request);
+
+    return mapToReservationResponse(reservation);
+  }
+
+  private void sendConfirmationEmail(Member member, Reservation reservation, ReservationRequest request) {
     String to = member.getEmail();
     String subject = "예약 확정 되었습니다";
     String text = String.format("귀하의 %s에서 %s 객실 예약이 확정되었습니다.\n체크인: %s\n체크아웃: %s\n인원 수: %d명\n총 가격: %d원",
@@ -82,8 +89,6 @@ public class ReservationService {
         reservation.getTotalPrice());
 
     emailService.sendReservationConfirmationEmail(to, subject, text);
-
-    return mapToReservationResponse(reservation);
   }
 
   private Member getMember(Long memberId) {
@@ -114,7 +119,7 @@ public class ReservationService {
 
   private void validateDates(LocalDateTime checkIn, LocalDateTime checkOut) {
     if (!checkOut.isAfter(checkIn)) {
-      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
+      throw new GlobalException(ReservationErrorCode.INVALID_CHECKOUT_DATE);
     }
   }
 
@@ -146,6 +151,7 @@ public class ReservationService {
   }
 
   public PagedResponse<ReservationSummaryResponse> getAllReservations(Long memberId, int page) {
+    Member member = getMember(memberId);
     Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
         memberId, ReservationStatus.CONFIRMED, PageRequest.of(page - 1, pageSize));
 

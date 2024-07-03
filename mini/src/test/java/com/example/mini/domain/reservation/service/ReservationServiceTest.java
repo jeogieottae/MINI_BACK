@@ -2,6 +2,8 @@ package com.example.mini.domain.reservation.service;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
+import com.example.mini.domain.cart.model.response.CartConfirmResponse;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
@@ -14,9 +16,13 @@ import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
+import com.example.mini.global.email.EmailService;
 import com.example.mini.global.model.dto.PagedResponse;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -42,6 +48,8 @@ class ReservationServiceTest {
 
   @Mock
   private MemberRepository memberRepository;
+  @Mock
+  private EmailService emailService;
 
   @InjectMocks
   private ReservationService reservationService;
@@ -57,11 +65,13 @@ class ReservationServiceTest {
 
     member = Member.builder()
         .id(1L)
+        .email("member@example.com")
         .build();
 
     accomodation = Accomodation.builder()
         .id(1L)
         .name("Test Accomodation")
+        .address("123 Test St, Test City")
         .parkingAvailable(true)
         .cookingAvailable(true)
         .build();
@@ -83,12 +93,12 @@ class ReservationServiceTest {
         .checkIn(LocalDateTime.of(2023, 6, 20, 14, 0))
         .checkOut(LocalDateTime.of(2023, 6, 23, 11, 0))
         .status(ReservationStatus.PENDING)
-        .peopleNumber(10)
+        .peopleNumber(2)
         .build();
   }
 
   @Test
-  void createConfirmedReservationValidRequestReturnsReservationResponse() {
+  void createConfirmedReservationValidRequestReturnsReservationResponse() { //예약 생성
     // Given
     Long memberId = 1L;
     ReservationRequest request = ReservationRequest.builder()
@@ -115,7 +125,49 @@ class ReservationServiceTest {
     assertEquals(room.getBaseGuests(), response.getBaseGuests());
     assertEquals(room.getMaxGuests(), response.getMaxGuests());
     assertEquals(request.getPeopleNumber(), response.getPeopleNumber());
+
+    verify(emailService, times(1)).sendReservationConfirmationEmail(anyString(), anyString(), anyString());
   }
+
+  @Test
+  public void testConfirmReservationItemShouldSendConfirmationEmail() { //이메일 확인
+    // Given
+    ReservationRequest request = ReservationRequest.builder()
+        .roomId(room.getId())
+        .checkIn(reservation.getCheckIn())
+        .checkOut(reservation.getCheckOut())
+        .peopleNumber(reservation.getPeopleNumber())
+        .build();
+
+    when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
+    when(roomRepository.findById(request.getRoomId())).thenReturn(Optional.of(room));
+    when(reservationRepository.findById(reservation.getId())).thenReturn(Optional.of(reservation));
+    when(reservationRepository.findOverlappingReservations(List.of(room.getId()),
+        reservation.getCheckIn(), reservation.getCheckOut())).thenReturn(new ArrayList<>());
+
+    // When
+    ReservationResponse response = reservationService.createConfirmedReservation(member.getId(), request);
+
+    // Then
+    ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<String> textCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(emailService).sendReservationConfirmationEmail(toCaptor.capture(), subjectCaptor.capture(), textCaptor.capture());
+
+    assertEquals(member.getEmail(), toCaptor.getValue());
+    assertEquals("예약 확정 되었습니다", subjectCaptor.getValue());
+    assertTrue(textCaptor.getValue().contains("귀하의 Test Accomodation에서 Test Room 객실 예약이 확정되었습니다."));
+    assertTrue(textCaptor.getValue().contains("체크인: 2023-06-20T14:00"));
+    assertTrue(textCaptor.getValue().contains("체크아웃: 2023-06-23T11:00"));
+    assertTrue(textCaptor.getValue().contains("인원 수: 2명"));
+    assertTrue(textCaptor.getValue().contains("총 가격: 100원"));
+
+    assertNotNull(response);
+    assertEquals(room.getId(), response.getRoomId());
+  }
+
+
 
   @Test
   void createConfirmedReservationRoomNotFoundThrowsGlobalException() {
