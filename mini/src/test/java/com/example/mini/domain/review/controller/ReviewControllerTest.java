@@ -1,21 +1,16 @@
 package com.example.mini.domain.review.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-import com.example.mini.domain.review.WithMockUserDetails;
+import com.example.mini.domain.review.WithMockCustomUser;
 import com.example.mini.domain.review.model.request.ReviewRequest;
 import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
 import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.service.ReviewService;
+import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,10 +20,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class ReviewControllerTest { /*리뷰 추가 실패*/
+class ReviewControllerTest {
 
 	@Mock
 	private ReviewService reviewService;
@@ -47,7 +46,7 @@ class ReviewControllerTest { /*리뷰 추가 실패*/
 	}
 
 	@Test
-	@WithMockUserDetails
+	@WithMockCustomUser
 	void 리뷰_추가_성공() throws Exception {
 		// Given
 		ReviewRequest request = ReviewRequest.builder()
@@ -72,7 +71,7 @@ class ReviewControllerTest { /*리뷰 추가 실패*/
 	}
 
 	@Test
-	@WithMockUserDetails
+	@WithMockCustomUser
 	void 숙소_리뷰_조회_성공() throws Exception {
 		// Given
 		AccomodationReviewResponse reviewResponse = AccomodationReviewResponse.builder()
