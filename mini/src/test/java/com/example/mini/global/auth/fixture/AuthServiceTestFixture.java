@@ -6,6 +6,7 @@ import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
 import com.example.mini.domain.member.model.request.LoginRequest;
 import com.example.mini.domain.member.model.request.RegisterRequest;
 import com.example.mini.global.auth.model.GoogleUserInfo;
+import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -54,7 +55,7 @@ public class AuthServiceTestFixture {
 			.build();
 	}
 
-	public static Map<String, Object> getAttributes() {
+	public static Map<String, Object> getGoogleAttributes() {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("sub", "123456789");
 		attributes.put("email", "test@example.com");
@@ -68,8 +69,9 @@ public class AuthServiceTestFixture {
 	}
 
 	public static GoogleUserInfo getGoogleUserInfo() {
-		return new GoogleUserInfo(getAttributes());
+		return new GoogleUserInfo(getGoogleAttributes());
 	}
+
 
 	public static Member createMember() {
 		return Member.builder()
@@ -78,5 +80,24 @@ public class AuthServiceTestFixture {
 			.password("testPassword")
 			.state(MemberState.ACTIVE)
 			.build();
+	}
+
+	public static Map<String, Object> getKakaoAttributes() {
+		Map<String, Object> attributes = new HashMap<>();
+		Map<String, Object> kakaoAccount = new HashMap<>();
+		Map<String, Object> profile = new HashMap<>();
+
+		profile.put("nickname", "홍길동");
+		kakaoAccount.put("email", "test@example.com");
+		kakaoAccount.put("profile", profile);
+
+		attributes.put("id", 123456789L);
+		attributes.put("kakao_account", kakaoAccount);
+
+		return attributes;
+	}
+
+	public static KakaoUserInfo getKakaoUserInfo() {
+		return new KakaoUserInfo(getKakaoAttributes());
 	}
 }

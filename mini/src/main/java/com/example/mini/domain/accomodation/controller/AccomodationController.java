@@ -49,9 +49,11 @@ public class AccomodationController {
     @GetMapping("/{accomodationId}/room/{roomId}")
     public ResponseEntity<ApiResponse<RoomResponseDto>> getRoomDetail(
         @PathVariable Long accomodationId,
-        @PathVariable Long roomId
+        @PathVariable Long roomId,
+        @RequestParam(value = "check-in", defaultValue = "")String checkIn,
+        @RequestParam(value = "check-out", defaultValue = "")String checkOut
     ) {
-        RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId);
+        RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId, checkIn, checkOut);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ROOM_DETAILS_RETRIEVED, response));
     }
 
