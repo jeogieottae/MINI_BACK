@@ -105,12 +105,13 @@ public class AccomodationService {
      * @param roomId            객실 id
      * @return                  객실 정보 객체
      */
-    public RoomResponseDto getRoomDetail(Long accomodationId, Long roomId) {
+    public RoomResponseDto getRoomDetail(Long accomodationId, Long roomId, String checkIn, String checkOut) {
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         if(!accomodationId.equals(room.getAccomodation().getId()))
             throw new GlobalException(AccomodationErrorCode.INVALID_ROOM_REQUEST);
-        return RoomDetailResponseDto.toDto(room);
+        boolean reservationAvailable = getReservationAvailable(checkIn, checkOut, roomId);
+        return RoomResponseDto.toDto(room, reservationAvailable);
     }
 
     /**
@@ -125,7 +126,7 @@ public class AccomodationService {
             Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
             boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
                 .stream()
-                .map(room -> reservationAvailable(checkIn, checkOut, room.getId()))
+                .map(room -> getReservationAvailable(checkIn, checkOut, room.getId()))
                 .anyMatch(Boolean::booleanValue);
             return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
         }).toList();
@@ -141,7 +142,7 @@ public class AccomodationService {
      * @param roomId    조회할 객실 id
      * @return          예약가능 여부
      */
-    private boolean reservationAvailable(String checkIn, String checkOut, Long roomId) {
+    private boolean getReservationAvailable(String checkIn, String checkOut, Long roomId) {
         List<Long> list = asList(roomId);
         List<LocalDateTime> checkInOut = DateTimeUtil.parseDateTimes(checkIn, checkOut);
         List<Reservation> reservations = reservationRepository.findOverlappingReservations(list, checkInOut.get(0), checkInOut.get(1));
@@ -169,7 +170,7 @@ public class AccomodationService {
 
     private List<RoomResponseDto> getRoomResponseDto(Long accomodationId, String checkIn, String checkOut) {
         return roomRepository.findByAccomodationId(accomodationId).stream()
-            .map(room -> RoomResponseDto.toDto(room, reservationAvailable(checkIn, checkOut, room.getId())))
+            .map(room -> RoomResponseDto.toDto(room, getReservationAvailable(checkIn, checkOut, room.getId())))
             .toList();
     }
 
@@ -179,7 +180,6 @@ public class AccomodationService {
      * @param reviews 리뷰 리스트
      * @return 평균 별점
      */
-
     private Double calculateAverageStar(List<Review> reviews) {
         return reviews.isEmpty() ? 0.0 :
             BigDecimal.valueOf(reviews.stream().mapToDouble(Review::getStar).average().orElse(0.0))
