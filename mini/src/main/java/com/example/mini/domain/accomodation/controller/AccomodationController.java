@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/accommodation")
@@ -26,27 +25,16 @@ public class AccomodationController {
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATIONS_RETRIEVED, response));
     }
 
-    @GetMapping("/category")
-    public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> getCategory(
-        @RequestParam(value = "region", required = true) String region,
-        @RequestParam(value = "check-in", defaultValue = "")String checkIn,
-        @RequestParam(value = "check-out", defaultValue = "")String checkOut,
-        @RequestParam(value= "page", defaultValue = "1") int page
-    ) {
-        PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAccommodationsByCategory(region, page, checkIn, checkOut);
-
-        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.CATEGORY_RETRIEVED, response));
-    }
-
-/*    @GetMapping("/search")
+    @GetMapping("/search")
     public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> searchByAccommodationName(
-        @RequestParam(value = "name", required = true) String keyword,
+        @RequestParam(value = "query", defaultValue = "") String query,
+        @RequestParam(value = "region", defaultValue = "") String region,
         @RequestParam(value = "check-in", defaultValue = "")String checkIn,
         @RequestParam(value = "check-out", defaultValue = "")String checkOut,
         @RequestParam(value= "page", defaultValue = "1") int page
     ) {
-        PagedResponse<AccomodationCardResponseDto> response = accomodationService.searchByAccommodationName(keyword, page, checkIn, checkOut);
-        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }*/
+        PagedResponse<AccomodationCardResponseDto> response = accomodationService.searchByAccommodationName(query, region, checkIn, checkOut, page);
+        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }
 
     @GetMapping("/{accomodationId}")
     public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(

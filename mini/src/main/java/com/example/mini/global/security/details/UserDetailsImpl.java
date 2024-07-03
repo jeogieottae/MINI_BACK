@@ -17,6 +17,9 @@ public class UserDetailsImpl implements UserDetails {
 	private final Member member;
 
 	public UserDetailsImpl(Member member) {
+		if (member == null) {
+			throw new IllegalArgumentException("Member cannot be null");
+		}
 		this.member = member;
 	}
 

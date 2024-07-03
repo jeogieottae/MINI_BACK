@@ -14,7 +14,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,13 +77,13 @@ public class KakaoAuthService {
             .build();
     }
 
-    public void kakaoRefresh(HttpServletRequest request) {
+    public TokenResponse kakaoRefresh(HttpServletRequest request) {
         Cookie refreshTokenCookie = CookieUtil.getCookie(request, "kakaoRefreshToken");
         if (refreshTokenCookie == null) {
             throw new GlobalException(AuthErrorCode.REFRESH_TOKEN_NOT_FOUND);
         }
 
-        refreshKakaoToken(refreshTokenCookie.getValue());
+        return refreshKakaoToken(refreshTokenCookie.getValue());
     }
 
     public void withdraw(HttpServletRequest request, HttpServletResponse response) {

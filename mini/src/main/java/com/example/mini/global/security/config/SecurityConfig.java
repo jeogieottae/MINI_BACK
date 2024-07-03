@@ -2,12 +2,8 @@ package com.example.mini.global.security.config;
 
 
 import static org.springframework.security.config.Customizer.withDefaults;
-import com.example.mini.global.auth.external.GoogleApiClient;
-import com.example.mini.global.auth.external.KakaoApiClient;
-import com.example.mini.global.security.details.UserDetailsServiceImpl;
 import com.example.mini.global.security.filter.JwtAuthenticationFilter;
-import com.example.mini.global.security.jwt.JwtProvider;
-import com.example.mini.global.security.jwt.TokenService;
+import com.example.mini.global.security.token.TokenProcessorFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,8 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -32,9 +26,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final JwtProvider jwtProvider;
-	private final UserDetailsServiceImpl userDetailsService;
-	private final TokenService tokenService;
+
+	private final TokenProcessorFactory tokenProcessorFactory;
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -47,8 +40,6 @@ public class SecurityConfig {
 		"/v3/api-docs/**"
 	};
 
-	private final GoogleApiClient googleApiClientService;
-	private final KakaoApiClient kakaoApiClientService;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -61,7 +52,7 @@ public class SecurityConfig {
 				.requestMatchers(("/test")).permitAll()
 				.requestMatchers("/api/auth/**").permitAll()
 				.anyRequest().permitAll())
-			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, userDetailsService, tokenService, googleApiClientService, kakaoApiClientService)
+			.addFilterBefore(new JwtAuthenticationFilter(tokenProcessorFactory)
 					, UsernamePasswordAuthenticationFilter.class);
 		return http.build();
 	}
