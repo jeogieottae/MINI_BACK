@@ -11,10 +11,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
 public class WithMockUserDetailsSecurityContextFactory implements
-	WithSecurityContextFactory<WithMockUserDetails> {
+	WithSecurityContextFactory<WithMockCustomUser> {
 
 	@Override
-	public SecurityContext createSecurityContext(WithMockUserDetails customUser) {
+	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 
 		Member member = Member.builder()
