@@ -6,6 +6,7 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.util.datetime.DateTimeUtil;
 import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.entity.AccomodationImage;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.response.AccomodationSearch;
@@ -89,6 +90,10 @@ public class AccomodationService {
     public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
+
+        List<String> imageUrls = accomodation.getImages().stream()
+            .map(AccomodationImage::getImgUrl)
+            .collect(Collectors.toList());
 
         return AccomodationDetailsResponseDto.builder()
             .accomodation(AccomodationResponseDto.toDto(accomodation))

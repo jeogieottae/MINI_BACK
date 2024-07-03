@@ -14,4 +14,5 @@ public class AccomodationDetailsResponseDto {
     List<RoomResponseDto> rooms;
     List<ReviewResponse> reviews;
     Double avgStar;
+    private List<String> imageUrls;
 }
