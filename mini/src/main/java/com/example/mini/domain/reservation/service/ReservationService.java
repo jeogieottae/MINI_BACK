@@ -178,9 +178,14 @@ public class ReservationService {
 
   private ReservationDetailResponse mapToDetailResponse(Reservation reservation) {
     return ReservationDetailResponse.builder()
+        .memberName(reservation.getMember().getName())
+        .accomodationName(reservation.getAccomodation().getName())
+        .roomName(reservation.getRoom().getName())
         .roomPrice(reservation.getRoom().getPrice())
         .baseGuests(reservation.getRoom().getBaseGuests())
         .extraCharge(reservation.getExtraCharge())
+        .checkIn(reservation.getCheckIn())
+        .checkOut(reservation.getCheckOut())
         .parkingAvailable(reservation.getRoom().getAccomodation().getParkingAvailable())
         .cookingAvailable(reservation.getRoom().getAccomodation().getCookingAvailable())
         .build();
