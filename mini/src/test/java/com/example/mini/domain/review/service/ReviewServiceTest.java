@@ -2,6 +2,7 @@ package com.example.mini.domain.review.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -18,16 +19,23 @@ import com.example.mini.domain.reservation.fixture.ReservationEntityFixture;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.request.ReviewRequest;
+import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
 import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReviewErrorCode;
+import com.example.mini.global.model.dto.PagedResponse;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 class ReviewServiceTest { /*모두 성공*/
 
@@ -210,4 +218,70 @@ class ReviewServiceTest { /*모두 성공*/
     assertEquals(ReviewErrorCode.INVALID_REVIEW_DATE, exception.getErrorCode());
   }
 
+  @Test
+  void 리뷰_조회_숙소_없음_예외_발생() {
+    // Given
+    Long accomodationId = 1L;
+    int page = 1;
+
+    when(accomodationRepository.findById(accomodationId)).thenReturn(Optional.empty());
+
+    // When & Then
+    GlobalException exception = assertThrows(GlobalException.class, () -> reviewService.getReviewsByAccomodationId(accomodationId, page));
+    assertEquals(ReviewErrorCode.ACCOMODATION_NOT_FOUND, exception.getErrorCode());
+  }
+
+  @Test
+  void 리뷰_조회_정상() {
+    // Given
+    Long accomodationId = 1L;
+    int page = 1;
+    Review review1 = Review.builder()
+        .comment("좋았습니다!")
+        .star(5)
+        .member(member)
+        .accomodation(accomodation)
+        .reservation(reservation)
+        .build();
+
+    Review review2 = Review.builder()
+        .comment("별로였습니다!")
+        .star(2)
+        .member(member)
+        .accomodation(accomodation)
+        .reservation(reservation)
+        .build();
+
+    Page<Review> reviewPage = new PageImpl<>(List.of(review1, review2), PageRequest.of(page - 1, 10), 2);
+
+    when(accomodationRepository.findById(accomodationId)).thenReturn(Optional.of(accomodation));
+    when(reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1, 10))).thenReturn(reviewPage);
+
+    // When
+    PagedResponse<AccomodationReviewResponse> response = reviewService.getReviewsByAccomodationId(accomodationId, page);
+
+    // Then
+    assertEquals(1, response.getTotalPages());
+    assertEquals(2, response.getTotalElements());
+    assertEquals(2, response.getContent().size());
+  }
+
+  @Test
+  void 리뷰_조회_빈_결과() {
+    // Given
+    Long accomodationId = 1L;
+    int page = 1;
+    Page<Review> reviewPage = new PageImpl<>(List.of(), PageRequest.of(page - 1, 10), 0);
+
+    when(accomodationRepository.findById(accomodationId)).thenReturn(Optional.of(accomodation));
+    when(reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1, 10))).thenReturn(reviewPage);
+
+    // When
+    PagedResponse<AccomodationReviewResponse> response = reviewService.getReviewsByAccomodationId(accomodationId, page);
+
+    // Then
+    assertEquals(0, response.getTotalPages());
+    assertEquals(0, response.getTotalElements());
+    assertTrue(response.getContent().isEmpty());
+  }
 }
