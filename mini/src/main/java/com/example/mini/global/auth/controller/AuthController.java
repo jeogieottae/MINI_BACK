@@ -8,7 +8,7 @@ import com.example.mini.domain.member.model.response.UserProfileResponse;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.auth.service.AuthService;
-import com.example.mini.global.security.jwt.JwtProvider;
+import com.example.mini.global.auth.service.StandardAuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -26,17 +26,18 @@ import java.io.IOException;
 public class AuthController {
 
 	private final AuthService authService;
+	private final StandardAuthService standardAuthService;
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody RegisterRequest request) {
-		authService.register(request);
+		standardAuthService.register(request);
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REGISTER));
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
-		LoginResponse loginResponse = authService.login(request);
-		authService.addTokenCookies(response, loginResponse.getAccessToken(), loginResponse.getRefreshToken());
+		LoginResponse loginResponse = standardAuthService.login(request);
+		standardAuthService.addTokenCookies(response, loginResponse.getAccessToken(), loginResponse.getRefreshToken());
 		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGIN, loginResponse));
 	}
 
