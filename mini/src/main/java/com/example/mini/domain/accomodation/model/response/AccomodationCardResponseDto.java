@@ -26,7 +26,7 @@ public class AccomodationCardResponseDto {
     private Integer minPrice;
     private boolean reservationAvailable;
     private int likeCount;
-    private List<String> imageUrls;
+    private List<String> accomodationImageUrls;
 
     public static AccomodationCardResponseDto toDto(Accomodation accomodation, Integer minPrice, boolean reservationAvailable) {
         int likeCount = 0;
@@ -34,7 +34,7 @@ public class AccomodationCardResponseDto {
             likeCount = accomodation.getLikes().size();
         }
 
-        List<String> imageUrls = accomodation.getImages().stream()
+        List<String> accomodationImageUrls = accomodation.getImages().stream()
             .map(AccomodationImage::getImgUrl)
             .collect(Collectors.toList());
 
@@ -52,7 +52,7 @@ public class AccomodationCardResponseDto {
             .minPrice(minPrice)
             .reservationAvailable(reservationAvailable)
             .likeCount(likeCount)
-            .imageUrls(imageUrls)
+            .accomodationImageUrls(accomodationImageUrls)
             .build();
     }
 }
