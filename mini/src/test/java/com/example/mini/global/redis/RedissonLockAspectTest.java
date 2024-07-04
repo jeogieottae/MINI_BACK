@@ -15,6 +15,7 @@ import org.redisson.api.RedissonClient;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -30,6 +31,7 @@ import static org.mockito.Mockito.mock;
     "spring.data.redis.host=localhost",
     "spring.data.redis.port=6379"
 })
+@ContextConfiguration(classes = RedissonConfig.class)
 public class RedissonLockAspectTest {
 
   @Container

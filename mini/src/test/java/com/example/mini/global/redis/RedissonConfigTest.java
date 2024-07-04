@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -19,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
     "spring.data.redis.host=localhost",
     "spring.data.redis.port=6379"
 })
+@ContextConfiguration(classes = RedissonConfig.class)
 public class RedissonConfigTest {
 
   @Container
