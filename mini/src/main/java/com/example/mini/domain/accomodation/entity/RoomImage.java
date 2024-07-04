@@ -1,6 +1,7 @@
 package com.example.mini.domain.accomodation.entity;
 
 import com.example.mini.global.model.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +27,7 @@ public class RoomImage {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@JsonProperty("roomImgUrl")
 	private String imgUrl;
 
 	@ManyToOne(fetch = FetchType.LAZY)

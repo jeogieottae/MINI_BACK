@@ -11,7 +11,6 @@ import com.example.mini.domain.reservation.model.response.ReservationSummaryResp
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.member.repository.MemberRepository;
-import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.email.EmailService;
@@ -71,6 +70,12 @@ public class ReservationService {
 
     reservationRepository.save(reservation);
 
+    sendConfirmationEmail(member, reservation, request);
+
+    return ReservationResponse.fromEntity(reservation);
+  }
+
+  private void sendConfirmationEmail(Member member, Reservation reservation, ReservationRequest request) {
     String to = member.getEmail();
     String subject = "예약 확정 되었습니다";
     String text = String.format("귀하의 %s에서 %s 객실 예약이 확정되었습니다.\n체크인: %s\n체크아웃: %s\n인원 수: %d명\n총 가격: %d원",
@@ -82,8 +87,6 @@ public class ReservationService {
         reservation.getTotalPrice());
 
     emailService.sendReservationConfirmationEmail(to, subject, text);
-
-    return mapToReservationResponse(reservation);
   }
 
   private Member getMember(Long memberId) {
@@ -114,7 +117,7 @@ public class ReservationService {
 
   private void validateDates(LocalDateTime checkIn, LocalDateTime checkOut) {
     if (!checkOut.isAfter(checkIn)) {
-      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
+      throw new GlobalException(ReservationErrorCode.INVALID_CHECKOUT_DATE);
     }
   }
 
@@ -131,63 +134,26 @@ public class ReservationService {
     }
   }
 
-  private ReservationResponse mapToReservationResponse(Reservation reservation) {
-    return ReservationResponse.builder()
-        .roomId(reservation.getRoom().getId())
-        .accomodationName(reservation.getRoom().getAccomodation().getName())
-        .roomName(reservation.getRoom().getName())
-        .baseGuests(reservation.getRoom().getBaseGuests())
-        .maxGuests(reservation.getRoom().getMaxGuests())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .peopleNumber(reservation.getPeopleNumber())
-        .totalPrice(reservation.getTotalPrice())
-        .build();
-  }
 
   public PagedResponse<ReservationSummaryResponse> getAllReservations(Long memberId, int page) {
+    getMember(memberId);
     Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
         memberId, ReservationStatus.CONFIRMED, PageRequest.of(page - 1, pageSize));
 
     List<ReservationSummaryResponse> content = reservations.getContent().stream()
-        .map(this::mapToSummaryResponse)
+        .map(ReservationSummaryResponse::fromEntity)
         .collect(Collectors.toList());
 
     return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
   }
 
-  private ReservationSummaryResponse mapToSummaryResponse(Reservation reservation) {
-    return ReservationSummaryResponse.builder()
-        .reservationId(reservation.getId())
-        .accomodationName(reservation.getRoom().getAccomodation().getName())
-        .accomodationAddress(reservation.getRoom().getAccomodation().getAddress())
-        .roomName(reservation.getRoom().getName())
-        .totalPrice(reservation.getTotalPrice())
-        .peopleNumber(reservation.getPeopleNumber())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .build();
-  }
 
   public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
     Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
-    return mapToDetailResponse(reservation);
+    return ReservationDetailResponse.fromEntity(reservation);
   }
 
-  private ReservationDetailResponse mapToDetailResponse(Reservation reservation) {
-    return ReservationDetailResponse.builder()
-        .memberName(reservation.getMember().getName())
-        .accomodationName(reservation.getAccomodation().getName())
-        .roomName(reservation.getRoom().getName())
-        .roomPrice(reservation.getRoom().getPrice())
-        .baseGuests(reservation.getRoom().getBaseGuests())
-        .extraCharge(reservation.getExtraCharge())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .parkingAvailable(reservation.getRoom().getAccomodation().getParkingAvailable())
-        .cookingAvailable(reservation.getRoom().getAccomodation().getCookingAvailable())
-        .build();
-  }
 }
+
