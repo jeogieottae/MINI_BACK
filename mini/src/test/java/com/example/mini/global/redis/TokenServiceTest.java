@@ -1,6 +1,7 @@
 package com.example.mini.global.redis;
 
 import com.example.mini.global.security.jwt.TokenService;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ public class TokenServiceTest {
 
 
 	@Test
+	@DisplayName("리프레시 토큰 저장 후 가져오기")
 	void saveAndGetRefreshToken() {
 		// Given
 		String username = "testUser";
@@ -39,6 +41,7 @@ public class TokenServiceTest {
 	}
 
 	@Test
+	@DisplayName("블랙리스트 토큰 확인")
 	void blacklistAndCheckToken() {
 		// Given
 		String token = "testToken";
@@ -57,6 +60,7 @@ public class TokenServiceTest {
 	}
 
 	@Test
+	@DisplayName("토큰 제거")
 	void removeToken() {
 		// Given
 		String token = "testToken";
@@ -71,7 +75,8 @@ public class TokenServiceTest {
 	}
 
 	@Test
-	void tokenExpiresAfterOneDay() throws InterruptedException { // 하루 뒤에 블랙리스트에 등록된 토큰 사라지는지 확인
+	@DisplayName("하루 뒤에 블랙리스트에 등록된 토큰 사라지는지 확인")
+	void tokenExpiresAfterOneDay() throws InterruptedException {
 		// Given
 		String token = "testTokenExpiry";
 		tokenService.blacklistToken(token);
