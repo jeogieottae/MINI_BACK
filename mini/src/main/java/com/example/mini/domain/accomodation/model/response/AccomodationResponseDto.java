@@ -24,10 +24,10 @@ public class AccomodationResponseDto {
     private LocalDateTime checkIn;
     private LocalDateTime checkOut;
     private String category;
-    private List<String> imageUrls;
+    private List<String> accomodationImageUrls;
 
     public static AccomodationResponseDto toDto(Accomodation accomodation) {
-        List<String> imageUrls = accomodation.getImages().stream()
+        List<String> accomodationImageUrls = accomodation.getImages().stream()
             .map(AccomodationImage::getImgUrl)
             .collect(Collectors.toList());
 
@@ -42,7 +42,7 @@ public class AccomodationResponseDto {
             .checkIn(accomodation.getCheckIn())
             .checkOut(accomodation.getCheckOut())
             .category(accomodation.getCategory().getName())
-            .imageUrls(imageUrls)
+            .accomodationImageUrls(accomodationImageUrls)
             .build();
     }
 }
