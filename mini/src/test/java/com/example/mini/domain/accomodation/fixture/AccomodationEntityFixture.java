@@ -8,7 +8,6 @@ import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import org.testcontainers.shaded.com.google.common.collect.Lists;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +28,33 @@ public class AccomodationEntityFixture {
 			.images(getAccomodationImageUrl())
 			.reviews(Lists.newArrayList())
 			.build();
+	}
+
+	public static Room getRoom(Accomodation accomodation) {
+		return Room.builder()
+			.id(1L)
+			.name("테스트 객실")
+			.baseGuests(2)
+			.price(100000)
+			.maxGuests(4)
+			.extraPersonCharge(20000)
+			.accomodation(accomodation)
+			.images(getRoomImageUrl())
+			.build();
+	}
+
+	public static Accomodation getAccomodation1(AccomodationCategory category) {
+		return Accomodation.builder()
+				.name("테스트 호텔")
+				.description("묵기 좋은 호텔")
+				.postalCode("12345")
+				.address("테스트 주소")
+				.parkingAvailable(true)
+				.cookingAvailable(true)
+				.checkIn(LocalDateTime.of(2023, 7, 1, 14, 0))
+				.checkOut(LocalDateTime.of(2023, 7, 2, 11, 0))
+				.category(category)
+				.build();
 	}
 
 	public static List<Accomodation> getAccomodationList() {
@@ -60,19 +86,6 @@ public class AccomodationEntityFixture {
 				.images(getAccomodationImageUrl())
 				.build();
 		return Lists.newArrayList(accomodation1, accomodation2);
-	}
-
-	public static Room getRoom(Accomodation accomodation) {
-		return Room.builder()
-			.id(1L)
-			.name("테스트 객실")
-			.baseGuests(2)
-			.price(100000)
-			.maxGuests(4)
-			.extraPersonCharge(20000)
-			.accomodation(accomodation)
-			.images(getRoomImageUrl())
-			.build();
 	}
 
 	public static List<Room> getRoomList() {
