@@ -29,12 +29,18 @@ public class GoogleTokenProcessor implements TokenProcessor {
     @Override
     public void processToken(HttpServletRequest request, HttpServletResponse response) {
         Cookie googleAccessToken = CookieUtil.getCookie(request, "googleAccessToken");
+        Cookie googleAccessTokenExpiresIn = CookieUtil.getCookie(request, "googleAccessTokenExpiresIn");
+
         if(googleAccessToken != null){
             String token = googleAccessToken.getValue();
-            long maxAge = googleAccessToken.getMaxAge();
+            long expires = Long.parseLong(googleAccessTokenExpiresIn.getValue());
             long currentTime = System.currentTimeMillis() / 1000;
 
-            if(currentTime + 300 > maxAge) {
+            log.info("구글 토큰: {}", token);
+            log.info("expires: {}", expires);
+            log.info("currentTime: {}", currentTime);
+
+            if(currentTime + 300 > expires) {
                 String newToken = null;
                 log.info("구글 토큰 재발급 필요");
                 newToken = googleAuthService.googleRefresh(request).getAccess_token();

@@ -35,14 +35,15 @@ public class KakaoAuthController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<ApiResponse<LoginResponse>> kakaoCallback(@RequestParam(value = "code", required = false) String code,
-        @RequestParam(value = "error", required = false) String error) {
+    public void kakaoCallback(@RequestParam(value = "code", required = false) String code,
+        @RequestParam(value = "error", required = false) String error, HttpServletResponse response) throws IOException {
         if (error != null) {
             throw new GlobalException(AuthErrorCode.AUTHENTICATION_FAILED);
         }
 
-        LoginResponse loginResponse = kakaoAuthService.kakaoCallback(code);
-        return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.KAKAO_LOGIN_SUCCESS, loginResponse));
+        kakaoAuthService.kakaoCallback(code);
+
+        response.sendRedirect("https://localhost:3000/edit");
     }
 
 }

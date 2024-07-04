@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CartResponse {
 
+  private Long reservationId;
   private Long roomId;
   private String accommodationName;
   private String roomName;
@@ -35,6 +36,7 @@ public class CartResponse {
         .collect(Collectors.toList());
 
     return CartResponse.builder()
+        .reservationId(reservation.getId())
         .roomId(reservation.getRoom().getId())
         .accommodationName(reservation.getRoom().getAccomodation().getName())
         .roomName(reservation.getRoom().getName())
