@@ -221,7 +221,7 @@ public class AccomodationControllerTest {
                 .price(80000)
                 .maxGuests(6)
                 .reservationAvailable(true)
-                .imageUrls(List.of("image url 1", "image url 2", "image url 3"))
+                .roomImageUrls(List.of("image url 1", "image url 2", "image url 3"))
                 .build();
 
         when(accomodationService.getRoomDetail(1L, 1L, "", ""))
