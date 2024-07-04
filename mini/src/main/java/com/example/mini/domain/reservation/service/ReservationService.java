@@ -74,7 +74,7 @@ public class ReservationService {
 
     sendConfirmationEmail(member, reservation, request);
 
-    return mapToReservationResponse(reservation);
+    return ReservationResponse.fromEntity(reservation);
   }
 
   private void sendConfirmationEmail(Member member, Reservation reservation, ReservationRequest request) {
@@ -136,64 +136,25 @@ public class ReservationService {
     }
   }
 
-  private ReservationResponse mapToReservationResponse(Reservation reservation) {
-    return ReservationResponse.builder()
-        .roomId(reservation.getRoom().getId())
-        .accomodationName(reservation.getRoom().getAccomodation().getName())
-        .roomName(reservation.getRoom().getName())
-        .baseGuests(reservation.getRoom().getBaseGuests())
-        .maxGuests(reservation.getRoom().getMaxGuests())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .peopleNumber(reservation.getPeopleNumber())
-        .totalPrice(reservation.getTotalPrice())
-        .build();
-  }
 
   public PagedResponse<ReservationSummaryResponse> getAllReservations(Long memberId, int page) {
-    Member member = getMember(memberId);
+    getMember(memberId);
     Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
         memberId, ReservationStatus.CONFIRMED, PageRequest.of(page - 1, pageSize));
 
     List<ReservationSummaryResponse> content = reservations.getContent().stream()
-        .map(this::mapToSummaryResponse)
+        .map(ReservationSummaryResponse::fromEntity)
         .collect(Collectors.toList());
 
     return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
   }
 
-  private ReservationSummaryResponse mapToSummaryResponse(Reservation reservation) {
-    return ReservationSummaryResponse.builder()
-        .reservationId(reservation.getId())
-        .accomodationName(reservation.getRoom().getAccomodation().getName())
-        .accomodationAddress(reservation.getRoom().getAccomodation().getAddress())
-        .roomName(reservation.getRoom().getName())
-        .totalPrice(reservation.getTotalPrice())
-        .peopleNumber(reservation.getPeopleNumber())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .build();
-  }
 
   public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
     Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
-    return mapToDetailResponse(reservation);
+    return ReservationDetailResponse.fromEntity(reservation);
   }
 
-  private ReservationDetailResponse mapToDetailResponse(Reservation reservation) {
-    return ReservationDetailResponse.builder()
-        .memberName(reservation.getMember().getName())
-        .accomodationName(reservation.getAccomodation().getName())
-        .roomName(reservation.getRoom().getName())
-        .roomPrice(reservation.getRoom().getPrice())
-        .baseGuests(reservation.getRoom().getBaseGuests())
-        .extraCharge(reservation.getExtraCharge())
-        .checkIn(reservation.getCheckIn())
-        .checkOut(reservation.getCheckOut())
-        .parkingAvailable(reservation.getRoom().getAccomodation().getParkingAvailable())
-        .cookingAvailable(reservation.getRoom().getAccomodation().getCookingAvailable())
-        .build();
-  }
 }

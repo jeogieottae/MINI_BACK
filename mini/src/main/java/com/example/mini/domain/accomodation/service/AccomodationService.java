@@ -6,6 +6,7 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.util.datetime.DateTimeUtil;
 import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.entity.AccomodationImage;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.response.AccomodationSearch;
@@ -107,7 +108,7 @@ public class AccomodationService {
      */
     public RoomResponseDto getRoomDetail(Long accomodationId, Long roomId, String checkIn, String checkOut) {
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
         if(!accomodationId.equals(room.getAccomodation().getId()))
             throw new GlobalException(AccomodationErrorCode.INVALID_ROOM_REQUEST);
         boolean reservationAvailable = getReservationAvailable(checkIn, checkOut, roomId);
@@ -249,8 +250,8 @@ public class AccomodationService {
         } else {
             Set<Long> idSet1 = keywordIList.stream().collect(Collectors.toSet());
             commonIds = regionIdList.stream()
-                    .filter(idSet1::contains)
-                    .collect(Collectors.toList());
+                .filter(idSet1::contains)
+                .collect(Collectors.toList());
         }
         return commonIds;
     }
