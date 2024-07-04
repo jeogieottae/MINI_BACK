@@ -37,8 +37,8 @@ public class AccomodationRepositoryTest { /*모두 통과*/
 		accomodationRepository.deleteAll();
 
 		// 테스트 엔티티 생성 및 저장
-		testAccomodation1 = AccomodationEntityFixture.getAccomodation1(AccomodationCategory.SEOUL);
-		testAccomodation2 = AccomodationEntityFixture.getAccomodation1(AccomodationCategory.BUSAN);
+		testAccomodation1 = AccomodationEntityFixture.getAccomodationByCategory(AccomodationCategory.SEOUL);
+		testAccomodation2 = AccomodationEntityFixture.getAccomodationByCategory(AccomodationCategory.BUSAN);
 		accomodationRepository.saveAll(Arrays.asList(testAccomodation1, testAccomodation2));
 	}
 

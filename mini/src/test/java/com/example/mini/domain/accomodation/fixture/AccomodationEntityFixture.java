@@ -36,7 +36,7 @@ public class AccomodationEntityFixture {
 			.build();
 	}
 
-	public static Accomodation getAccomodation1(AccomodationCategory category) {
+	public static Accomodation getAccomodationByCategory(AccomodationCategory category) {
 		return Accomodation.builder()
 			.name("테스트 호텔")
 			.description("묵기 좋은 호텔")
