@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class MemberRepositoryTest {
+public class MemberRepositoryTest { /*모두 통과*/
 
 	@Autowired
 	private MemberRepository memberRepository;

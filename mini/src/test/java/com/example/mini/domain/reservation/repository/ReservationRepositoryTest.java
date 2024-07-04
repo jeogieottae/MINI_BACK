@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-public class ReservationRepositoryTest {
+public class ReservationRepositoryTest { /*수정 필요*/
 
 	@Autowired
 	private ReservationRepository reservationRepository;
