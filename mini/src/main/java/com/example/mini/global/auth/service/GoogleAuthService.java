@@ -56,6 +56,7 @@ public class GoogleAuthService {
         googleMemberService.setMemberInactive(googleUserInfo.getEmail());
 
         CookieUtil.deleteCookie(response, "googleAccessToken");
+        CookieUtil.deleteCookie(response, "googleAccessTokenExpiresIn");
         CookieUtil.deleteCookie(response, "googleRefreshToken");
         CookieUtil.deleteCookie(response, "JSESSIONID");
 
@@ -95,6 +96,7 @@ public class GoogleAuthService {
         withdrawMember(accessTokenCookie.getValue());
 
         CookieUtil.deleteCookie(response, "googleAccessToken");
+        CookieUtil.deleteCookie(response, "googleAccessTokenExpiresIn");
         CookieUtil.deleteCookie(response, "googleRefreshToken");
         CookieUtil.deleteCookie(response, "JSESSIONID");
 
@@ -142,7 +144,10 @@ public class GoogleAuthService {
     private void setTokenCookies(TokenResponse tokenResponse) {
         HttpServletResponse httpResponse = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         CookieUtil.addCookie(httpResponse, "googleAccessToken", tokenResponse.getAccess_token(), tokenResponse.getExpires_in());
+        Integer currentTime = (int)(System.currentTimeMillis() / 1000);
+        CookieUtil.addCookie(httpResponse, "googleAccessTokenExpiresIn", String.valueOf(tokenResponse.getExpires_in() + currentTime), tokenResponse.getExpires_in());
         log.info("AccessToken 쿠키 설정: {}", tokenResponse.getAccess_token());
+        log.info("AccessToken 만료 시간: {}", tokenResponse.getExpires_in());
 
         if (tokenResponse.getRefresh_token() != null) {
             CookieUtil.addCookie(httpResponse, "googleRefreshToken", tokenResponse.getRefresh_token(), 30 * 24 * 60 * 60);
