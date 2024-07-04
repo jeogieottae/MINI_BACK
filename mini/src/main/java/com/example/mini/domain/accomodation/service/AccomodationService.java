@@ -85,7 +85,6 @@ public class AccomodationService {
      * @param accomodationId    숙소 id
      * @return                  숙소 정보 및 객실 목록을 포함한 응답 객체
      */
-
     public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
@@ -120,7 +119,6 @@ public class AccomodationService {
      * @param accommodations    변환할 객체
      * @return                  숙소 정보 목록을 포함한 응답 객체
      */
-
     private PagedResponse<AccomodationCardResponseDto> setResponse(Page<Accomodation> accommodations, String checkIn, String checkOut) {
         List<AccomodationCardResponseDto> content = accommodations.getContent().stream().map(accommodation -> {
             Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
@@ -152,10 +150,10 @@ public class AccomodationService {
 
     /**
      * 페이지네이션 공통 에러처리 메서드
-     * @param accommodations    검증할 객체
+     * @param page  검증할 객체
      */
-    private void checkPageException(Page<Accomodation> accommodations) {
-        if (accommodations.getContent().isEmpty() || accommodations.isEmpty()) {
+    private void checkPageException(Page<Accomodation> page) {
+        if (page == null || page.getContent().isEmpty()) {
             throw new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND);
         }
     }
@@ -167,7 +165,6 @@ public class AccomodationService {
      * @param checkOut          체크아웃 시간
      * @return                  객실 정보가 담긴 객체 리스트 반환
      */
-
     private List<RoomResponseDto> getRoomResponseDto(Long accomodationId, String checkIn, String checkOut) {
         return roomRepository.findByAccomodationId(accomodationId).stream()
             .map(room -> RoomResponseDto.toDto(room, getReservationAvailable(checkIn, checkOut, room.getId())))
