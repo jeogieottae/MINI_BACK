@@ -31,10 +31,7 @@ public class GoogleAuthController {
         if (error != null) {
             throw new GlobalException(AuthErrorCode.AUTHENTICATION_FAILED);
         }
-
         googleAuthService.googleCallback(code);
-
         response.sendRedirect(LOGIN_URI);
     }
-
 }

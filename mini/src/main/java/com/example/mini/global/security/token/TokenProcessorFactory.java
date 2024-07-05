@@ -19,5 +19,4 @@ public class TokenProcessorFactory {
     public TokenProcessor getProcessor(String tokenType) {
         return processors.get(tokenType + "TokenProcessor");
     }
-
 }

@@ -21,7 +21,6 @@ public class AccomodationResponse {
     private String address;
     private List<String> accomodationImageUrls;
 
-
     public static AccomodationResponse toDto(Accomodation accomodation) {
         List<String> accomodationImageUrls = accomodation.getImages().stream()
             .map(AccomodationImage::getImgUrl)

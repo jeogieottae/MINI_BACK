@@ -28,8 +28,6 @@ public class LikeService {
   private final MemberRepository memberRepository;
   private final AccomodationRepository accomodationRepository;
 
-  private final int pageSize = 10;
-
   @Transactional
   public boolean toggleLike(Long memberId, Long accomodationId) {
     Member member = memberRepository.findById(memberId)
@@ -50,7 +48,9 @@ public class LikeService {
 
   @Transactional(readOnly = true)
   public PagedResponse<AccomodationResponse> getLikedAccomodations(Long memberId, int page) {
-    Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, PageRequest.of(page-1, pageSize));
+    int pageSize = 10;
+    Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, PageRequest.of(page-1,
+        pageSize));
 
     List<AccomodationResponse> content = likes.stream().map(like -> AccomodationResponse.toDto(like.getAccomodation())).toList();
     return new PagedResponse<>(likes.getTotalPages(), likes.getTotalElements(), content);

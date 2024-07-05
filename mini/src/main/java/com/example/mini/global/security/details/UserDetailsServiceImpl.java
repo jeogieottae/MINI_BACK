@@ -16,12 +16,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	private final MemberRepository memberRepository;
 
-
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		log.info("사용자 정보 조회: username={}", username);
 		Member member = memberRepository.findByEmail(username)
-			.orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+			.orElseThrow(() -> new UsernameNotFoundException("username으로 유저를 찾을 수 없습니다.: " + username));
 		return new UserDetailsImpl(member);
 	}
 
@@ -29,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
 		log.info("사용자 정보 조회: email={}", email);
 		Member member = memberRepository.findByEmail(email)
-			.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+			.orElseThrow(() -> new UsernameNotFoundException("email로 유저를 찾을 수 없습니다.: " + email));
 		return new UserDetailsImpl(member);
 	}
 
@@ -37,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByOauthEmail(String oauthEmail) throws UsernameNotFoundException {
 		log.info("사용자 정보 조회: oauthEmail={}", oauthEmail);
 		Member member = memberRepository.findByEmail(oauthEmail)
-			.orElseThrow(() -> new UsernameNotFoundException("User not found with oauthEmail: " + oauthEmail));
+			.orElseThrow(() -> new UsernameNotFoundException("oauthEmail로 유저를 찾을 수 없습니다.: " + oauthEmail));
 		return new UserDetailsImpl(member);
 	}
 }
