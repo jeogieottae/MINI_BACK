@@ -1,28 +1,17 @@
 package com.example.mini.global.auth.service;
 
-import com.example.mini.domain.member.entity.Member;
-import com.example.mini.domain.member.entity.enums.MemberState;
 import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
-import com.example.mini.domain.member.model.request.LoginRequest;
-import com.example.mini.domain.member.model.request.RegisterRequest;
-import com.example.mini.domain.member.model.response.LoginResponse;
 import com.example.mini.domain.member.model.response.UserProfileResponse;
 import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.member.service.GoogleMemberService;
 import com.example.mini.domain.member.service.KakaoMemberService;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
-import com.example.mini.global.security.jwt.JwtProvider;
-import com.example.mini.global.security.jwt.TokenService;
-import com.example.mini.global.security.jwt.TokenType;
 import com.example.mini.global.util.cookies.CookieUtil;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,10 +27,7 @@ public class AuthService {
 	private final GoogleMemberService googleMemberService;
 	private final KakaoMemberService kakaoMemberService;
 
-
-	private String logoutRedirectUri = "http://localhost:8080/api/protected/home";
-
-
+	private final String logoutRedirectUri = "https://your-trip-pied.vercel.app/";
 
 	@Transactional
 	public String refreshToken(HttpServletRequest request, HttpServletResponse response) {
