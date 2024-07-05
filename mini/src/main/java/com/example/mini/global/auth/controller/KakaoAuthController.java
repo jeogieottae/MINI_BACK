@@ -21,8 +21,9 @@ public class KakaoAuthController {
 
     @GetMapping("/login")
     public void kakaoLogin(HttpServletResponse response) throws IOException {
-        log.info("kakao login url: {}", kakaoAuthService.getKakaoAuthUrl());
-        response.sendRedirect(kakaoAuthService.getKakaoAuthUrl());
+        String kakaoAuthUrl = kakaoAuthService.getKakaoAuthUrl();
+        log.info("kakao login url: {}", kakaoAuthUrl);
+        response.sendRedirect(kakaoAuthUrl);
     }
 
     @GetMapping("/callback")
