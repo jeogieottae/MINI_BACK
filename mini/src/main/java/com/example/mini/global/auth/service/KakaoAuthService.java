@@ -56,9 +56,12 @@ public class KakaoAuthService {
         KakaoUserInfo kakaoUserInfo = kakaoApiClient.getKakaoUserInfo(accessToken);
         kakaoMemberService.setMemberInactive(kakaoUserInfo.getEmail());
 
+
         CookieUtil.deleteCookie(response, "kakaoAccessToken", true);
+        CookieUtil.deleteCookie(response, "kakaoAccessTokenExpiresIn", true);
         CookieUtil.deleteCookie(response, "kakaoRefreshToken", true);
         CookieUtil.deleteCookie(response, "JSESSIONID", true);
+
 
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -95,9 +98,11 @@ public class KakaoAuthService {
 
         withdrawMember(accessTokenCookie.getValue());
 
-        CookieUtil.deleteCookie(response, "kakaoAccessToken",true);
-        CookieUtil.deleteCookie(response, "kakaoRefreshToken",true);
-        CookieUtil.deleteCookie(response, "JSESSIONID",true);
+
+        CookieUtil.deleteCookie(response, "kakaoAccessToken", true);
+        CookieUtil.deleteCookie(response, "kakaoAccessTokenExpiresIn", true);
+        CookieUtil.deleteCookie(response, "kakaoRefreshToken", true);
+        CookieUtil.deleteCookie(response, "JSESSIONID", true);
 
         HttpSession session = request.getSession(false);
         if (session != null) {
@@ -141,8 +146,13 @@ public class KakaoAuthService {
 
     private void setTokenCookies(TokenResponse tokenResponse) {
         HttpServletResponse httpResponse = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+
         CookieUtil.addCookie(httpResponse, "kakaoAccessToken", tokenResponse.getAccess_token(), tokenResponse.getExpires_in(), true);
+        Integer currentTime = (int)(System.currentTimeMillis() / 1000);
+        CookieUtil.addCookie(httpResponse, "kakaoAccessTokenExpiresIn", String.valueOf(tokenResponse.getExpires_in() + currentTime), tokenResponse.getExpires_in(), true);
+
         log.info("AccessToken 쿠키 설정: {}", tokenResponse.getAccess_token());
+        log.info("AccessToken 만료 시간: {}", tokenResponse.getExpires_in());
 
         if (tokenResponse.getRefresh_token() != null) {
             CookieUtil.addCookie(httpResponse, "kakaoRefreshToken", tokenResponse.getRefresh_token(), tokenResponse.getRefresh_token_expires_in(), true);

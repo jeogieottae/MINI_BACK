@@ -24,6 +24,18 @@ public class MemberEntityFixture {
 			.build();
 	}
 
+	public static Member getDefaultMember() {
+		return Member.builder()
+			.email("test@example.com")
+			.password("password")
+			.name("홍길동")
+			.nickname("길동이")
+			.state(MemberState.ACTIVE)
+			.createdAt(LocalDateTime.now())
+			.updatedAt(LocalDateTime.now())
+			.build();
+	}
+
 	public static Map<String, Object> getGoogleAttributes() {
 		Map<String, Object> attributes = new HashMap<>();
 		attributes.put("sub", "123456789");
@@ -40,7 +52,6 @@ public class MemberEntityFixture {
 	public static GoogleUserInfo getGoogleUserInfo() {
 		return new GoogleUserInfo(getGoogleAttributes());
 	}
-
 
 	public static Map<String, Object> getKakaoAttributes() {
 		Map<String, Object> attributes = new HashMap<>();
