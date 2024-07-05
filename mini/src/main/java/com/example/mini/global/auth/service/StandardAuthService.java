@@ -17,6 +17,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +47,7 @@ public class StandardAuthService {
         }
 
         if (memberRepository.existsByNickname(request.getNickname())) {
-            throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS); // 추가
+            throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
         }
 
         Member member = Member.builder()
@@ -123,7 +124,7 @@ public class StandardAuthService {
     @Transactional
     public void standardLogout(HttpServletRequest request, HttpServletResponse response) {
 
-        String accessToken = CookieUtil.getCookie(request, "accessToken").getValue();
+        String accessToken = Objects.requireNonNull(CookieUtil.getCookie(request, "accessToken")).getValue();
         String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
@@ -139,7 +140,7 @@ public class StandardAuthService {
 
     @Transactional
     public void standardWithdraw(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = CookieUtil.getCookie(request, "accessToken").getValue();
+        String accessToken = Objects.requireNonNull(CookieUtil.getCookie(request, "accessToken")).getValue();
 
         if (accessToken == null || accessToken.isEmpty()) {
             throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
@@ -175,7 +176,7 @@ public class StandardAuthService {
 
     @Transactional
     public UserProfileResponse getStandardUserInfo(HttpServletRequest request) {
-        String accessToken = CookieUtil.getCookie(request, "accessToken").getValue();
+        String accessToken = Objects.requireNonNull(CookieUtil.getCookie(request, "accessToken")).getValue();
         String email = jwtProvider.getEmailFromToken(accessToken, TokenType.ACCESS);
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
@@ -187,7 +188,6 @@ public class StandardAuthService {
                 .build();
     }
 
-    // todo : 이 부분을 어떻게 할지 고민 중
     public void addTokenCookies(HttpServletResponse response, String accessToken, String refreshToken) {
         CookieUtil.addCookie(response, "accessToken", accessToken, TokenType.ACCESS.getExpireTime() / 1000, isSecure);
         CookieUtil.addCookie(response, "refreshToken", refreshToken, TokenType.REFRESH.getExpireTime() / 1000, isSecure);

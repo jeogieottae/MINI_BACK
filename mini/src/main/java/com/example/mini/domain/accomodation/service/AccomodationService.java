@@ -1,6 +1,8 @@
 package com.example.mini.domain.accomodation.service;
 
 import com.example.mini.domain.accomodation.model.response.*;
+import com.example.mini.domain.like.entity.Like;
+import com.example.mini.domain.like.repository.LikeRepository;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.model.dto.PagedResponse;
@@ -20,9 +22,7 @@ import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,9 +32,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Arrays.parallelSetAll;
 
 @Slf4j
 @Service
@@ -46,6 +46,7 @@ public class AccomodationService {
     private final AccomodationSearchRepository accomodationSearchRepository;
     private final RoomRepository roomRepository;
     private final ReservationRepository reservationRepository;
+    private final LikeRepository likeRepository;
     private final int PageSize = 20;        // 숙소 목록 페이지 크기
 
     /**
@@ -54,10 +55,12 @@ public class AccomodationService {
      * @param page  조회할 페이지 번호
      * @return      숙소 정보 목록을 포함한 응답 객체
      */
-    public PagedResponse<AccomodationCardResponseDto> getAllAccommodations(int page) {
+    public PagedResponse<AccomodationCardResponseDto> getAllAccommodations(
+            int page, Long memberId
+    ) {
         Page<Accomodation> accommodations = accomodationRepository.findAll(PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
-        return setResponse(accommodations, null, null);
+        return setResponse(accommodations, null, null, memberId);
     }
 
     /**
@@ -70,14 +73,16 @@ public class AccomodationService {
      * @param page      조회할 페이지 번호
      * @return          입력된 옵션에 대한 숙소 검색결과 반환
      */
-    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(String keyword, String region, String checkIn, String checkOut, int page) {
+    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(
+            String keyword, String region, String checkIn, String checkOut, int page, Long memberId
+    ) {
         List<Long> keywordIList = getIdByKeyword(keyword);
         List<Long> regionIdList = getIdByRegion(region);
         List<Long> commonIds = getCommonId(keywordIList, regionIdList);
 
         Page<Accomodation> accommodations = accomodationRepository.findByIdList(commonIds, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
-        return setResponse(accommodations, checkIn, checkOut);
+        return setResponse(accommodations, checkIn, checkOut, memberId);
     }
 
     /**
@@ -86,7 +91,7 @@ public class AccomodationService {
      * @param accomodationId    숙소 id
      * @return                  숙소 정보 및 객실 목록을 포함한 응답 객체
      */
-    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut) {
+    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut, Long memberId) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
@@ -95,6 +100,7 @@ public class AccomodationService {
             .rooms(getRoomResponseDto(accomodationId, checkIn, checkOut))
             .reviews(getReviewResponse(accomodation.getReviews()))
             .avgStar(calculateAverageStar(accomodation.getReviews()))
+            .isLiked(getIsLiked(memberId, accomodationId))
             .build();
     }
 
@@ -120,19 +126,18 @@ public class AccomodationService {
      * @param accommodations    변환할 객체
      * @return                  숙소 정보 목록을 포함한 응답 객체
      */
-    private PagedResponse<AccomodationCardResponseDto> setResponse(Page<Accomodation> accommodations, String checkIn, String checkOut) {
+    private PagedResponse<AccomodationCardResponseDto> setResponse(Page<Accomodation> accommodations, String checkIn, String checkOut, Long memberId) {
         List<AccomodationCardResponseDto> content = accommodations.getContent().stream().map(accommodation -> {
             Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
             boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
                 .stream()
-                .map(room -> getReservationAvailable(checkIn, checkOut, room.getId()))
-                .anyMatch(Boolean::booleanValue);
-            return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
+                .anyMatch(room -> getReservationAvailable(checkIn, checkOut, room.getId()));
+            boolean isLiked = getIsLiked(memberId, accommodation.getId());
+            return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable, isLiked);
         }).toList();
 
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
-
 
     /**
      * 해당 객실의 예약가능 여부를 반환하는 메서드
@@ -142,12 +147,11 @@ public class AccomodationService {
      * @return          예약가능 여부
      */
     private boolean getReservationAvailable(String checkIn, String checkOut, Long roomId) {
-        List<Long> list = asList(roomId);
+        List<Long> list = Collections.singletonList(roomId);
         List<LocalDateTime> checkInOut = DateTimeUtil.parseDateTimes(checkIn, checkOut);
         List<Reservation> reservations = reservationRepository.findOverlappingReservations(list, checkInOut.get(0), checkInOut.get(1));
         return reservations.isEmpty();
     }
-
 
     /**
      * 페이지네이션 공통 에러처리 메서드
@@ -245,7 +249,7 @@ public class AccomodationService {
         } else if (keywordIList.isEmpty()) {
             commonIds = regionIdList;
         } else {
-            Set<Long> idSet1 = keywordIList.stream().collect(Collectors.toSet());
+            Set<Long> idSet1 = new HashSet<>(keywordIList);
             commonIds = regionIdList.stream()
                 .filter(idSet1::contains)
                 .collect(Collectors.toList());
@@ -253,4 +257,11 @@ public class AccomodationService {
         return commonIds;
     }
 
+    private boolean getIsLiked(Long memberId, Long accomodationId) {
+        boolean isLiked;
+        Optional<Like> optinalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
+        if (optinalIsLiked.isEmpty()) isLiked = false;
+        else isLiked = optinalIsLiked.get().isLiked();
+        return isLiked;
+    }
 }

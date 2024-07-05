@@ -14,7 +14,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +51,8 @@ public class KakaoAuthService {
     }
 
     public void kakaoLogout(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = CookieUtil.getCookie(request, "kakaoAccessToken").getValue();
+        String accessToken = Objects.requireNonNull(
+            CookieUtil.getCookie(request, "kakaoAccessToken")).getValue();
         KakaoUserInfo kakaoUserInfo = kakaoApiClient.getKakaoUserInfo(accessToken);
         kakaoMemberService.setMemberInactive(kakaoUserInfo.getEmail());
 

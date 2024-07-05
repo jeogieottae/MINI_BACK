@@ -26,9 +26,10 @@ public class AccomodationCardResponseDto {
     private Integer minPrice;
     private boolean reservationAvailable;
     private int likeCount;
+    private boolean isLiked;
     private List<String> accomodationImageUrls;
 
-    public static AccomodationCardResponseDto toDto(Accomodation accomodation, Integer minPrice, boolean reservationAvailable) {
+    public static AccomodationCardResponseDto toDto(Accomodation accomodation, Integer minPrice, boolean reservationAvailable, boolean isLiked) {
         int likeCount = 0;
         if (accomodation.getLikes() != null) {
             likeCount = accomodation.getLikes().size();
@@ -53,6 +54,7 @@ public class AccomodationCardResponseDto {
             .reservationAvailable(reservationAvailable)
             .likeCount(likeCount)
             .accomodationImageUrls(accomodationImageUrls)
+            .isLiked(isLiked)
             .build();
     }
 }

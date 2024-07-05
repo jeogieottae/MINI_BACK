@@ -67,7 +67,7 @@ public class RedissonLockAspect {
 
   public String generateLockKey(ProceedingJoinPoint joinPoint, String keyExpression) {
     MethodSignature nextSignature = (MethodSignature) joinPoint.getSignature();
-    Method method = nextSignature.getMethod();
+    nextSignature.getMethod();
     Object[] args = joinPoint.getArgs();
 
     EvaluationContext context = new StandardEvaluationContext();

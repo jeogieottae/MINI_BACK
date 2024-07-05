@@ -36,8 +36,6 @@ public class ReservationService {
   private final MemberRepository memberRepository;
   private final EmailService emailService;
 
-  private final int pageSize = 10;
-
   @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   public ReservationResponse createConfirmedReservation(Long memberId, ReservationRequest request) {
     Member member = getMember(memberId);
@@ -134,9 +132,9 @@ public class ReservationService {
     }
   }
 
-
   public PagedResponse<ReservationSummaryResponse> getAllReservations(Long memberId, int page) {
     getMember(memberId);
+    int pageSize = 10;
     Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
         memberId, ReservationStatus.CONFIRMED, PageRequest.of(page - 1, pageSize));
 
@@ -147,13 +145,11 @@ public class ReservationService {
     return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
   }
 
-
   public ReservationDetailResponse getReservationDetail(Long reservationId, Long memberId) {
     Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
     return ReservationDetailResponse.fromEntity(reservation);
   }
-
 }
 

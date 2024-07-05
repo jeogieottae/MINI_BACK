@@ -14,6 +14,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +52,8 @@ public class GoogleAuthService {
     }
 
     public void googleLogout(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = CookieUtil.getCookie(request, "googleAccessToken").getValue();
+        String accessToken = Objects.requireNonNull(
+            CookieUtil.getCookie(request, "googleAccessToken")).getValue();
         GoogleUserInfo googleUserInfo = googleApiClient.getGoogleUserInfo(accessToken);
         googleMemberService.setMemberInactive(googleUserInfo.getEmail());
 
@@ -114,7 +116,6 @@ public class GoogleAuthService {
         if (accessTokenCookie == null) {
             throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
-
         String accessToken = accessTokenCookie.getValue();
         updateNickname(accessToken, newNickname);
     }

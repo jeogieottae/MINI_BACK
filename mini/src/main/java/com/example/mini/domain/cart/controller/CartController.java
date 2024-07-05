@@ -34,7 +34,7 @@ public class CartController {
 
   //장바구니 품목 추가
   @PostMapping
-  public ResponseEntity addCartItem(
+  public ResponseEntity<ApiResponse<Object>> addCartItem(
       @AuthenticationPrincipal UserDetailsImpl userDetails,
       @RequestBody AddCartItemRequest request
   ) {
