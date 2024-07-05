@@ -6,14 +6,14 @@ import java.util.Map;
 
 @Getter
 public class GoogleUserInfo {
-    private String id;
-    private String email;
-    private boolean emailVerified;
-    private String name;
-    private String givenName;
-    private String familyName;
-    private String picture;
-    private String locale;
+    private final String id;
+    private final String email;
+    private final boolean emailVerified;
+    private final String name;
+    private final String givenName;
+    private final String familyName;
+    private final String picture;
+    private final String locale;
 
     public GoogleUserInfo(Map<String, Object> attributes) {
         this.id = (String) attributes.get("sub");

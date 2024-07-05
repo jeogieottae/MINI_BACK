@@ -36,12 +36,10 @@ public class ReviewService {
     private final AccomodationRepository accomodationRepository;
     private final ReservationRepository reservationRepository;
 
-    private final int pageSize = 10;
-
     /**
      * 리뷰 생성
      *
-     * @param memberId  리뷰를 작성하는 유저의 id
+     * @param memberId  리뷰를 작성 하는 유저의 id
      * @param request   작성한 리뷰 정보를 담은 객체
      * @return          db에 저장한 데이터 반환
      */
@@ -83,7 +81,9 @@ public class ReviewService {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
 
-        Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1, pageSize));
+        int pageSize = 10;
+        Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1,
+            pageSize));
         List<AccomodationReviewResponse> content = reviewPage.stream()
             .map(AccomodationReviewResponse::toDto)
             .toList();
@@ -92,22 +92,22 @@ public class ReviewService {
     }
     /**
      * 리뷰 데이터를 검증하는 메서드
-     * @param request
-     * @param memberCheckoutDate
-     * @param confirmedReservation
+     * @param request               리뷰 작성 내용
+     * @param memberCheckoutDate    회원의 체크 아웃 날짜
+     * @param confirmedReservation  확정된 예약
      */
     private void validateReviewRequest(ReviewRequest request, LocalDateTime memberCheckoutDate, Reservation confirmedReservation) {
-        // 별점이 비어있거나 이상한 값을 가지고 있음
+        // 별점이 비어 있거나 이상한 값을 가지고 있음
         if (request.getStar() == null || request.getStar() < 1 || request.getStar() > 5) {
             throw new GlobalException(ReviewErrorCode.INVALID_REVIEW_STAR);
         }
 
-        // 코멘트가 비어있음
+        // 코멘트가 비어 있음
         if (request.getComment() == null || request.getComment().isEmpty()) {
             throw new GlobalException(ReviewErrorCode.EMPTY_REVIEW_COMMENT);
         }
 
-        // 현 시점이 체크아웃 이전
+        // 현 시점이 체크 아웃 이전
         if (LocalDateTime.now().isBefore(memberCheckoutDate)) {
             throw new GlobalException(ReviewErrorCode.INVALID_REVIEW_DATE);
         }

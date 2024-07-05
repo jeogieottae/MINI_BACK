@@ -29,8 +29,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		Set<SimpleGrantedAuthority> set = new HashSet<>();
-		return set;
+		return new HashSet<SimpleGrantedAuthority>();
 	}
 
 	@Override

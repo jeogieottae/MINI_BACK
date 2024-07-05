@@ -31,10 +31,7 @@ public class KakaoAuthController {
         if (error != null) {
             throw new GlobalException(AuthErrorCode.AUTHENTICATION_FAILED);
         }
-
         kakaoAuthService.kakaoCallback(code);
-
         response.sendRedirect(LOGIN_URI);
     }
-
 }

@@ -39,15 +39,19 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 
-		if(cookenName.equals("googleAccessToken")){
-			log.info("구글 토큰 재발급");
-			return googleAuthService .googleRefresh(request).getAccess_token();
-		}else if(cookenName.equals("kakaoAccessToken")){
-			log.info("카카오 토큰 재발급");
-			return kakaoAuthService .kakaoRefresh(request).getAccess_token();
-		}else if(cookenName.equals("accessToken")){
-			log.info("일반 토큰 재발급");
-			return standardAuthService .standardRefreshToken(request, response);
+		switch (cookenName) {
+			case "googleAccessToken" -> {
+				log.info("구글 토큰 재발급");
+				return googleAuthService.googleRefresh(request).getAccess_token();
+			}
+			case "kakaoAccessToken" -> {
+				log.info("카카오 토큰 재발급");
+				return kakaoAuthService.kakaoRefresh(request).getAccess_token();
+			}
+			case "accessToken" -> {
+				log.info("일반 토큰 재발급");
+				return standardAuthService.standardRefreshToken(request, response);
+			}
 		}
 
 
@@ -64,18 +68,22 @@ public class AuthService {
             throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
         }
 
-		if(cookenName.equals("googleAccessToken")){
-			log.info("구글 로그아웃");
-			googleAuthService.googleLogout(request, response);
-			return logoutRedirectUri;
-		}else if(cookenName.equals("kakaoAccessToken")){
-			log.info("카카오 로그아웃");
-			kakaoAuthService.kakaoLogout(request, response);
-			return kakaoAuthService.getKakaoLogoutRedirectUri();
-		}else if(cookenName.equals("accessToken")){
-			log.info("일반 로그아웃");
-			standardAuthService.standardLogout(request, response);
-			return logoutRedirectUri;
+		switch (cookenName) {
+			case "googleAccessToken" -> {
+				log.info("구글 로그아웃");
+				googleAuthService.googleLogout(request, response);
+				return logoutRedirectUri;
+			}
+			case "kakaoAccessToken" -> {
+				log.info("카카오 로그아웃");
+				kakaoAuthService.kakaoLogout(request, response);
+				return kakaoAuthService.getKakaoLogoutRedirectUri();
+			}
+			case "accessToken" -> {
+				log.info("일반 로그아웃");
+				standardAuthService.standardLogout(request, response);
+				return logoutRedirectUri;
+			}
 		}
 
 		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
@@ -91,18 +99,22 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 
-		if(cookenName.equals("googleAccessToken")){
-			log.info("구글 회원 탈퇴");
-			googleAuthService.withdraw(request, response);
-			return logoutRedirectUri;
-		}else if(cookenName.equals("kakaoAccessToken")){
-			log.info("카카오 회원 탈퇴");
-			kakaoAuthService.withdraw(request, response);
-			return kakaoAuthService.getKakaoLogoutRedirectUri();
-		}else if(cookenName.equals("accessToken")){
-			log.info("일반 회원 탈퇴");
-			standardAuthService.standardWithdraw(request, response);
-			return logoutRedirectUri;
+		switch (cookenName) {
+			case "googleAccessToken" -> {
+				log.info("구글 회원 탈퇴");
+				googleAuthService.withdraw(request, response);
+				return logoutRedirectUri;
+			}
+			case "kakaoAccessToken" -> {
+				log.info("카카오 회원 탈퇴");
+				kakaoAuthService.withdraw(request, response);
+				return kakaoAuthService.getKakaoLogoutRedirectUri();
+			}
+			case "accessToken" -> {
+				log.info("일반 회원 탈퇴");
+				standardAuthService.standardWithdraw(request, response);
+				return logoutRedirectUri;
+			}
 		}
 
 		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
@@ -122,18 +134,23 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.NICKNAME_ALREADY_EXISTS);
 		}
 
-		if(cookenName.equals("googleAccessToken")){
-			log.info("구글 닉네임 변경");
-			googleAuthService.changeNickname(request, changeNicknameRequest.getNickname());
-			return;
-		}else if(cookenName.equals("kakaoAccessToken")){
-			log.info("카카오 닉네임 변경");
-			kakaoAuthService.changeNickname(request, changeNicknameRequest.getNickname());
-			return;
-		}else if(cookenName.equals("accessToken")){
-			log.info("일반 닉네임 변경");
-			standardAuthService.standardUpdateNickname(request, changeNicknameRequest.getNickname());
-			return;
+		switch (cookenName) {
+			case "googleAccessToken" -> {
+				log.info("구글 닉네임 변경");
+				googleAuthService.changeNickname(request, changeNicknameRequest.getNickname());
+				return;
+			}
+			case "kakaoAccessToken" -> {
+				log.info("카카오 닉네임 변경");
+				kakaoAuthService.changeNickname(request, changeNicknameRequest.getNickname());
+				return;
+			}
+			case "accessToken" -> {
+				log.info("일반 닉네임 변경");
+				standardAuthService.standardUpdateNickname(request,
+					changeNicknameRequest.getNickname());
+				return;
+			}
 		}
 
 		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
@@ -149,15 +166,19 @@ public class AuthService {
 			throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 
-		if(cookenName.equals("googleAccessToken")){
-			log.info("구글 회원 정보 조회");
-			return googleMemberService.getGoogleUserInfo(request);
-		}else if(cookenName.equals("kakaoAccessToken")){
-			log.info("카카오 회원 정보 조회");
-			return kakaoMemberService.getKakaoUserInfo(request);
-		}else if(cookenName.equals("accessToken")){
-			log.info("일반 회원 정보 조회");
-			return standardAuthService.getStandardUserInfo(request);
+		switch (cookenName) {
+			case "googleAccessToken" -> {
+				log.info("구글 회원 정보 조회");
+				return googleMemberService.getGoogleUserInfo(request);
+			}
+			case "kakaoAccessToken" -> {
+				log.info("카카오 회원 정보 조회");
+				return kakaoMemberService.getKakaoUserInfo(request);
+			}
+			case "accessToken" -> {
+				log.info("일반 회원 정보 조회");
+				return standardAuthService.getStandardUserInfo(request);
+			}
 		}
 
 		throw new GlobalException(AuthErrorCode.INVALID_ACCESS_TOKEN);

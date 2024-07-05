@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.repository.AccomodationRepository;
@@ -15,13 +16,13 @@ import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
-import com.example.mini.global.security.config.SecurityConfig;
 import com.example.mini.domain.review.model.request.ReviewRequest;
 import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
 import com.example.mini.domain.review.model.response.ReviewResponse;
 import com.example.mini.domain.review.service.ReviewService;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.security.details.UserDetailsImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -38,7 +41,7 @@ import java.util.Collections;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ReviewControllerTest {
+class ReviewControllerTest { /*모두 통과*/
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -73,6 +76,8 @@ class ReviewControllerTest {
 		Member member = Member.builder()
 			.id(1L)
 			.email("test@example.com")
+			.nickname("testuser")
+			.password("password")
 			.build();
 
 		Accomodation accomodation = Accomodation.builder()
@@ -94,10 +99,16 @@ class ReviewControllerTest {
 
 		when(reviewService.addReview(any(Long.class), any(ReviewRequest.class))).thenReturn(response);
 
+		// Mocking UserDetailsImpl
+		UserDetailsImpl userDetails = new UserDetailsImpl(member);
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+
 		// When & Then
 		mockMvc.perform(post("/api/reviews")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(request))
+				.with(csrf()))
 			.andExpect(status().isOk())
 			.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 			.andDo(result -> {

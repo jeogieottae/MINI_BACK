@@ -9,9 +9,6 @@ public class PasswordValidator implements ConstraintValidator<PasswordValidation
 
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
-		if (value == null || !value.matches(PASSWORD_PATTERN)) {
-			return false;
-		}
-		return true;
+		return value != null && value.matches(PASSWORD_PATTERN);
 	}
 }
