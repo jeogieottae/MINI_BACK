@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class RedissonLockAspect {
 
   @Autowired
-  private RedissonClient redissonClient;
+  RedissonClient redissonClient;
 
   @Around("@annotation(redissonLock)")
   public Object redissonLock(ProceedingJoinPoint joinPoint, RedissonLock redissonLock) throws Throwable {
@@ -65,7 +65,7 @@ public class RedissonLockAspect {
     }
   }
 
-  private String generateLockKey(ProceedingJoinPoint joinPoint, String keyExpression) {
+  public String generateLockKey(ProceedingJoinPoint joinPoint, String keyExpression) {
     MethodSignature nextSignature = (MethodSignature) joinPoint.getSignature();
     Method method = nextSignature.getMethod();
     Object[] args = joinPoint.getArgs();

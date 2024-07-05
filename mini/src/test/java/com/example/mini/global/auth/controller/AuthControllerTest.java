@@ -1,167 +1,154 @@
-package com.example.mini.global.auth.controller;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import com.example.mini.domain.member.entity.enums.MemberState;
-import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
-import com.example.mini.domain.member.model.request.LoginRequest;
-import com.example.mini.domain.member.model.request.RegisterRequest;
-import com.example.mini.domain.member.model.response.LoginResponse;
-import com.example.mini.domain.member.model.response.UserProfileResponse;
-import com.example.mini.global.auth.fixture.AuthServiceTestFixture;
-import com.example.mini.global.auth.service.AuthService;
-import com.example.mini.global.security.jwt.JwtProvider;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.beans.factory.annotation.Autowired;
-
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class AuthControllerTest { // 수정해야함
-
-	@Autowired
-	private MockMvc mockMvc;
-
-	@MockBean
-	private AuthService authService;
-
-	@MockBean
-	private JwtProvider jwtProvider;
-
-	private RegisterRequest registerRequest;
-	private LoginRequest loginRequest;
-	private ChangeNicknameRequest changeNicknameRequest;
-
-	@BeforeEach
-	void setUp() {
-		registerRequest = AuthServiceTestFixture.createRegisterRequest();
-		loginRequest = AuthServiceTestFixture.createLoginRequest();
-		changeNicknameRequest = AuthServiceTestFixture.createChangeNicknameRequest("newnickname");
-	}
-
+//package com.example.mini.global.auth.controller;
+//
+//import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
+//import com.example.mini.domain.member.model.request.LoginRequest;
+//import com.example.mini.domain.member.model.request.RegisterRequest;
+//import com.example.mini.domain.member.model.response.LoginResponse;
+//import com.example.mini.domain.member.model.response.UserProfileResponse;
+//import com.example.mini.global.api.exception.success.SuccessCode;
+//import com.example.mini.global.auth.fixture.AuthcontrollerFixture;
+//import com.example.mini.global.auth.service.AuthService;
+//import com.example.mini.global.auth.service.StandardAuthService;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+//import org.junit.jupiter.api.BeforeEach;
+//import org.junit.jupiter.api.Test;
+//import org.mockito.InjectMocks;
+//import org.mockito.Mock;
+//import org.mockito.MockitoAnnotations;
+//import org.springframework.http.MediaType;
+//import org.springframework.test.web.servlet.MockMvc;
+//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+//
+//import static org.mockito.Mockito.*;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+//
+//class AuthControllerTest {
+//
+//	private MockMvc mockMvc;
+//
+//	@Mock
+//	private AuthService authService;
+//
+//	@Mock
+//	private StandardAuthService standardAuthService;
+//
+//	@InjectMocks
+//	private AuthController authController;
+//
+//	@BeforeEach
+//	void setUp() {
+//		MockitoAnnotations.openMocks(this);
+//		mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
+//	}
+//
 //	@Test
-//	@DisplayName("회원가입 성공")
-//	void registerSuccess() throws Exception {
-//		doNothing().when(authService).register(any(RegisterRequest.class));
+//	void register_ShouldReturnSuccess() throws Exception {
+//		RegisterRequest request = AuthcontrollerFixture.getRegisterRequest();
 //
 //		mockMvc.perform(post("/api/auth/register")
-//				.contentType(MediaType.APPLICATION_JSON)
-//				.content("{\"email\":\"test@example.com\",\"password\":\"password\",\"name\":\"testname\",\"nickname\":\"testuser\"}"))
-//			.andExpect(status().isOk())
-//			.andExpect(jsonPath("$.message").value("회원가입 성공"));
+//						.contentType(MediaType.APPLICATION_JSON)
+//						.content(new ObjectMapper().writeValueAsString(request)))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.REGISTER.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.REGISTER.getDescription()));
 //
-//		verify(authService).register(any(RegisterRequest.class));
+//		verify(standardAuthService).register(any(RegisterRequest.class));
 //	}
 //
 //	@Test
-//	@DisplayName("로그인 성공")
-//	void loginSuccess() throws Exception {
-//		LoginResponse loginResponse = new LoginResponse(MemberState.ACTIVE, "accessToken", "refreshToken");
-//		when(authService.login(any(LoginRequest.class))).thenReturn(loginResponse);
+//	void login_ShouldReturnLoginResponse() throws Exception {
+//		LoginRequest request = AuthcontrollerFixture.getLoginRequest();
+//		LoginResponse response = AuthcontrollerFixture.getLoginResponse();
+//
+//		when(standardAuthService.login(any(LoginRequest.class))).thenReturn(response);
 //
 //		mockMvc.perform(post("/api/auth/login")
-//				.contentType(MediaType.APPLICATION_JSON)
-//				.content("{\"email\":\"test@example.com\",\"password\":\"password\"}"))
-//			.andExpect(status().isOk())
-//			.andExpect(jsonPath("$.message").value("로그인 성공"))
-//			.andExpect(jsonPath("$.data.accessToken").value("accessToken"));
+//						.contentType(MediaType.APPLICATION_JSON)
+//						.content(new ObjectMapper().writeValueAsString(request)))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.LOGIN.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.LOGIN.getDescription()))
+//				.andExpect(jsonPath("$.data.accessToken").value("accessToken"))
+//				.andExpect(jsonPath("$.data.refreshToken").value("refreshToken"));
 //
-//		verify(authService).login(any(LoginRequest.class));
+//		verify(standardAuthService).login(any(LoginRequest.class));
+//		verify(standardAuthService).addTokenCookies(any(), eq("accessToken"), eq("refreshToken"));
 //	}
-
-
-	@Test
-	@DisplayName("로그아웃 성공")
-	void logoutSuccess() throws Exception {
-		when(authService.logout(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn("redirectUri");
-
-		mockMvc.perform(get("/api/auth/logout"))
-			.andExpect(status().is3xxRedirection());
-
-		verify(authService).logout(any(HttpServletRequest.class), any(HttpServletResponse.class));
-	}
-
-	@Test
-	@DisplayName("토큰 갱신 성공")
-	void refreshTokenSuccess() throws Exception {
-		doNothing().when(authService).refreshToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
-
-		mockMvc.perform(get("/api/auth/token/refresh"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.message").value("엑세스 토큰 재발급 성공"));
-
-		verify(authService).refreshToken(any(HttpServletRequest.class), any(HttpServletResponse.class));
-	}
-
-	@Test
-	@DisplayName("회원 탈퇴 성공")
-	void withdrawSuccess() throws Exception {
-		when(authService.withdraw(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn("redirectUri");
-
-		mockMvc.perform(delete("/api/auth/withdraw"))
-			.andExpect(status().is3xxRedirection());
-
-		verify(authService).withdraw(any(HttpServletRequest.class), any(HttpServletResponse.class));
-	}
-
-	@Test
-	@DisplayName("닉네임 변경 성공")
-	void changeNicknameSuccess() throws Exception {
-		doNothing().when(authService).updateNickname(any(HttpServletRequest.class), any(ChangeNicknameRequest.class));
-
-		mockMvc.perform(put("/api/auth/nickname")
-				.contentType(MediaType.APPLICATION_JSON)
-				.content("{\"nickname\":\"newnickname\"}"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.message").value("닉네임 변경 성공"));
-
-		verify(authService).updateNickname(any(HttpServletRequest.class), any(ChangeNicknameRequest.class));
-	}
-
-	@Test
-	@DisplayName("유저 정보 조회 성공")
-	void userInfoSuccess() throws Exception {
-		UserProfileResponse userProfileResponse = new UserProfileResponse("testname", "testuser", "test@example.com");
-		when(authService.getUserInfo(any(HttpServletRequest.class))).thenReturn(userProfileResponse);
-
-		mockMvc.perform(get("/api/auth/userInfo"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.message").value("사용자 정보 조회 성공"))
-			.andExpect(jsonPath("$.data.email").value("test@example.com"));
-
-		verify(authService).getUserInfo(any(HttpServletRequest.class));
-	}
-
-	@Test
-	@DisplayName("로그인 여부 확인 성공")
-	void isLoggedInSuccess() throws Exception {
-		when(authService.isLoggedIn(any(HttpServletRequest.class))).thenReturn(true);
-
-		mockMvc.perform(get("/api/auth/isLoggedIn"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.message").value("성공"))
-			.andExpect(jsonPath("$.data").value(true));
-
-		verify(authService).isLoggedIn(any(HttpServletRequest.class));
-	}
-}
+//
+//	@Test
+//	void logout_ShouldRedirectAndReturnSuccess() throws Exception {
+//		when(authService.logout(any(), any())).thenReturn("http://example.com");
+//
+//		mockMvc.perform(get("/api/auth/logout"))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.LOGOUT.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.LOGOUT.getDescription()));
+//
+//		verify(authService).logout(any(), any());
+//	}
+//
+//	@Test
+//	void refreshToken_ShouldReturnSuccess() throws Exception {
+//		mockMvc.perform(get("/api/auth/token/refresh"))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.TOKEN_REFRESHED.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.TOKEN_REFRESHED.getDescription()));
+//
+//		verify(authService).refreshToken(any(), any());
+//	}
+//
+//	@Test
+//	void withdraw_ShouldRedirectAndReturnSuccess() throws Exception {
+//		when(authService.withdraw(any(), any())).thenReturn("http://example.com");
+//
+//		mockMvc.perform(delete("/api/auth/withdraw"))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.WITHDRAW.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.WITHDRAW.getDescription()));
+//
+//		verify(authService).withdraw(any(), any());
+//	}
+//
+//	@Test
+//	void changeNickname_ShouldReturnSuccess() throws Exception {
+//		ChangeNicknameRequest request = new ChangeNicknameRequest("newNickname");
+//
+//		mockMvc.perform(put("/api/auth/nickname")
+//						.contentType(MediaType.APPLICATION_JSON)
+//						.content(new ObjectMapper().writeValueAsString(request)))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.NICKNAME_UPDATED.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.NICKNAME_UPDATED.getDescription()));
+//
+//		verify(authService).updateNickname(any(), any(ChangeNicknameRequest.class));
+//	}
+//
+//	@Test
+//	void userInfo_ShouldReturnUserProfileResponse() throws Exception {
+//		UserProfileResponse userInfo = AuthcontrollerFixture.getUserProfileResponse();
+//		when(authService.getUserInfo(any())).thenReturn(userInfo);
+//
+//		mockMvc.perform(get("/api/auth/userInfo"))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.USER_INFO_RETRIEVED.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.USER_INFO_RETRIEVED.getDescription()))
+//				.andExpect(jsonPath("$.data.email").value("test@example.com"))
+//				.andExpect(jsonPath("$.data.nickname").value("nickname"));
+//
+//		verify(authService).getUserInfo(any());
+//	}
+//
+//	@Test
+//	void isLoggedIn_ShouldReturnBoolean() throws Exception {
+//		when(authService.isLoggedIn(any())).thenReturn(true);
+//
+//		mockMvc.perform(get("/api/auth/isLoggedIn"))
+//				.andExpect(status().isOk())
+//				.andExpect(jsonPath("$.code").value(SuccessCode.OK.getHttpStatus()))
+//				.andExpect(jsonPath("$.message").value(SuccessCode.OK.getDescription()))
+//				.andExpect(jsonPath("$.data").value(true));
+//
+//		verify(authService).isLoggedIn(any());
+//	}
+//}

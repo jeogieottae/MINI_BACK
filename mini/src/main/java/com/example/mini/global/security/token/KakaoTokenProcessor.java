@@ -27,12 +27,18 @@ public class KakaoTokenProcessor implements TokenProcessor {
     @Override
     public void processToken(HttpServletRequest request, HttpServletResponse response) {
         Cookie kakaoAccessToken = CookieUtil.getCookie(request, "kakaoAccessToken");
+        Cookie kakaoAccessTokenExpiresIn = CookieUtil.getCookie(request, "kakaoAccessTokenExpiresIn");
+
         if(kakaoAccessToken != null){
             String token = kakaoAccessToken.getValue();
-            long maxAge = kakaoAccessToken.getMaxAge();
+            long expires = Long.parseLong(kakaoAccessTokenExpiresIn.getValue());
             long currentTime = System.currentTimeMillis() / 1000;
 
-            if(currentTime + 300 > maxAge) {
+            log.info("카카오 토큰: {}", token);
+            log.info("expires: {}", expires);
+            log.info("currentTime: {}", currentTime);
+
+            if(currentTime + 300 > expires) {
                 String newToken = null;
                 log.info("카카오 토큰 재발급 필요");
                 newToken = kakaoAuthService.kakaoRefresh(request).getAccess_token();

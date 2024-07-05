@@ -40,7 +40,7 @@ public class KakaoAuthService {
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
-    private String kakaoLogoutRedirectUri = "http://localhost:8080/api/protected/home";
+    private final String kakaoLogoutRedirectUri = "https://your-trip-pied.vercel.app/";
 
     public String getKakaoAuthUrl() {
         return "https://kauth.kakao.com/oauth/authorize"
@@ -55,6 +55,7 @@ public class KakaoAuthService {
         kakaoMemberService.setMemberInactive(kakaoUserInfo.getEmail());
 
         CookieUtil.deleteCookie(response, "kakaoAccessToken");
+        CookieUtil.deleteCookie(response, "kakaoAccessTokenExpiresIn");
         CookieUtil.deleteCookie(response, "kakaoRefreshToken");
         CookieUtil.deleteCookie(response, "JSESSIONID");
 
@@ -94,6 +95,7 @@ public class KakaoAuthService {
         withdrawMember(accessTokenCookie.getValue());
 
         CookieUtil.deleteCookie(response, "kakaoAccessToken");
+        CookieUtil.deleteCookie(response, "kakaoAccessTokenExpiresIn");
         CookieUtil.deleteCookie(response, "kakaoRefreshToken");
         CookieUtil.deleteCookie(response, "JSESSIONID");
 
@@ -140,7 +142,10 @@ public class KakaoAuthService {
     private void setTokenCookies(TokenResponse tokenResponse) {
         HttpServletResponse httpResponse = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
         CookieUtil.addCookie(httpResponse, "kakaoAccessToken", tokenResponse.getAccess_token(), tokenResponse.getExpires_in());
+        Integer currentTime = (int)(System.currentTimeMillis() / 1000);
+        CookieUtil.addCookie(httpResponse, "kakaoAccessTokenExpiresIn", String.valueOf(tokenResponse.getExpires_in() + currentTime), tokenResponse.getExpires_in());
         log.info("AccessToken 쿠키 설정: {}", tokenResponse.getAccess_token());
+        log.info("AccessToken 만료 시간: {}", tokenResponse.getExpires_in());
 
         if (tokenResponse.getRefresh_token() != null) {
             CookieUtil.addCookie(httpResponse, "kakaoRefreshToken", tokenResponse.getRefresh_token(), tokenResponse.getRefresh_token_expires_in());
