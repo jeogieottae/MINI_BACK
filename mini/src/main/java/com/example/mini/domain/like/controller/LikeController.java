@@ -27,7 +27,6 @@ public class LikeController {
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LIKE_TOGGLED, isLiked));
   }
 
-
   @GetMapping
   public ResponseEntity<ApiResponse<PagedResponse<AccomodationResponse>>> getLikedAccomodations(
       @AuthenticationPrincipal UserDetailsImpl userDetails,

@@ -40,13 +40,12 @@ public class CartService {
   private final RoomRepository roomRepository;
   private final EmailService emailService;
 
-  private final int pageSize = 10;
-
   public PagedResponse<CartResponse> getAllCartItems(Long memberId, int page) {
     Member member = getMember(memberId);
     cartRepository.findByMember(member)
         .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
 
+    int pageSize = 10;
     Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
         member.getId(), ReservationStatus.PENDING, PageRequest.of(page - 1, pageSize));
     List<CartResponse> content = reservations.stream().map(CartResponse::toDto).toList();
@@ -58,7 +57,7 @@ public class CartService {
         .orElseThrow(() -> new GlobalException(CartErrorCode.MEMBER_NOT_FOUND));
   }
 
-  public List<Object> addCartItem(Long memberId, AddCartItemRequest request) {
+  public void addCartItem(Long memberId, AddCartItemRequest request) {
     Member member = getMember(memberId);
 
     Room room = roomRepository.findById(request.getRoomId())
@@ -104,7 +103,6 @@ public class CartService {
 
     cart.getReservationList().add(reservation);
     cartRepository.save(cart);
-    return List.of();
   }
 
   private void validateDuplicateReservation(Cart cart, Long roomId, LocalDateTime checkIn, LocalDateTime checkOut) {

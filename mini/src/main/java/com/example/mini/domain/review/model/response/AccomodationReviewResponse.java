@@ -23,5 +23,4 @@ public class AccomodationReviewResponse {
             .createdAt(review.getCreatedAt())
             .build();
   }
-
 }

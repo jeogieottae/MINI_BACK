@@ -21,7 +21,9 @@ import com.example.mini.global.api.exception.error.AccomodationErrorCode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -125,14 +127,12 @@ public class AccomodationService {
             Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
             boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
                 .stream()
-                .map(room -> getReservationAvailable(checkIn, checkOut, room.getId()))
-                .anyMatch(Boolean::booleanValue);
+                .anyMatch(room -> getReservationAvailable(checkIn, checkOut, room.getId()));
             return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable);
         }).toList();
 
         return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
     }
-
 
     /**
      * 해당 객실의 예약가능 여부를 반환하는 메서드
@@ -142,12 +142,11 @@ public class AccomodationService {
      * @return          예약가능 여부
      */
     private boolean getReservationAvailable(String checkIn, String checkOut, Long roomId) {
-        List<Long> list = asList(roomId);
+        List<Long> list = Collections.singletonList(roomId);
         List<LocalDateTime> checkInOut = DateTimeUtil.parseDateTimes(checkIn, checkOut);
         List<Reservation> reservations = reservationRepository.findOverlappingReservations(list, checkInOut.get(0), checkInOut.get(1));
         return reservations.isEmpty();
     }
-
 
     /**
      * 페이지네이션 공통 에러처리 메서드
@@ -245,12 +244,11 @@ public class AccomodationService {
         } else if (keywordIList.isEmpty()) {
             commonIds = regionIdList;
         } else {
-            Set<Long> idSet1 = keywordIList.stream().collect(Collectors.toSet());
+            Set<Long> idSet1 = new HashSet<>(keywordIList);
             commonIds = regionIdList.stream()
                 .filter(idSet1::contains)
                 .collect(Collectors.toList());
         }
         return commonIds;
     }
-
 }
