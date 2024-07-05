@@ -42,7 +42,7 @@ public class KakaoAuthService {
     private String redirectUri;
 
     @Getter
-    private String kakaoLogoutRedirectUri = "https://api.miniteam2.store/api/protected/home";
+    private String kakaoLogoutRedirectUri = "https://your-trip-pied.vercel.app";
 
     public String getKakaoAuthUrl() {
         return "https://kauth.kakao.com/oauth/authorize"
