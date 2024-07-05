@@ -41,8 +41,7 @@ public class KakaoAuthService {
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
-    @Getter
-    private String kakaoLogoutRedirectUri = "https://your-trip-pied.vercel.app";
+    private String kakaoLogoutRedirectUri = "https://your-trip-pied.vercel.app/";
 
     public String getKakaoAuthUrl() {
         return "https://kauth.kakao.com/oauth/authorize"

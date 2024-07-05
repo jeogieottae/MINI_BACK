@@ -42,11 +42,10 @@ public class AuthController {
 	}
 
 	@GetMapping("/logout")
-	public ResponseEntity<ApiResponse<String>> logout(HttpServletRequest request, HttpServletResponse response)
+	public void logout(HttpServletRequest request, HttpServletResponse response)
 		throws IOException {
 		String redirectUri = authService.logout(request, response);
 		response.sendRedirect(redirectUri);
-		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LOGOUT));
 	}
 
 	@GetMapping("/token/refresh")
@@ -56,11 +55,10 @@ public class AuthController {
 	}
 
 	@DeleteMapping("/withdraw")
-	public ResponseEntity<ApiResponse<String>> withdraw(HttpServletRequest request, HttpServletResponse response)
+	public void withdraw(HttpServletRequest request, HttpServletResponse response)
 		throws IOException {
 		String redirectUri = authService.withdraw(request, response);
 		response.sendRedirect(redirectUri);
-		return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.WITHDRAW));
 	}
 
 	@PutMapping("/nickname")
