@@ -1,4 +1,3 @@
-
 ## 사용 기술 
 
 ### 프레임워크 및 언어
@@ -16,7 +15,11 @@
 ### 테스트 및 성능 모니터링
 - Junit, K6
 
+## ERD 구조
+![그림1](https://github.com/leeshinbi/KDT_BE8_Mini-Project/assets/109641586/e78b15f7-36a2-4530-8f86-7649c0d51c7b)
 
 
+## 서비스 아키텍처
+![그림2](https://github.com/leeshinbi/KDT_BE8_Mini-Project/assets/109641586/021eca83-4f5c-4d21-8877-21fdaec490fe)
 
 
