@@ -8,7 +8,6 @@ import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.model.dto.PagedResponse;
 import com.example.mini.global.util.datetime.DateTimeUtil;
 import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.AccomodationImage;
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.response.AccomodationSearch;
@@ -33,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static java.util.Arrays.asList;
 import static java.util.Arrays.parallelSetAll;
 
 @Slf4j
@@ -260,8 +258,7 @@ public class AccomodationService {
     private boolean getIsLiked(Long memberId, Long accomodationId) {
         boolean isLiked;
         Optional<Like> optinalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
-        if (optinalIsLiked.isEmpty()) isLiked = false;
-        else isLiked = optinalIsLiked.get().isLiked();
+		isLiked = optinalIsLiked.map(Like::isLiked).orElse(false);
         return isLiked;
     }
 }

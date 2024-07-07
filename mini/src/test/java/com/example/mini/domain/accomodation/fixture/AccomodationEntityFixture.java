@@ -1,9 +1,9 @@
 package com.example.mini.domain.accomodation.fixture;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.AccomodationImage;
+import com.example.mini.domain.accomodation.entity.image.AccomodationImage;
 import com.example.mini.domain.accomodation.entity.Room;
-import com.example.mini.domain.accomodation.entity.RoomImage;
+import com.example.mini.domain.accomodation.entity.image.RoomImage;
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import org.testcontainers.shaded.com.google.common.collect.Lists;
 

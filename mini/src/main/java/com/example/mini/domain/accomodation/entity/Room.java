@@ -1,7 +1,6 @@
 package com.example.mini.domain.accomodation.entity;
 
-import com.example.mini.domain.cart.entity.Cart;
-import com.example.mini.domain.reservation.entity.Reservation;
+import com.example.mini.domain.accomodation.entity.image.RoomImage;
 import com.example.mini.global.model.entity.BaseEntity;
 import jakarta.persistence.*;
 import java.util.ArrayList;

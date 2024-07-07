@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import com.example.mini.domain.accomodation.entity.AccomodationImage;
+import com.example.mini.domain.accomodation.entity.image.AccomodationImage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

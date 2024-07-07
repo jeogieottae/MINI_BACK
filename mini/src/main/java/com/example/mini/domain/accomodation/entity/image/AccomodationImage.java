@@ -1,5 +1,6 @@
-package com.example.mini.domain.accomodation.entity;
+package com.example.mini.domain.accomodation.entity.image;
 
+import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.global.model.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
@@ -21,17 +22,17 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoomImage {
+public class AccomodationImage  {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@JsonProperty("roomImgUrl")
+	@JsonProperty("accomodationImgUrl")
 	private String imgUrl;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "room_id", nullable = false)
-	private Room room;
+	@JoinColumn(name = "accomodation_id", nullable = false)
+	private Accomodation accomodation;
 
 }

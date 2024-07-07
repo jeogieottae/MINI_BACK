@@ -1,7 +1,7 @@
 package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.AccomodationImage;
+import com.example.mini.domain.accomodation.entity.image.AccomodationImage;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.*;

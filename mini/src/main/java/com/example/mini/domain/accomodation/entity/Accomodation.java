@@ -1,6 +1,7 @@
 package com.example.mini.domain.accomodation.entity;
 
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
+import com.example.mini.domain.accomodation.entity.image.AccomodationImage;
 import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.model.entity.BaseEntity;

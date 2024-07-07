@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.example.mini.domain.reservation.entity.Reservation;
 import java.util.List;
 import java.util.stream.Collectors;
-import com.example.mini.domain.accomodation.entity.RoomImage;
+import com.example.mini.domain.accomodation.entity.image.RoomImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import com.example.mini.domain.accomodation.entity.RoomImage;
+import com.example.mini.domain.accomodation.entity.image.RoomImage;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

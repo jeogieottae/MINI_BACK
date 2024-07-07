@@ -36,7 +36,7 @@ public class ReviewController {
 
   @GetMapping
   public ResponseEntity<ApiResponse<PagedResponse<AccomodationReviewResponse>>> getReviewsByAccomodationId(
-      @RequestParam(value = "id", required = true) Long accommodationId,
+      @RequestParam Long accommodationId,
       @RequestParam(defaultValue = "1") int page
   ) {
     PagedResponse<AccomodationReviewResponse> reviews = reviewService.getReviewsByAccomodationId(accommodationId, page);
