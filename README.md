@@ -1,4 +1,3 @@
-![그림1](https://github.com/leeshinbi/KDT_BE8_Mini-Project/assets/109641586/66d9e90d-2b13-48af-afc1-d6f784c0fa39)
 ## 사용 기술 
 
 ### 프레임워크 및 언어
