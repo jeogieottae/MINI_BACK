@@ -1,154 +1,147 @@
-//package com.example.mini.global.auth.controller;
-//
-//import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
-//import com.example.mini.domain.member.model.request.LoginRequest;
-//import com.example.mini.domain.member.model.request.RegisterRequest;
-//import com.example.mini.domain.member.model.response.LoginResponse;
-//import com.example.mini.domain.member.model.response.UserProfileResponse;
-//import com.example.mini.global.api.exception.success.SuccessCode;
-//import com.example.mini.global.auth.fixture.AuthcontrollerFixture;
-//import com.example.mini.global.auth.service.AuthService;
-//import com.example.mini.global.auth.service.StandardAuthService;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.MockitoAnnotations;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.web.servlet.MockMvc;
-//import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-//
-//import static org.mockito.Mockito.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//
-//class AuthControllerTest {
-//
-//	private MockMvc mockMvc;
-//
-//	@Mock
-//	private AuthService authService;
-//
-//	@Mock
-//	private StandardAuthService standardAuthService;
-//
-//	@InjectMocks
-//	private AuthController authController;
-//
-//	@BeforeEach
-//	void setUp() {
-//		MockitoAnnotations.openMocks(this);
-//		mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-//	}
-//
-//	@Test
-//	void register_ShouldReturnSuccess() throws Exception {
-//		RegisterRequest request = AuthcontrollerFixture.getRegisterRequest();
-//
-//		mockMvc.perform(post("/api/auth/register")
-//						.contentType(MediaType.APPLICATION_JSON)
-//						.content(new ObjectMapper().writeValueAsString(request)))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.REGISTER.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.REGISTER.getDescription()));
-//
-//		verify(standardAuthService).register(any(RegisterRequest.class));
-//	}
-//
-//	@Test
-//	void login_ShouldReturnLoginResponse() throws Exception {
-//		LoginRequest request = AuthcontrollerFixture.getLoginRequest();
-//		LoginResponse response = AuthcontrollerFixture.getLoginResponse();
-//
-//		when(standardAuthService.login(any(LoginRequest.class))).thenReturn(response);
-//
-//		mockMvc.perform(post("/api/auth/login")
-//						.contentType(MediaType.APPLICATION_JSON)
-//						.content(new ObjectMapper().writeValueAsString(request)))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.LOGIN.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.LOGIN.getDescription()))
-//				.andExpect(jsonPath("$.data.accessToken").value("accessToken"))
-//				.andExpect(jsonPath("$.data.refreshToken").value("refreshToken"));
-//
-//		verify(standardAuthService).login(any(LoginRequest.class));
-//		verify(standardAuthService).addTokenCookies(any(), eq("accessToken"), eq("refreshToken"));
-//	}
-//
-//	@Test
-//	void logout_ShouldRedirectAndReturnSuccess() throws Exception {
-//		when(authService.logout(any(), any())).thenReturn("http://example.com");
-//
-//		mockMvc.perform(get("/api/auth/logout"))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.LOGOUT.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.LOGOUT.getDescription()));
-//
-//		verify(authService).logout(any(), any());
-//	}
-//
-//	@Test
-//	void refreshToken_ShouldReturnSuccess() throws Exception {
-//		mockMvc.perform(get("/api/auth/token/refresh"))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.TOKEN_REFRESHED.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.TOKEN_REFRESHED.getDescription()));
-//
-//		verify(authService).refreshToken(any(), any());
-//	}
-//
-//	@Test
-//	void withdraw_ShouldRedirectAndReturnSuccess() throws Exception {
-//		when(authService.withdraw(any(), any())).thenReturn("http://example.com");
-//
-//		mockMvc.perform(delete("/api/auth/withdraw"))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.WITHDRAW.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.WITHDRAW.getDescription()));
-//
-//		verify(authService).withdraw(any(), any());
-//	}
-//
-//	@Test
-//	void changeNickname_ShouldReturnSuccess() throws Exception {
-//		ChangeNicknameRequest request = new ChangeNicknameRequest("newNickname");
-//
-//		mockMvc.perform(put("/api/auth/nickname")
-//						.contentType(MediaType.APPLICATION_JSON)
-//						.content(new ObjectMapper().writeValueAsString(request)))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.NICKNAME_UPDATED.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.NICKNAME_UPDATED.getDescription()));
-//
-//		verify(authService).updateNickname(any(), any(ChangeNicknameRequest.class));
-//	}
-//
-//	@Test
-//	void userInfo_ShouldReturnUserProfileResponse() throws Exception {
-//		UserProfileResponse userInfo = AuthcontrollerFixture.getUserProfileResponse();
-//		when(authService.getUserInfo(any())).thenReturn(userInfo);
-//
-//		mockMvc.perform(get("/api/auth/userInfo"))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.USER_INFO_RETRIEVED.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.USER_INFO_RETRIEVED.getDescription()))
-//				.andExpect(jsonPath("$.data.email").value("test@example.com"))
-//				.andExpect(jsonPath("$.data.nickname").value("nickname"));
-//
-//		verify(authService).getUserInfo(any());
-//	}
-//
-//	@Test
-//	void isLoggedIn_ShouldReturnBoolean() throws Exception {
-//		when(authService.isLoggedIn(any())).thenReturn(true);
-//
-//		mockMvc.perform(get("/api/auth/isLoggedIn"))
-//				.andExpect(status().isOk())
-//				.andExpect(jsonPath("$.code").value(SuccessCode.OK.getHttpStatus()))
-//				.andExpect(jsonPath("$.message").value(SuccessCode.OK.getDescription()))
-//				.andExpect(jsonPath("$.data").value(true));
-//
-//		verify(authService).isLoggedIn(any());
-//	}
-//}
+package com.example.mini.global.auth.controller;
+
+import com.example.mini.domain.member.model.request.ChangeNicknameRequest;
+import com.example.mini.domain.member.model.request.LoginRequest;
+import com.example.mini.domain.member.model.request.RegisterRequest;
+import com.example.mini.domain.member.model.response.LoginResponse;
+import com.example.mini.domain.member.model.response.UserProfileResponse;
+import com.example.mini.global.api.ApiResponse;
+import com.example.mini.global.api.exception.success.SuccessCode;
+import com.example.mini.global.auth.fixture.AuthcontrollerFixture;
+import com.example.mini.global.auth.service.AuthService;
+import com.example.mini.global.auth.service.StandardAuthService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+class AuthControllerTest {
+
+	@InjectMocks
+	private AuthController authController;
+
+	@Mock
+	private AuthService authService;
+
+	@Mock
+	private StandardAuthService standardAuthService;
+
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
+
+	@Test
+	@DisplayName("회원가입 성공")
+	void registerSuccess() {
+		RegisterRequest request = AuthcontrollerFixture.getRegisterRequest();
+		doNothing().when(standardAuthService).register(any(RegisterRequest.class));
+
+		ResponseEntity<ApiResponse<String>> response = authController.register(request);
+
+		assertEquals(200, response.getStatusCodeValue());
+		assertEquals(SuccessCode.OK.getHttpStatus(), response.getStatusCode());
+	}
+
+	@Test
+	@DisplayName("로그인 성공")
+	void loginSuccess() {
+		LoginRequest request = AuthcontrollerFixture.getLoginRequest();
+		LoginResponse loginResponse = AuthcontrollerFixture.getLoginResponse();
+		when(standardAuthService.login(any(LoginRequest.class))).thenReturn(loginResponse);
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		ResponseEntity<ApiResponse<LoginResponse>> responseEntity = authController.login(request, response);
+
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		assertEquals(SuccessCode.OK.getHttpStatus(), responseEntity.getStatusCode());
+		assertEquals(loginResponse, responseEntity.getBody().getBody());
+	}
+
+	@Test
+	@DisplayName("로그아웃 성공")
+	void logoutSuccess() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		when(authService.logout(request, response)).thenReturn("http://example.com");
+
+		authController.logout(request, response);
+
+		assertEquals("http://example.com", response.getRedirectedUrl());
+	}
+
+	@Test
+	@DisplayName("토큰 갱신 성공")
+	void refreshTokenSuccess() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		when(authService.refreshToken(request, response)).thenReturn("newAccessToken");
+
+		ResponseEntity<ApiResponse<String>> responseEntity = authController.refreshToken(request, response);
+
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		assertEquals(SuccessCode.TOKEN_REFRESHED.getHttpStatus(), responseEntity.getStatusCode());
+	}
+
+	@Test
+	@DisplayName("회원 탈퇴 성공")
+	void withdrawSuccess() throws IOException {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		when(authService.withdraw(request, response)).thenReturn("http://example.com");
+
+		authController.withdraw(request, response);
+
+		assertEquals("http://example.com", response.getRedirectedUrl());
+	}
+
+	@Test
+	@DisplayName("닉네임 변경 성공")
+	void changeNicknameSuccess() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		ChangeNicknameRequest changeRequest = new ChangeNicknameRequest("newNickname");
+		doNothing().when(authService).updateNickname(request, changeRequest);
+
+		ResponseEntity<ApiResponse<String>> responseEntity = authController.changeNickname(request, changeRequest);
+
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		assertEquals(SuccessCode.NICKNAME_UPDATED.getHttpStatus(), responseEntity.getStatusCode());
+	}
+
+	@Test
+	@DisplayName("사용자 정보 조회 성공")
+	void userInfoSuccess() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		UserProfileResponse userInfo = AuthcontrollerFixture.getUserProfileResponse();
+		when(authService.getUserInfo(request)).thenReturn(userInfo);
+
+		ResponseEntity<ApiResponse<UserProfileResponse>> responseEntity = authController.userInfo(request);
+
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		assertEquals(SuccessCode.USER_INFO_RETRIEVED.getHttpStatus(), responseEntity.getStatusCode());
+		assertEquals(userInfo, responseEntity.getBody().getBody());
+	}
+
+	@Test
+	@DisplayName("로그인 상태 확인 성공")
+	void isLoggedInSuccess() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		when(authService.isLoggedIn(request)).thenReturn(true);
+
+		ResponseEntity<ApiResponse<Boolean>> responseEntity = authController.isLoggedIn(request);
+
+		assertEquals(200, responseEntity.getStatusCodeValue());
+		assertEquals(SuccessCode.OK.getHttpStatus(), responseEntity.getStatusCode());
+		assertTrue(responseEntity.getBody().getBody());
+	}
+}
