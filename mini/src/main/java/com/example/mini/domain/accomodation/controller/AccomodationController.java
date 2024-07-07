@@ -5,8 +5,10 @@ import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,9 +20,11 @@ public class AccomodationController {
 
     @GetMapping("")
     public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> getAllAccommodations(
-        @RequestParam(value="page", defaultValue = "1") int page
+        @RequestParam(value="page", defaultValue = "1") int page,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page);
+        Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
+        PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATIONS_RETRIEVED, response));
     }
 
@@ -30,19 +34,24 @@ public class AccomodationController {
         @RequestParam(value = "region", defaultValue = "") String region,
         @RequestParam(value = "check-in", defaultValue = "")String checkIn,
         @RequestParam(value = "check-out", defaultValue = "")String checkOut,
-        @RequestParam(value= "page", defaultValue = "1") int page
+        @RequestParam(value= "page", defaultValue = "1") int page,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        PagedResponse<AccomodationCardResponseDto> response = accomodationService.searchByAccommodationName(query, region, checkIn, checkOut, page);
+        Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
+        PagedResponse<AccomodationCardResponseDto> response =
+                accomodationService.searchByAccommodationName(query, region, checkIn, checkOut, page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }
 
     @GetMapping("/{accomodationId}")
     public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(
         @PathVariable Long accomodationId,
         @RequestParam(value = "check-in", defaultValue = "")String checkIn,
-        @RequestParam(value = "check-out", defaultValue = "")String checkOut
+        @RequestParam(value = "check-out", defaultValue = "")String checkOut,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
+        Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
         AccomodationDetailsResponseDto response = accomodationService
-            .getAccomodationDetails(accomodationId, checkIn, checkOut);
+            .getAccomodationDetails(accomodationId, checkIn, checkOut, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_DETAILS_RETRIEVED, response));
     }
 

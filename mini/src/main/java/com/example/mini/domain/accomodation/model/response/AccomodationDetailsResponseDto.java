@@ -10,8 +10,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccomodationDetailsResponseDto {
-    AccomodationResponseDto accomodation;
-    List<RoomResponseDto> rooms;
-    List<ReviewResponse> reviews;
-    Double avgStar;
+    private AccomodationResponseDto accomodation;
+    private List<RoomResponseDto> rooms;
+    private List<ReviewResponse> reviews;
+    private Double avgStar;
+    private boolean isLiked;
 }
