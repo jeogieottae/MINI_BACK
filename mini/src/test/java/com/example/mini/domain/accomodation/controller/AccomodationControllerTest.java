@@ -1,4 +1,3 @@
-/*
 package com.example.mini.domain.accomodation.controller;
 
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
@@ -64,7 +63,7 @@ public class AccomodationControllerTest {
                 .totalPages(1)
                 .build();
 
-        when(accomodationService.getAllAccommodations(1)).thenReturn(response);
+        when(accomodationService.getAllAccommodations(1,1L)).thenReturn(response);
 
         mockMvc.perform(get("/api/accommodation"))
                 .andExpect(status().isOk())
@@ -73,7 +72,7 @@ public class AccomodationControllerTest {
                 .andExpect(jsonPath("$.body.content[0].name").value("숙소 이름 1"))
                 .andExpect(jsonPath("$.body.content[1].name").value("숙소 이름 2"));
 
-        verify(accomodationService).getAllAccommodations(1);
+        verify(accomodationService).getAllAccommodations(1,1L);
     }
 
     @Test
@@ -104,7 +103,7 @@ public class AccomodationControllerTest {
                 .totalPages(1)
                 .build();
 
-        when(accomodationService.searchByAccommodationName("숙소", "", "", "", 1))
+        when(accomodationService.searchByAccommodationName("숙소", "", "", "",1, 1L))
                 .thenReturn(response);
 
         mockMvc.perform(get("/api/accommodation/search")
@@ -115,7 +114,7 @@ public class AccomodationControllerTest {
                 .andExpect(jsonPath("$.body.content[0].name").value("숙소 이름 1"))
                 .andExpect(jsonPath("$.body.content[1].name").value("숙소 이름 2"));
 
-        verify(accomodationService).searchByAccommodationName(eq("숙소"), eq(""), eq(""), eq(""), anyInt());
+        verify(accomodationService).searchByAccommodationName(eq("숙소"), eq(""), eq(""), eq(""), anyInt(),1L);
     }
 
     @Test
@@ -146,7 +145,7 @@ public class AccomodationControllerTest {
                 .totalPages(1)
                 .build();
 
-        when(accomodationService.searchByAccommodationName("", "제주", "", "", 1))
+        when(accomodationService.searchByAccommodationName("", "제주", "", "", 1,1L))
                 .thenReturn(response);
 
         mockMvc.perform(get("/api/accommodation/search")
@@ -157,7 +156,7 @@ public class AccomodationControllerTest {
                 .andExpect(jsonPath("$.body.content[0].name").value("제주도 펜션"))
                 .andExpect(jsonPath("$.body.content[1].name").value("애월 호텔"));
 
-        verify(accomodationService).searchByAccommodationName(eq(""), eq("제주"), eq(""), eq(""), anyInt());
+        verify(accomodationService).searchByAccommodationName(eq(""), eq("제주"), eq(""), eq(""), anyInt(),1L);
     }
 
     @Test
@@ -201,14 +200,14 @@ public class AccomodationControllerTest {
                 .avgStar(avgStar)
                 .build();
 
-        when(accomodationService.getAccomodationDetails(1L, "", ""))
+        when(accomodationService.getAccomodationDetails(1L, "", "",1L))
                 .thenReturn(response);
 
         mockMvc.perform(get("/api/accommodation/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.body.accomodation.name").value("제주도 펜션"));
 
-        verify(accomodationService).getAccomodationDetails(anyLong(), eq(""), eq(""));
+        verify(accomodationService).getAccomodationDetails(anyLong(), eq(""), eq(""),1L);
 
     }
 
@@ -237,4 +236,3 @@ public class AccomodationControllerTest {
     }
 
 }
-*/
