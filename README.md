@@ -1,4 +1,4 @@
-
+![그림1](https://github.com/leeshinbi/KDT_BE8_Mini-Project/assets/109641586/66d9e90d-2b13-48af-afc1-d6f784c0fa39)
 ## 사용 기술 
 
 ### 프레임워크 및 언어
@@ -17,8 +17,11 @@
 - Junit, K6
 
 ## ERD 구조
-![그림1.png](..%2F..%2F%EA%B7%B8%EB%A6%BC1.png)
+![그림1](https://github.com/leeshinbi/KDT_BE8_Mini-Project/assets/109641586/e78b15f7-36a2-4530-8f86-7649c0d51c7b)
+
 
 ## 서비스 아키텍처
-![그림2.png](..%2F..%2F%EA%B7%B8%EB%A6%BC2.png)
+![그림2](https://github.com/leeshinbi/KDT_BE8_Mini-Project/assets/109641586/021eca83-4f5c-4d21-8877-21fdaec490fe)
+
+
 
