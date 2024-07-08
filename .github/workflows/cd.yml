@@ -32,24 +32,6 @@ jobs:
       working-directory: mini
       run: ./gradlew build -x test
 
-    - name: Make application-database.yml
-      run: |
-        mkdir -p ./mini/src/main/resources
-        echo "${{ secrets.DATABASE }}" > ./mini/src/main/resources/application-database.yml
-
-    - name: Make application-redis.yml
-      run: |
-        mkdir -p ./mini/src/main/resources
-        echo "${{ secrets.REDIS }}" > ./mini/src/main/resources/application-redis.yml
-
-    - name: Make application-jwt.yml
-      run: |
-        mkdir -p ./mini/src/main/resources
-        echo "spring:" > ./mini/src/main/resources/application-jwt.yml
-        echo "  jwt:" >> ./mini/src/main/resources/application-jwt.yml
-        echo "    access-secret: ${{ secrets.JWT_ACCESS_SECRET }}" >> ./mini/src/main/resources/application-jwt.yml
-        echo "    refresh-secret: ${{ secrets.JWT_REFRESH_SECRET }}" >> ./mini/src/main/resources/application-jwt.yml
-
     - name: Create application-new.yml from secret
       run: |
         mkdir -p ./mini/src/main/resources
