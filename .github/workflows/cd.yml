@@ -50,49 +50,10 @@ jobs:
         echo "    access-secret: ${{ secrets.JWT_ACCESS_SECRET }}" >> ./mini/src/main/resources/application-jwt.yml
         echo "    refresh-secret: ${{ secrets.JWT_REFRESH_SECRET }}" >> ./mini/src/main/resources/application-jwt.yml
 
-    - name: Make application-oauth2.yml
+    - name: Create application-new.yml from secret
       run: |
         mkdir -p ./mini/src/main/resources
-        echo "spring:" > ./mini/src/main/resources/application-oauth2.yml
-        echo "  security:" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "    oauth2:" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "      client:" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "        registration:" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "          kakao:" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "            client-id: ${{ secrets.KAKAO_CLIENT_ID }}" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "            client-secret: ${{ secrets.KAKAO_CLIENT_SECRET }}" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "          google:" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "            client-id: ${{ secrets.GOOGLE_CLIENT_ID }}" >> ./mini/src/main/resources/application-oauth2.yml
-        echo "            client-secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}" >> ./mini/src/main/resources/application-oauth2.yml
-
-    - name: Make application-mail.yml
-      run: |
-        mkdir -p ./mini/src/main/resources
-        echo "spring:" > ./mini/src/main/resources/application-mail.yml
-        echo "  mail:" >> ./mini/src/main/resources/application-mail.yml
-        echo "    host: smtp.gmail.com" >> ./mini/src/main/resources/application-mail.yml
-        echo "    port: 587" >> ./mini/src/main/resources/application-mail.yml
-        echo "    username: ${{ secrets.GMAIL_MAIL }}" >> ./mini/src/main/resources/application-mail.yml
-        echo "    password: ${{ secrets.GMAIL_PASSWORD }}" >> ./mini/src/main/resources/application-mail.yml
-        echo "    properties:" >> ./mini/src/main/resources/application-mail.yml
-        echo "      mail:" >> ./mini/src/main/resources/application-mail.yml
-        echo "        smtp:" >> ./mini/src/main/resources/application-mail.yml
-        echo "          auth: true" >> ./mini/src/main/resources/application-mail.yml
-        echo "          starttls:" >> ./mini/src/main/resources/application-mail.yml
-        echo "            enable: true" >> ./mini/src/main/resources/application-mail.yml
-
-    - name: Make application-elasticsearch.yml
-      run: |
-        mkdir -p ./mini/src/main/resources
-        echo "spring:" > ./mini/src/main/resources/application-elasticsearch.yml
-        echo "  data:" >> ./mini/src/main/resources/application-elasticsearch.yml
-        echo "    elasticsearch:" >> ./mini/src/main/resources/application-elasticsearch.yml
-        echo "      port: 9200" >> ./mini/src/main/resources/application-elasticsearch.yml
-        echo "      host: ${{ secrets.ELASTICSEARCH_HOST }}" >> ./mini/src/main/resources/application-elasticsearch.yml
-        echo "      username: elastic" >> ./mini/src/main/resources/application-elasticsearch.yml
-        echo "      password: ${{ secrets.ELASTICSEARCH_PASSWORD }}" >> ./mini/src/main/resources/application-elasticsearch.yml
-        echo "      fingerprint: ${{ secrets.ELASTICSEARCH_FINGERPRINT }}" >> ./mini/src/main/resources/application-elasticsearch.yml
-
+        echo "${{ secrets.APPLICATION_YML }}" > ./mini/src/main/resources/application-new.yml
 
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
