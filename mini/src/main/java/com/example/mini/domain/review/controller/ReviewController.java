@@ -27,9 +27,6 @@ public class ReviewController {
       @RequestBody ReviewRequest request,
       @AuthenticationPrincipal UserDetailsImpl userDetails
   ) {
-    if (userDetails == null || userDetails.getMember() == null) {
-      throw new GlobalException(ReviewErrorCode.MEMBER_NOT_FOUND);
-    }
     ReviewResponse response = reviewService.addReview(userDetails.getMemberId(), request);
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.REVIEW_ADDED, response));
   }
