@@ -1,6 +1,3 @@
-FROM ubuntu:latest
-LABEL authors="82103"
-
 FROM gradle:8.8-jdk17-alpine as builder
 WORKDIR /build
 
