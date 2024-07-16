@@ -151,6 +151,6 @@ public class ReservationService {
     Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
-    return ReservationDetailResponse.fromEntity(reservation);
+    return ReservationDetailResponse.toDto(reservation);
   }
 }
