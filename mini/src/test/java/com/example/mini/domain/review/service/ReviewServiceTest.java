@@ -18,9 +18,9 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.fixture.ReservationEntityFixture;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.review.entity.Review;
-import com.example.mini.domain.review.model.request.ReviewRequest;
-import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
-import com.example.mini.domain.review.model.response.ReviewResponse;
+import com.example.mini.domain.review.model.request.ReviewRequestDto;
+import com.example.mini.domain.review.model.response.AccomodationReviewResponseDto;
+import com.example.mini.domain.review.model.response.ReviewResponseDto;
 import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReviewErrorCode;
@@ -76,7 +76,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_유효한_요청_조건_충족() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(5)
@@ -85,7 +85,7 @@ class ReviewServiceTest { /*모두 성공*/
     when(reviewRepository.existsByReservation(reservation)).thenReturn(false);
 
     // When
-    ReviewResponse response = reviewService.addReview(1L, request);
+    ReviewResponseDto response = reviewService.addReview(1L, request);
 
     // Then
     verify(reviewRepository, times(1)).save(any(Review.class));
@@ -96,7 +96,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_회원_없음_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(5)
@@ -112,7 +112,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_숙소_없음_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(5)
@@ -128,7 +128,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_예약_없음_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(5)
@@ -144,7 +144,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_리뷰_존재_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(5)
@@ -160,7 +160,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_별점_유효하지_않음_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(6) // 유효하지 않은 별점
@@ -174,7 +174,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_코멘트_비어있음_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("") // 비어 있는 후기 내용
         .star(5)
@@ -188,7 +188,7 @@ class ReviewServiceTest { /*모두 성공*/
   @Test
   void 리뷰_추가_유효하지_않은_리뷰_작성_기간_예외_발생() {
     // Given
-    ReviewRequest request = ReviewRequest.builder()
+    ReviewRequestDto request = ReviewRequestDto.builder()
         .accomodationId(1L)
         .comment("좋았습니다!")
         .star(5)
@@ -258,7 +258,7 @@ class ReviewServiceTest { /*모두 성공*/
     when(reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1, 10))).thenReturn(reviewPage);
 
     // When
-    PagedResponse<AccomodationReviewResponse> response = reviewService.getReviewsByAccomodationId(accomodationId, page);
+    PagedResponse<AccomodationReviewResponseDto> response = reviewService.getReviewsByAccomodationId(accomodationId, page);
 
     // Then
     assertEquals(1, response.getTotalPages());
@@ -277,7 +277,7 @@ class ReviewServiceTest { /*모두 성공*/
     when(reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1, 10))).thenReturn(reviewPage);
 
     // When
-    PagedResponse<AccomodationReviewResponse> response = reviewService.getReviewsByAccomodationId(accomodationId, page);
+    PagedResponse<AccomodationReviewResponseDto> response = reviewService.getReviewsByAccomodationId(accomodationId, page);
 
     // Then
     assertEquals(0, response.getTotalPages());

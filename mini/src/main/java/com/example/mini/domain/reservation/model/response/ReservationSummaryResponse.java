@@ -25,7 +25,7 @@ public class ReservationSummaryResponse {
   private LocalDateTime checkOut;
   private List<String> accomodationImageUrls; // 숙소 이미지
 
-  public static ReservationSummaryResponse fromEntity(Reservation reservation) {
+  public static ReservationSummaryResponse toDto(Reservation reservation) {
     List<String> accomodationImageUrls = reservation.getRoom().getAccomodation().getImages().stream()
         .map(AccomodationImage::getImgUrl)
         .collect(Collectors.toList());

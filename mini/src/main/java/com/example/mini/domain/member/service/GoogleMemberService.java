@@ -11,9 +11,9 @@ import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +64,7 @@ public class GoogleMemberService {
         memberRepository.save(member);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserProfileResponse getGoogleUserInfo(HttpServletRequest request) {
         Cookie accessTokenCookie = CookieUtil.getCookie(request, "googleAccessToken");
         if(accessTokenCookie == null){

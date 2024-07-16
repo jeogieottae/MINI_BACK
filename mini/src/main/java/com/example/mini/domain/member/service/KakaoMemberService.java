@@ -11,9 +11,9 @@ import com.example.mini.global.auth.model.KakaoUserInfo;
 import com.example.mini.global.util.cookies.CookieUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +63,7 @@ public class KakaoMemberService {
         memberRepository.save(member);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserProfileResponse getKakaoUserInfo(HttpServletRequest request) {
         Cookie accessTokenCookie = CookieUtil.getCookie(request, "kakaoAccessToken");
         if(accessTokenCookie == null){

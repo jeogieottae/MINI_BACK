@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewResponse {
+public class ReviewResponseDto {
 
   private String comment;
   private Integer star;

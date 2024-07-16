@@ -4,9 +4,12 @@ import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.AccomodationImage;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.*;
 
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder

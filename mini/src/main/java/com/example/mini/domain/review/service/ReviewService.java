@@ -8,9 +8,9 @@ import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.review.entity.Review;
-import com.example.mini.domain.review.model.request.ReviewRequest;
-import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
-import com.example.mini.domain.review.model.response.ReviewResponse;
+import com.example.mini.domain.review.model.request.ReviewRequestDto;
+import com.example.mini.domain.review.model.response.AccomodationReviewResponseDto;
+import com.example.mini.domain.review.model.response.ReviewResponseDto;
 import com.example.mini.domain.review.repository.ReviewRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.ReviewErrorCode;
@@ -44,7 +44,7 @@ public class ReviewService {
      * @return          db에 저장한 데이터 반환
      */
 
-    public ReviewResponse addReview(Long memberId, ReviewRequest request) {
+    public ReviewResponseDto addReview(Long memberId, ReviewRequestDto request) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new GlobalException(ReviewErrorCode.MEMBER_NOT_FOUND));
 
@@ -67,7 +67,7 @@ public class ReviewService {
             .build();
         reviewRepository.save(review);
 
-        return new ReviewResponse(review.getComment(), review.getStar());
+        return new ReviewResponseDto(review.getComment(), review.getStar());
     }
 
     /**
@@ -77,15 +77,15 @@ public class ReviewService {
      * @param page              조회할 리뷰의 페이지 번호
      * @return                  리뷰 정보가 담긴 객체 리스트 반환
      */
-    public PagedResponse<AccomodationReviewResponse> getReviewsByAccomodationId(Long accomodationId, int page) {
+    public PagedResponse<AccomodationReviewResponseDto> getReviewsByAccomodationId(Long accomodationId, int page) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(ReviewErrorCode.ACCOMODATION_NOT_FOUND));
 
         int pageSize = 10;
         Page<Review> reviewPage = reviewRepository.findByAccomodationOrderByCreatedAtDesc(accomodation, PageRequest.of(page - 1,
             pageSize));
-        List<AccomodationReviewResponse> content = reviewPage.stream()
-            .map(AccomodationReviewResponse::toDto)
+        List<AccomodationReviewResponseDto> content = reviewPage.stream()
+            .map(AccomodationReviewResponseDto::toDto)
             .toList();
 
         return new PagedResponse<>(reviewPage.getTotalPages(), reviewPage.getTotalElements(), content);
@@ -96,7 +96,7 @@ public class ReviewService {
      * @param memberCheckoutDate    회원의 체크 아웃 날짜
      * @param confirmedReservation  확정된 예약
      */
-    private void validateReviewRequest(ReviewRequest request, LocalDateTime memberCheckoutDate, Reservation confirmedReservation) {
+    private void validateReviewRequest(ReviewRequestDto request, LocalDateTime memberCheckoutDate, Reservation confirmedReservation) {
         // 별점이 비어 있거나 이상한 값을 가지고 있음
         if (request.getStar() == null || request.getStar() < 1 || request.getStar() > 5) {
             throw new GlobalException(ReviewErrorCode.INVALID_REVIEW_STAR);

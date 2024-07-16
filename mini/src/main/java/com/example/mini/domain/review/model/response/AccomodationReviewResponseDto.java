@@ -9,14 +9,14 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccomodationReviewResponse {
+public class AccomodationReviewResponseDto {
   private String comment;
   private int star;
   private String memberName;
   private LocalDateTime createdAt;
 
-  public static AccomodationReviewResponse toDto(Review review) {
-    return AccomodationReviewResponse.builder()
+  public static AccomodationReviewResponseDto toDto(Review review) {
+    return AccomodationReviewResponseDto.builder()
             .comment(review.getComment())
             .star(review.getStar())
             .memberName(review.getMember().getName())
