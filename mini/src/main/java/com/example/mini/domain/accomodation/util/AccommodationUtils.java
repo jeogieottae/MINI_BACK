@@ -1,4 +1,4 @@
-package com.example.mini.domain.accomodation.common;
+package com.example.mini.domain.accomodation.util;
 
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.response.AccomodationSearchResponseDto;
@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
-public class AccommodationServiceCommon {
+public class AccommodationUtils {
 
 	public static <T> void checkPageException(Page<T> page) {
 		if (page == null || page.getContent().isEmpty()) {
