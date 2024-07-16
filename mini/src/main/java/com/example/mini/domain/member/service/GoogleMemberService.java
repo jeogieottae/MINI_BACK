@@ -46,7 +46,6 @@ public class GoogleMemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
         member.setState(MemberState.INACTIVE);
-        memberRepository.save(member);
     }
 
     @Transactional
