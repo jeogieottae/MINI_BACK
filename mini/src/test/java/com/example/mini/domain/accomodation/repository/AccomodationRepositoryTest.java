@@ -44,7 +44,7 @@ public class AccomodationRepositoryTest { /*모두 통과*/
 
 	@Test
 	void testFindByCategoryName() {
-		List<Long> seoulAccomodations = accomodationRepository.findByCategoryName(AccomodationCategory.SEOUL);
+		List<Long> seoulAccomodations = accomodationRepository.findByCategory(AccomodationCategory.SEOUL);
 		assertThat(seoulAccomodations).contains(testAccomodation1.getId());
 		assertThat(seoulAccomodations).doesNotContain(testAccomodation2.getId());
 	}
@@ -60,7 +60,7 @@ public class AccomodationRepositoryTest { /*모두 통과*/
 	void testFindByIdList() {
 		List<Long> idList = Arrays.asList(testAccomodation1.getId(), testAccomodation2.getId());
 		Pageable pageable = PageRequest.of(0, 10);
-		Page<Accomodation> accomodationPage = accomodationRepository.findByIdList(idList, pageable);
+		Page<Accomodation> accomodationPage = accomodationRepository.findByIdIn(idList, pageable);
 		List<Long> returnedIds = accomodationPage.getContent().stream().map(Accomodation::getId).collect(Collectors.toList());
 		assertThat(returnedIds).containsExactlyInAnyOrderElementsOf(idList);
 	}

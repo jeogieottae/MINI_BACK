@@ -27,7 +27,7 @@ public class ReservationDetailResponse {
   private Boolean cookingAvailable;
   private List<String> roomImageUrls;
 
-  public static ReservationDetailResponse fromEntity(Reservation reservation) {
+  public static ReservationDetailResponse toDto(Reservation reservation) {
     List<String> roomImageUrls = reservation.getRoom().getImages().stream()
         .map(RoomImage::getImgUrl)
         .collect(Collectors.toList());

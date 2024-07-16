@@ -24,7 +24,7 @@ public class ReservationResponse implements Serializable {
   private Integer peopleNumber;
   private Integer totalPrice;
 
-  public static ReservationResponse fromEntity(Reservation reservation) {
+  public static ReservationResponse toDto(Reservation reservation) {
     return ReservationResponse.builder()
         .roomId(reservation.getRoom().getId())
         .accomodationName(reservation.getRoom().getAccomodation().getName())

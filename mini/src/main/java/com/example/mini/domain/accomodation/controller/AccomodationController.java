@@ -1,5 +1,6 @@
 package com.example.mini.domain.accomodation.controller;
 
+import com.example.mini.domain.accomodation.model.request.AccommodationRequestDto;
 import com.example.mini.domain.accomodation.model.response.*;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.api.ApiResponse;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/accommodation")
+@RequestMapping("/api/accommodations")
 public class AccomodationController {
 
     private final AccomodationService accomodationService;
@@ -45,13 +46,12 @@ public class AccomodationController {
     @GetMapping("/{accomodationId}")
     public ResponseEntity<ApiResponse<AccomodationDetailsResponseDto>> getAccomodationDetails(
         @PathVariable Long accomodationId,
-        @RequestParam(value = "check-in", defaultValue = "")String checkIn,
-        @RequestParam(value = "check-out", defaultValue = "")String checkOut,
+        @ModelAttribute AccommodationRequestDto request,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
         AccomodationDetailsResponseDto response = accomodationService
-            .getAccomodationDetails(accomodationId, checkIn, checkOut, memberId);
+            .getAccomodationDetails(accomodationId, request.getCheckIn(), request.getCheckOut(), memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_DETAILS_RETRIEVED, response));
     }
 
@@ -59,10 +59,10 @@ public class AccomodationController {
     public ResponseEntity<ApiResponse<RoomResponseDto>> getRoomDetail(
         @PathVariable Long accomodationId,
         @PathVariable Long roomId,
-        @RequestParam(value = "check-in", defaultValue = "")String checkIn,
-        @RequestParam(value = "check-out", defaultValue = "")String checkOut
+        @ModelAttribute AccommodationRequestDto request
     ) {
-        RoomResponseDto response = accomodationService.getRoomDetail(accomodationId, roomId, checkIn, checkOut);
+        RoomResponseDto response = accomodationService
+            .getRoomDetail(accomodationId, roomId, request.getCheckIn(), request.getCheckOut());
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ROOM_DETAILS_RETRIEVED, response));
     }
 
