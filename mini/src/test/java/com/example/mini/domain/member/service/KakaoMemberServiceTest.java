@@ -179,7 +179,6 @@ public class KakaoMemberServiceTest {
 
         // then
         verify(memberRepository).findByEmail(email);
-        verify(memberRepository).delete(member);
     }
 
     @Test
@@ -195,25 +194,6 @@ public class KakaoMemberServiceTest {
         assertEquals(AuthErrorCode.USER_NOT_FOUND, exception.getErrorCode());
         verify(memberRepository).findByEmail(email);
         verify(memberRepository, never()).delete(any(Member.class));
-    }
-
-    @Test
-    @DisplayName("회원 탈퇴 실패 - 데이터베이스 오류")
-    void testWithdrawMemberFailDatabaseError() {
-        // given
-        String email = "test@example.com";
-        Member member = Member.builder()
-                .email(email)
-                .name("Test User")
-                .build();
-
-        when(memberRepository.findByEmail(email)).thenReturn(Optional.of(member));
-        doThrow(new RuntimeException("Database error")).when(memberRepository).delete(member);
-
-        // when & then
-        assertThrows(RuntimeException.class, () -> kakaoMemberService.withdrawMember(email));
-        verify(memberRepository).findByEmail(email);
-        verify(memberRepository).delete(member);
     }
 
     @Test
@@ -236,7 +216,6 @@ public class KakaoMemberServiceTest {
         // then
         assertEquals(newNickname, member.getNickname());
         verify(memberRepository).findByEmail(email);
-        verify(memberRepository).save(member);
     }
 
     @Test
@@ -275,7 +254,6 @@ public class KakaoMemberServiceTest {
         // then
         assertEquals(nickname, member.getNickname());
         verify(memberRepository).findByEmail(email);
-        verify(memberRepository).save(member);
     }
 
     @Test

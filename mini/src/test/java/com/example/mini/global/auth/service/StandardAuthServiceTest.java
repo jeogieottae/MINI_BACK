@@ -69,7 +69,13 @@ public class StandardAuthServiceTest {
     @DisplayName("register_실패_이메일_중복")
     void failRegister(){
         // given
+        Member member = Member.builder()
+                .email("example@example.com")
+                .password("encodedPassword")
+                .state(MemberState.INACTIVE)
+                .build();
         when(memberRepository.existsByEmail(anyString())).thenReturn(true);
+        when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
 
         //when
         //then
@@ -154,7 +160,7 @@ public class StandardAuthServiceTest {
         }
     }
 
-        @Test
+    @Test
     @DisplayName("standardRefreshToken_실패_리프레시토큰없음")
     void testStandardRefreshTokenFailNoRefreshToken() {
         try (MockedStatic<CookieUtil> mockedCookieUtil = mockStatic(CookieUtil.class)) {
@@ -166,7 +172,7 @@ public class StandardAuthServiceTest {
         }
     }
 
-        @Test
+    @Test
     @DisplayName("createAccessToken_성공")
     void successCreateAccessToken() {
         // given
@@ -185,7 +191,7 @@ public class StandardAuthServiceTest {
         assertEquals("newAccessToken", result);
     }
 
-        @Test
+    @Test
     @DisplayName("createAccessToken_토큰_불일치")
     void failCreateAccessTokenInvalidRefreshToken() {
         // given
@@ -216,7 +222,7 @@ public class StandardAuthServiceTest {
         assertThrows(GlobalException.class, () -> standardAuthService.createAccessToken(refreshToken));
     }
 
-        @Test
+    @Test
     @DisplayName("standardLogout_성공")
     void successStandardLogout() {
         // given
@@ -245,7 +251,7 @@ public class StandardAuthServiceTest {
         }
     }
 
-        @Test
+    @Test
     @DisplayName("standardLogout_실패_사용자_없음")
     void testStandardLogoutFailUserNotFound() {
         // given
@@ -283,7 +289,6 @@ public class StandardAuthServiceTest {
             standardAuthService.standardWithdraw(request, response);
 
             // then
-            verify(memberRepository).delete(mockMember);
             verify(tokenService).blacklistToken(accessToken);
             verify(tokenService).removeToken("refreshToken");
         }
@@ -339,7 +344,6 @@ public class StandardAuthServiceTest {
         standardAuthService.standardUpdateNickname(request, newNickname);
 
         // then
-        verify(memberRepository).save(mockMember);
         assertEquals(newNickname, mockMember.getNickname());
     }
 
@@ -366,10 +370,10 @@ public class StandardAuthServiceTest {
         String accessToken = "validAccessToken";
         String email = "test@example.com";
         Member mockMember = Member.builder()
-            .name("Test User")
-            .nickname("testuser")
-            .email(email)
-            .build();
+                .name("Test User")
+                .nickname("testuser")
+                .email(email)
+                .build();
 
         Cookie mockCookie = new Cookie("accessToken", accessToken);
 

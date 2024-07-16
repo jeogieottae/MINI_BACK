@@ -74,6 +74,10 @@ public class Member extends BaseEntity {
 		return this;
 	}
 
-
+	public void restoreFromDeleted(String newName, String newNickname) {
+		this.state = MemberState.INACTIVE;
+		this.name = newName;
+		this.nickname = newNickname;
+	}
 
 }

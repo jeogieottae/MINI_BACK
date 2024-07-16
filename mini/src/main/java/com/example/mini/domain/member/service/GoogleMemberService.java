@@ -53,7 +53,7 @@ public class GoogleMemberService {
     public void withdrawMember(String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
-        memberRepository.delete(member);
+        member.setState(MemberState.DELETED);
     }
 
     @Transactional
@@ -61,7 +61,6 @@ public class GoogleMemberService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
         member.setNickname(nickname);
-        memberRepository.save(member);
     }
 
     @Transactional
