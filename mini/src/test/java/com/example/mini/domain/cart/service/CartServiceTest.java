@@ -89,6 +89,7 @@ public class CartServiceTest {
         .maxGuests(4)
         .extraPersonCharge(20)
         .accomodation(accomodation)
+        .images(new ArrayList<>())
         .build();
 
     reservation = Reservation.builder()
@@ -154,7 +155,7 @@ public class CartServiceTest {
     GlobalException exception = assertThrows(GlobalException.class,
         () -> cartService.getAllCartItems(member.getId(), 1));
 
-    assertEquals(CartErrorCode.RESERVATION_NOT_FOUND, exception.getErrorCode());
+    assertEquals(CartErrorCode.CART_NOT_FOUND, exception.getErrorCode());
   }
 
   @Test
