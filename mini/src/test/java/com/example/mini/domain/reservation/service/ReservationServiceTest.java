@@ -87,6 +87,7 @@ class ReservationServiceTest {
         .maxGuests(4)
         .extraPersonCharge(10)
         .accomodation(accomodation)
+        .images(new ArrayList<>())
         .build();
 
     reservation = Reservation.builder()

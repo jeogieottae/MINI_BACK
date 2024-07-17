@@ -17,7 +17,6 @@ import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.CartErrorCode;
-import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.email.EmailService;
 
 import com.example.mini.global.model.dto.PagedResponse;
@@ -646,19 +645,15 @@ public class CartServiceTest {
     CartConfirmResponse response = cartService.confirmReservationItem(member.getId(), request);
 
     // Then
-    ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> textCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Member> memberCaptor = ArgumentCaptor.forClass(Member.class);
+    ArgumentCaptor<Reservation> reservationCaptor = ArgumentCaptor.forClass(Reservation.class);
+    ArgumentCaptor<ConfirmCartItemRequest> requestCaptor = ArgumentCaptor.forClass(ConfirmCartItemRequest.class);
 
-    verify(emailService).sendReservationConfirmationEmail(toCaptor.capture(), subjectCaptor.capture(), textCaptor.capture());
+    verify(emailService).sendConfirmationEmail(memberCaptor.capture(), reservationCaptor.capture(), requestCaptor.capture());
 
-    assertEquals(member.getEmail(), toCaptor.getValue());
-    assertEquals("예약 확정 되었습니다", subjectCaptor.getValue());
-    assertTrue(textCaptor.getValue().contains("귀하의 Test Accomodation에서 Test Room 객실 예약이 확정되었습니다."));
-    assertTrue(textCaptor.getValue().contains("체크인: 2023-06-20T14:00"));
-    assertTrue(textCaptor.getValue().contains("체크아웃: 2023-06-23T11:00"));
-    assertTrue(textCaptor.getValue().contains("인원 수: 2명"));
-    assertTrue(textCaptor.getValue().contains("총 가격: 100원"));
+    assertEquals(member.getEmail(), memberCaptor.getValue().getEmail());
+    assertEquals(reservation, reservationCaptor.getValue());
+    assertEquals(request, requestCaptor.getValue());
 
     assertNotNull(response);
     assertEquals(room.getId(), response.getRoomId());
