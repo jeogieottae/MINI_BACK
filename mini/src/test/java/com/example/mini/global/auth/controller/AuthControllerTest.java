@@ -109,7 +109,7 @@ class AuthControllerTest {
 	@DisplayName("닉네임 변경 성공")
 	void changeNicknameSuccess() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		ChangeNicknameRequest changeRequest = new ChangeNicknameRequest("newNickname");
+		ChangeNicknameRequest changeRequest = AuthcontrollerFixture.getChangeNicknameRequest();
 		doNothing().when(authService).updateNickname(request, changeRequest);
 
 		ResponseEntity<ApiResponse<String>> responseEntity = authController.changeNickname(request, changeRequest);

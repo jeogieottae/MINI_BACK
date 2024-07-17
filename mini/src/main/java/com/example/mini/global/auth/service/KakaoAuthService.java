@@ -118,7 +118,7 @@ public class KakaoAuthService {
     }
 
     public TokenResponse authenticateKakao(String code) {
-        TokenResponse tokenResponse = kakaoApiClient.getKakaoToken(code);
+        TokenResponse tokenResponse = kakaoApiClient.getToken(code);
         KakaoUserInfo userInfo = kakaoApiClient.getKakaoUserInfo(tokenResponse.getAccess_token());
         Member member = kakaoMemberService.saveOrUpdateKakaoMember(userInfo);
 
@@ -129,7 +129,7 @@ public class KakaoAuthService {
     }
 
     public TokenResponse refreshKakaoToken(String refreshToken) {
-        TokenResponse tokenResponse = kakaoApiClient.getKakaoRefreshedToken(refreshToken);
+        TokenResponse tokenResponse = kakaoApiClient.getRefreshedToken(refreshToken);
         setTokenCookies(tokenResponse);
         return tokenResponse;
     }

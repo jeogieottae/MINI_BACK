@@ -360,7 +360,7 @@ public class KakaoAuthServiceTest {
         Member mockMember = Member.builder().email("test@example.com").build();
         UserDetails mockUserDetails = mock(UserDetails.class);
 
-        when(kakaoApiClient.getKakaoToken(code)).thenReturn(mockTokenResponse);
+        when(kakaoApiClient.getToken(code)).thenReturn(mockTokenResponse);
         when(kakaoApiClient.getKakaoUserInfo(mockTokenResponse.getAccess_token())).thenReturn(mockUserInfo);
         when(kakaoMemberService.saveOrUpdateKakaoMember(mockUserInfo)).thenReturn(mockMember);
         when(userDetailsService.loadUserByEmail(mockMember.getEmail())).thenReturn(mockUserDetails);
@@ -382,7 +382,7 @@ public class KakaoAuthServiceTest {
             // then
             assertNotNull(result);
             assertEquals(mockTokenResponse, result);
-            verify(kakaoApiClient).getKakaoToken(code);
+            verify(kakaoApiClient).getToken(code);
             verify(kakaoApiClient).getKakaoUserInfo(mockTokenResponse.getAccess_token());
             verify(kakaoMemberService).saveOrUpdateKakaoMember(mockUserInfo);
             verify(userDetailsService).loadUserByEmail(mockMember.getEmail());
@@ -399,11 +399,11 @@ public class KakaoAuthServiceTest {
     void testAuthenticateKakaoFailGetToken() {
         // given
         String code = "invalidAuthorizationCode";
-        when(kakaoApiClient.getKakaoToken(code)).thenThrow(new RuntimeException("Failed to get Kakao token"));
+        when(kakaoApiClient.getToken(code)).thenThrow(new RuntimeException("Failed to get Kakao token"));
 
         // when & then
         assertThrows(RuntimeException.class, () -> kakaoAuthService.authenticateKakao(code));
-        verify(kakaoApiClient).getKakaoToken(code);
+        verify(kakaoApiClient).getToken(code);
         verifyNoInteractions(kakaoMemberService);
         verifyNoInteractions(userDetailsService);
     }
@@ -414,12 +414,12 @@ public class KakaoAuthServiceTest {
         // given
         String code = "validAuthorizationCode";
         TokenResponse mockTokenResponse = AuthServiceTestFixture.createTokenResponse();
-        when(kakaoApiClient.getKakaoToken(code)).thenReturn(mockTokenResponse);
+        when(kakaoApiClient.getToken(code)).thenReturn(mockTokenResponse);
         when(kakaoApiClient.getKakaoUserInfo(mockTokenResponse.getAccess_token())).thenThrow(new RuntimeException("Failed to get user info"));
 
         // when & then
         assertThrows(RuntimeException.class, () -> kakaoAuthService.authenticateKakao(code));
-        verify(kakaoApiClient).getKakaoToken(code);
+        verify(kakaoApiClient).getToken(code);
         verify(kakaoApiClient).getKakaoUserInfo(mockTokenResponse.getAccess_token());
         verifyNoInteractions(kakaoMemberService);
         verifyNoInteractions(userDetailsService);
@@ -431,7 +431,7 @@ public class KakaoAuthServiceTest {
         // given
         String refreshToken = "validRefreshToken";
         TokenResponse mockTokenResponse = AuthServiceTestFixture.createTokenResponse();
-        when(kakaoApiClient.getKakaoRefreshedToken(refreshToken)).thenReturn(mockTokenResponse);
+        when(kakaoApiClient.getRefreshedToken(refreshToken)).thenReturn(mockTokenResponse);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -444,7 +444,7 @@ public class KakaoAuthServiceTest {
             // then
             assertNotNull(result);
             assertEquals(mockTokenResponse, result);
-            verify(kakaoApiClient).getKakaoRefreshedToken(refreshToken);
+            verify(kakaoApiClient).getRefreshedToken(refreshToken);
             mockedCookieUtil.verify(() -> CookieUtil.addCookie(eq(response), eq("kakaoAccessToken"), eq("access_token"), eq(3600L)));
             mockedCookieUtil.verify(() -> CookieUtil.addCookie(eq(response), eq("kakaoRefreshToken"), eq("refresh_token"), eq(3600L)));
         } finally {
@@ -457,11 +457,11 @@ public class KakaoAuthServiceTest {
     void testRefreshKakaoTokenFailApiCall() {
         // given
         String refreshToken = "invalidRefreshToken";
-        when(kakaoApiClient.getKakaoRefreshedToken(refreshToken)).thenThrow(new RuntimeException("Failed to refresh token"));
+        when(kakaoApiClient.getRefreshedToken(refreshToken)).thenThrow(new RuntimeException("Failed to refresh token"));
 
         // when & then
         assertThrows(RuntimeException.class, () -> kakaoAuthService.refreshKakaoToken(refreshToken));
-        verify(kakaoApiClient).getKakaoRefreshedToken(refreshToken);
+        verify(kakaoApiClient).getRefreshedToken(refreshToken);
     }
 
     @Test
