@@ -1,4 +1,4 @@
-package com.example.mini.domain.accomodation.common;
+package com.example.mini.domain.accomodation.util;
 
 import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.accomodation.model.response.AccomodationSearchResponseDto;
@@ -7,14 +7,19 @@ import com.example.mini.domain.accomodation.repository.AccomodationSearchReposit
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
-import java.util.stream.Collectors;
+import com.example.mini.global.model.entity.BaseEntity;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-public class AccommodationServiceCommon {
+
+public class AccommodationUtils {
 
 	public static <T> void checkPageException(Page<T> page) {
 		if (page == null || page.getContent().isEmpty()) {
@@ -51,7 +56,7 @@ public class AccommodationServiceCommon {
 			return new ArrayList<>();
 		}
 		AccomodationCategory category = AccomodationCategory.fromName(region);
-		return accomodationRepository.findByCategory(category);
+		return accomodationRepository.findByCategory(category).stream().map(BaseEntity::getId).toList();
 	}
 
 	/**

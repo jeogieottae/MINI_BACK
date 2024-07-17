@@ -1,25 +1,26 @@
 package com.example.mini.domain.accomodation.service;
 
 import com.example.mini.domain.accomodation.converter.AccomodationConverter;
-import com.example.mini.domain.accomodation.model.response.*;
-import com.example.mini.domain.accomodation.common.AccommodationServiceCommon;
+import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.model.request.AccommodationRequestDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationCardResponseDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
+import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
+import com.example.mini.domain.accomodation.repository.AccomodationRepository;
+import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
+import com.example.mini.domain.accomodation.repository.RoomRepository;
+import com.example.mini.domain.accomodation.util.AccommodationUtils;
 import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.like.repository.LikeRepository;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
-import com.example.mini.global.model.dto.PagedResponse;
-import com.example.mini.global.util.datetime.DateTimeUtil;
-import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.Room;
-import com.example.mini.domain.accomodation.repository.AccomodationRepository;
-import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
-import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.response.ReviewResponseDto;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
-
-import java.util.*;
+import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.util.datetime.DateTimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,8 +29,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
-import static com.example.mini.domain.accomodation.common.AccommodationServiceCommon.checkPageException;
+import static com.example.mini.domain.accomodation.util.AccommodationUtils.checkPageException;
 
 @Slf4j
 @Service
@@ -62,21 +67,20 @@ public class AccomodationService {
      *
      * @param keyword   숙소 이름
      * @param region    지역명
-     * @param checkIn   체크인 시간
-     * @param checkOut  체크아웃 시간
+     * @param request   체크인/체크아웃 시간
      * @param page      조회할 페이지 번호
      * @return          입력된 옵션에 대한 숙소 검색결과 반환
      */
     public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(
-            String keyword, String region, String checkIn, String checkOut, int page, Long memberId
+            String keyword, String region, AccommodationRequestDto request, int page, Long memberId
     ) {
-        List<Long> keywordIList = AccommodationServiceCommon.getIdByKeyword(keyword, accomodationSearchRepository);
-        List<Long> regionIdList = AccommodationServiceCommon.getIdByRegion(region, accomodationRepository);
-        List<Long> commonIds = AccommodationServiceCommon.getCommonId(keywordIList, regionIdList);
+        List<Long> keywordIList = AccommodationUtils.getIdByKeyword(keyword, accomodationSearchRepository);
+        List<Long> regionIdList = AccommodationUtils.getIdByRegion(region, accomodationRepository);
+        List<Long> commonIds = AccommodationUtils.getCommonId(keywordIList, regionIdList);
 
         Page<Accomodation> accommodations = accomodationRepository.findByIdIn(commonIds, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
-        return accomodationConverter.convertToPagedResponse(accommodations, checkIn, checkOut, memberId,this);
+        return accomodationConverter.convertToPagedResponse(accommodations, request.getCheckIn(), request.getCheckOut(), memberId,this);
     }
 
     /**
@@ -91,7 +95,7 @@ public class AccomodationService {
 
         List<RoomResponseDto> rooms = getRoomResponseDto(accomodationId, checkIn, checkOut);
         List<ReviewResponseDto> reviews = getReviewResponse(accomodation.getReviews());
-        Double avgStar = AccommodationServiceCommon.calculateAverageStar(accomodation.getReviews());
+        Double avgStar = AccommodationUtils.calculateAverageStar(accomodation.getReviews());
         Boolean isLiked = getIsLiked(memberId, accomodationId);
 
         return AccomodationDetailsResponseDto.toDto(accomodation, rooms, reviews, avgStar, isLiked);

@@ -2,7 +2,10 @@ package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.review.model.response.ReviewResponseDto;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 

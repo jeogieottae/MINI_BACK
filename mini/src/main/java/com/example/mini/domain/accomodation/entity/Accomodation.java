@@ -4,14 +4,22 @@ import com.example.mini.domain.accomodation.entity.enums.AccomodationCategory;
 import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.model.entity.BaseEntity;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter

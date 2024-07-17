@@ -44,9 +44,9 @@ public class AccomodationRepositoryTest { /*모두 통과*/
 
 	@Test
 	void testFindByCategoryName() {
-		List<Long> seoulAccomodations = accomodationRepository.findByCategory(AccomodationCategory.SEOUL);
-		assertThat(seoulAccomodations).contains(testAccomodation1.getId());
-		assertThat(seoulAccomodations).doesNotContain(testAccomodation2.getId());
+		List<Accomodation> seoulAccomodations = accomodationRepository.findByCategory(AccomodationCategory.SEOUL);
+		assertThat(seoulAccomodations).contains(testAccomodation1);
+		assertThat(seoulAccomodations).doesNotContain(testAccomodation2);
 	}
 
 	@Test
