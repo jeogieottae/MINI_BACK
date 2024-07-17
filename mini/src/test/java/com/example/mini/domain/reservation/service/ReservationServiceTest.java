@@ -77,6 +77,7 @@ class ReservationServiceTest {
         .address("123 Test St, Test City")
         .parkingAvailable(true)
         .cookingAvailable(true)
+        .images(new ArrayList<>())
         .build();
 
     room = Room.builder()
@@ -141,7 +142,12 @@ class ReservationServiceTest {
     assertEquals(room.getMaxGuests(), response.getMaxGuests());
     assertEquals(request.getPeopleNumber(), response.getPeopleNumber());
 
-    verify(emailService, times(1)).sendReservationConfirmationEmail(anyString(), anyString(), anyString());
+    ArgumentCaptor<Member> memberCaptor = ArgumentCaptor.forClass(Member.class);
+    ArgumentCaptor<Reservation> reservationCaptor = ArgumentCaptor.forClass(Reservation.class);
+    ArgumentCaptor<ReservationRequest> requestCaptor = ArgumentCaptor.forClass(ReservationRequest.class);
+
+
+    verify(emailService).sendReservationConfirmationEmail(memberCaptor.capture(), reservationCaptor.capture(), requestCaptor.capture());
   }
 
   @Test
@@ -160,23 +166,27 @@ class ReservationServiceTest {
     when(reservationRepository.findOverlappingReservations(List.of(room.getId()),
         reservation.getCheckIn(), reservation.getCheckOut())).thenReturn(new ArrayList<>());
 
+    when(reservationRepository.save(any(Reservation.class))).thenAnswer(invocation -> {
+      Reservation savedReservation = invocation.getArgument(0);
+      savedReservation.setId(1L);
+      return savedReservation;
+    });
+
     // When
     ReservationResponse response = reservationService.createConfirmedReservation(member.getId(), request);
 
     // Then
-    ArgumentCaptor<String> toCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> subjectCaptor = ArgumentCaptor.forClass(String.class);
-    ArgumentCaptor<String> textCaptor = ArgumentCaptor.forClass(String.class);
+    ArgumentCaptor<Member> memberCaptor = ArgumentCaptor.forClass(Member.class);
+    ArgumentCaptor<Reservation> reservationCaptor = ArgumentCaptor.forClass(Reservation.class);
+    ArgumentCaptor<ReservationRequest> requestCaptor = ArgumentCaptor.forClass(ReservationRequest.class);
 
-    verify(emailService).sendReservationConfirmationEmail(toCaptor.capture(), subjectCaptor.capture(), textCaptor.capture());
+    verify(emailService).sendReservationConfirmationEmail(
+        memberCaptor.capture(), reservationCaptor.capture(), requestCaptor.capture()
+    );
 
-    assertEquals(member.getEmail(), toCaptor.getValue());
-    assertEquals("예약 확정 되었습니다", subjectCaptor.getValue());
-    assertTrue(textCaptor.getValue().contains("귀하의 Test Accomodation에서 Test Room 객실 예약이 확정되었습니다."));
-    assertTrue(textCaptor.getValue().contains("체크인: 2023-06-20T14:00"));
-    assertTrue(textCaptor.getValue().contains("체크아웃: 2023-06-23T11:00"));
-    assertTrue(textCaptor.getValue().contains("인원 수: 2명"));
-    assertTrue(textCaptor.getValue().contains("총 가격: 100원"));
+    assertEquals(member, memberCaptor.getValue());
+    assertEquals(1L, reservationCaptor.getValue().getId());
+    assertEquals(request, requestCaptor.getValue());
 
     assertNotNull(response);
     assertEquals(room.getId(), response.getRoomId());
