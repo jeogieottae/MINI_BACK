@@ -39,7 +39,7 @@ public class ReservationController {
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATIONS_RETRIEVED, reservations));
   }
 
-  @GetMapping("/detail/{reservationId}")
+  @GetMapping("/{reservationId}")
   public ResponseEntity<ApiResponse<ReservationDetailResponse>> getReservationDetail(
       @PathVariable("reservationId") Long reservationId,
       @AuthenticationPrincipal UserDetailsImpl userDetails) {

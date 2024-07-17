@@ -1,7 +1,11 @@
 package com.example.mini.domain.accomodation.model.response;
 
-import com.example.mini.domain.review.model.response.ReviewResponse;
-import lombok.*;
+import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.review.model.response.ReviewResponseDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -12,7 +16,18 @@ import java.util.List;
 public class AccomodationDetailsResponseDto {
     private AccomodationResponseDto accomodation;
     private List<RoomResponseDto> rooms;
-    private List<ReviewResponse> reviews;
+    private List<ReviewResponseDto> reviews;
     private Double avgStar;
     private boolean isLiked;
+
+
+    public static AccomodationDetailsResponseDto toDto(Accomodation accomodation, List<RoomResponseDto> rooms, List<ReviewResponseDto> reviews, Double avgStar, Boolean isLiked) {
+        return AccomodationDetailsResponseDto.builder()
+            .accomodation(AccomodationResponseDto.toDto(accomodation))
+            .rooms(rooms)
+            .reviews(reviews)
+            .avgStar(avgStar)
+            .isLiked(isLiked)
+            .build();
+    }
 }

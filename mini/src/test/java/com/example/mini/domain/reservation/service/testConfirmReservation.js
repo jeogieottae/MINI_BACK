@@ -18,7 +18,7 @@ let lockAcquisitionTime = new Trend('lock_acquisition_time');
 let lockFailureRate = new Rate('lock_failure_rate');
 
 const confirmItem = {
-  roomId: 17,
+  roomId: 18,
   peopleNumber: 2,
   checkIn: '2024-06-28T14:00:00',
   checkOut: '2024-06-30T10:00:00',
@@ -30,8 +30,8 @@ export default function () {
   let startTime = new Date().getTime();
 
   let itemsToSend = confirmItem || [];
-  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlcG9pbnQxMTI2QGdtYWlsLmNvbSIsImlhdCI6MTcxOTkwNDgxMiwiZXhwIjoxNzE5OTA2NjEyfQ.YYCmA4kW8uQIWY_ksA2UKfkqPR619pvuKCg35T59lJg';
-  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlcG9pbnQxMTI2QGdtYWlsLmNvbSIsImlhdCI6MTcxOTkwNDgxMiwiZXhwIjoxNzIxMTE0NDEyfQ.V3EOs3Nn5nNF1Tp7Qt87P-1F5T-w8q2xjx6lWRRdBUc';
+  let accessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlcG9pbnQxMTI2QGdtYWlsLmNvbSIsImlhdCI6MTcyMDE3NDEzOCwiZXhwIjoxNzIwMTc1OTM4fQ.eTfiM6utfVqd3sBqBC4YSCu8V9sjOxmEbw_Qrut25Ww';
+  let refreshToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJlcG9pbnQxMTI2QGdtYWlsLmNvbSIsImlhdCI6MTcyMDE3NDEzOCwiZXhwIjoxNzIxMzgzNzM4fQ.iB26hzCOr_MLwshPFn2XCwLtveAS2Q-z9K1SMPKa-7U';
 
   let confirmResponse = http.post(`${baseUrl}/api/reservation`, JSON.stringify(confirmItem), {
     headers: {

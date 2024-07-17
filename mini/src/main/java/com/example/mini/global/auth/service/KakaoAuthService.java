@@ -41,7 +41,9 @@ public class KakaoAuthService {
     @Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
     private String redirectUri;
 
-    private String kakaoLogoutRedirectUri = "https://your-trip-pied.vercel.app/";
+    @Value("${spring.security.oauth2.client.logout.kakao-redirect-uri}")
+    private String kakaoLogoutRedirectUri;
+
 
     public String getKakaoAuthUrl() {
         return "https://kauth.kakao.com/oauth/authorize"
@@ -121,7 +123,7 @@ public class KakaoAuthService {
     }
 
     public TokenResponse authenticateKakao(String code) {
-        TokenResponse tokenResponse = kakaoApiClient.getKakaoToken(code);
+        TokenResponse tokenResponse = kakaoApiClient.getToken(code);
         KakaoUserInfo userInfo = kakaoApiClient.getKakaoUserInfo(tokenResponse.getAccess_token());
         Member member = kakaoMemberService.saveOrUpdateKakaoMember(userInfo);
 
@@ -132,7 +134,7 @@ public class KakaoAuthService {
     }
 
     public TokenResponse refreshKakaoToken(String refreshToken) {
-        TokenResponse tokenResponse = kakaoApiClient.getKakaoRefreshedToken(refreshToken);
+        TokenResponse tokenResponse = kakaoApiClient.getRefreshedToken(refreshToken);
         setTokenCookies(tokenResponse);
         return tokenResponse;
     }

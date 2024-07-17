@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReviewRequest {
+public class ReviewRequestDto {
   private Long accomodationId;
   private String comment;
   private Integer star;

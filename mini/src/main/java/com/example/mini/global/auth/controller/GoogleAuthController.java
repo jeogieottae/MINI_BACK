@@ -21,7 +21,9 @@ public class GoogleAuthController {
 
     @GetMapping("/login")
     public void googleLogin(HttpServletResponse response) throws IOException {
-        response.sendRedirect(googleAuthService.getGoogleAuthUrl());
+        String googleAuthUrl = googleAuthService.getGoogleAuthUrl();
+        log.info("google login url: {}", googleAuthUrl);
+        response.sendRedirect(googleAuthUrl);
     }
 
     @GetMapping("/callback")

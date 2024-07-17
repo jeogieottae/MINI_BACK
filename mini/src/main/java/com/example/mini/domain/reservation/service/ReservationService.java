@@ -70,7 +70,7 @@ public class ReservationService {
 
     sendConfirmationEmail(member, reservation, request);
 
-    return ReservationResponse.fromEntity(reservation);
+    return ReservationResponse.toDto(reservation);
   }
 
   private void sendConfirmationEmail(Member member, Reservation reservation, ReservationRequest request) {
@@ -139,7 +139,7 @@ public class ReservationService {
         memberId, ReservationStatus.CONFIRMED, PageRequest.of(page - 1, pageSize));
 
     List<ReservationSummaryResponse> content = reservations.getContent().stream()
-        .map(ReservationSummaryResponse::fromEntity)
+        .map(ReservationSummaryResponse::toDto)
         .collect(Collectors.toList());
 
     return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
@@ -149,7 +149,7 @@ public class ReservationService {
     Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
-    return ReservationDetailResponse.fromEntity(reservation);
+    return ReservationDetailResponse.toDto(reservation);
   }
 }
 

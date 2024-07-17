@@ -103,7 +103,7 @@ public class GoogleAuthServiceTest {
             mockedCookieUtil.when(() -> CookieUtil.getCookie(request, "googleRefreshToken")).thenReturn(refreshTokenCookie);
             mockedCookieUtil.when(() -> CookieUtil.addCookie(any(), anyString(), anyString(), anyInt())).thenAnswer(invocation -> null);
 
-            when(googleApiClient.getGoogleRefreshedToken(refreshToken)).thenReturn(expectedTokenResponse);
+            when(googleApiClient.getRefreshedToken(refreshToken)).thenReturn(expectedTokenResponse);
 
             // when
             TokenResponse actualTokenResponse = googleAuthService.googleRefresh(request);
@@ -114,7 +114,7 @@ public class GoogleAuthServiceTest {
             assertEquals(expectedTokenResponse.getRefresh_token(), actualTokenResponse.getRefresh_token());
             assertEquals(expectedTokenResponse.getExpires_in(), actualTokenResponse.getExpires_in());
 
-            verify(googleApiClient).getGoogleRefreshedToken(refreshToken);
+            verify(googleApiClient).getRefreshedToken(refreshToken);
         } finally {
             RequestContextHolder.resetRequestAttributes();
         }
@@ -265,7 +265,7 @@ public class GoogleAuthServiceTest {
         GoogleUserInfo mockUserInfo = AuthServiceTestFixture.getGoogleUserInfo();
         Member mockMember = Member.builder().email("test@example.com").build();
 
-        when(googleApiClient.getGoogleToken(code)).thenReturn(mockTokenResponse);
+        when(googleApiClient.getToken(code)).thenReturn(mockTokenResponse);
         when(googleApiClient.getGoogleUserInfo(mockTokenResponse.getAccess_token())).thenReturn(mockUserInfo);
         when(googleMemberService.saveOrUpdateGoogleMember(mockUserInfo)).thenReturn(mockMember);
 
@@ -290,7 +290,7 @@ public class GoogleAuthServiceTest {
             assertNotNull(result);
             assertEquals(mockTokenResponse, result);
 
-            verify(googleApiClient).getGoogleToken(code);
+            verify(googleApiClient).getToken(code);
             verify(googleApiClient).getGoogleUserInfo(mockTokenResponse.getAccess_token());
             verify(googleMemberService).saveOrUpdateGoogleMember(mockUserInfo);
             verify(userDetailsService).loadUserByEmail(mockMember.getEmail());
@@ -314,7 +314,7 @@ public class GoogleAuthServiceTest {
         String refreshToken = "validRefreshToken";
         TokenResponse mockTokenResponse = AuthServiceTestFixture.createTokenResponse();
 
-        when(googleApiClient.getGoogleRefreshedToken(refreshToken)).thenReturn(mockTokenResponse);
+        when(googleApiClient.getRefreshedToken(refreshToken)).thenReturn(mockTokenResponse);
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -328,7 +328,7 @@ public class GoogleAuthServiceTest {
             assertNotNull(result);
             assertEquals(mockTokenResponse, result);
 
-            verify(googleApiClient).getGoogleRefreshedToken(refreshToken);
+            verify(googleApiClient).getRefreshedToken(refreshToken);
 
             mockedCookieUtil.verify(() ->
                     CookieUtil.addCookie(eq(response), eq("googleAccessToken"), eq("access_token"), eq(3600L))

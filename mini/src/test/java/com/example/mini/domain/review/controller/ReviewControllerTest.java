@@ -16,9 +16,9 @@ import com.example.mini.domain.member.repository.MemberRepository;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
-import com.example.mini.domain.review.model.request.ReviewRequest;
-import com.example.mini.domain.review.model.response.AccomodationReviewResponse;
-import com.example.mini.domain.review.model.response.ReviewResponse;
+import com.example.mini.domain.review.model.request.ReviewRequestDto;
+import com.example.mini.domain.review.model.response.AccomodationReviewResponseDto;
+import com.example.mini.domain.review.model.response.ReviewResponseDto;
 import com.example.mini.domain.review.service.ReviewService;
 import com.example.mini.global.api.exception.success.SuccessCode;
 import com.example.mini.global.model.dto.PagedResponse;
@@ -65,13 +65,13 @@ class ReviewControllerTest { /*모두 통과*/
 	@WithMockUser(username = "test@example.com", roles = "USER")
 	void 리뷰_추가_성공() throws Exception {
 		// Given
-		ReviewRequest request = ReviewRequest.builder()
+		ReviewRequestDto request = ReviewRequestDto.builder()
 			.accomodationId(1L)
 			.comment("좋아요")
 			.star(5)
 			.build();
 
-		ReviewResponse response = new ReviewResponse("좋아요", 5);
+		ReviewResponseDto response = new ReviewResponseDto("좋아요", 5);
 
 		Member member = Member.builder()
 			.id(1L)
@@ -97,7 +97,7 @@ class ReviewControllerTest { /*모두 통과*/
 		when(accomodationRepository.findById(any(Long.class))).thenReturn(Optional.of(accomodation));
 		when(reservationRepository.findByMemberIdAndAccomodationIdAndStatus(any(Long.class), any(Long.class), eq(ReservationStatus.CONFIRMED))).thenReturn(Optional.of(reservation));
 
-		when(reviewService.addReview(any(Long.class), any(ReviewRequest.class))).thenReturn(response);
+		when(reviewService.addReview(any(Long.class), any(ReviewRequestDto.class))).thenReturn(response);
 
 		// Mocking UserDetailsImpl
 		UserDetailsImpl userDetails = new UserDetailsImpl(member);
@@ -122,21 +122,21 @@ class ReviewControllerTest { /*모두 통과*/
 			.andExpect(jsonPath("$.body.comment").value("좋아요"))
 			.andExpect(jsonPath("$.body.star").value(5));
 
-		verify(reviewService).addReview(eq(1L), any(ReviewRequest.class));
+		verify(reviewService).addReview(eq(1L), any(ReviewRequestDto.class));
 	}
 
 	@Test
 	@WithMockUser(username = "test@example.com", roles = "USER")
 	void 숙소_리뷰_조회_성공() throws Exception {
 		// Given
-		AccomodationReviewResponse reviewResponse = AccomodationReviewResponse.builder()
+		AccomodationReviewResponseDto reviewResponse = AccomodationReviewResponseDto.builder()
 			.comment("좋아요")
 			.star(5)
 			.memberName("하이")
 			.createdAt(LocalDateTime.now())
 			.build();
 
-		PagedResponse<AccomodationReviewResponse> pagedResponse = new PagedResponse<>(1, 1L, Collections.singletonList(reviewResponse));
+		PagedResponse<AccomodationReviewResponseDto> pagedResponse = new PagedResponse<>(1, 1L, Collections.singletonList(reviewResponse));
 		when(reviewService.getReviewsByAccomodationId(1L, 1)).thenReturn(pagedResponse);
 
 		// When & Then

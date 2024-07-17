@@ -43,6 +43,14 @@ public class StandardAuthService {
         log.info("회원가입 시도: 이메일={}, 이름={}, 닉네임={}", request.getEmail(), request.getName(), request.getNickname());
 
         if (memberRepository.existsByEmail(request.getEmail())) {
+
+            // 삭제 되어있는 상태이면 계정 복구
+            Member member = memberRepository.findByEmail(request.getEmail()).get();
+            if(member.getState() == MemberState.DELETED){
+                member.restoreFromDeleted(request.getName(), request.getNickname());
+                return;
+            }
+
             throw new GlobalException(AuthErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
@@ -150,7 +158,7 @@ public class StandardAuthService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
-        memberRepository.delete(member);
+        member.setState(MemberState.DELETED);
         tokenService.blacklistToken(accessToken);
         tokenService.removeToken(tokenService.getRefreshToken(email));
 
@@ -167,7 +175,6 @@ public class StandardAuthService {
                 .orElseThrow(() -> new GlobalException(AuthErrorCode.USER_NOT_FOUND));
 
         member.setNickname(newNickname);
-        memberRepository.save(member);
 
         log.info("닉네임 변경 성공: 이메일={}, 새 닉네임={}", email, newNickname);
     }

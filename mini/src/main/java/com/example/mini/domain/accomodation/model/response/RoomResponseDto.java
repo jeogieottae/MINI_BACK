@@ -2,9 +2,13 @@ package com.example.mini.domain.accomodation.model.response;
 
 import com.example.mini.domain.accomodation.entity.Room;
 import com.example.mini.domain.accomodation.entity.RoomImage;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.*;
 
 @Getter
 @Builder
