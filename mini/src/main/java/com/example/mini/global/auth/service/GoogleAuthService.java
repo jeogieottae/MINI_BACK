@@ -118,7 +118,7 @@ public class GoogleAuthService {
     }
 
     public TokenResponse authenticateGoogle(String code) {
-        TokenResponse tokenResponse = googleApiClient.getGoogleToken(code);
+        TokenResponse tokenResponse = googleApiClient.getToken(code);
         GoogleUserInfo userInfo = googleApiClient.getGoogleUserInfo(tokenResponse.getAccess_token());
         Member member = googleMemberService.saveOrUpdateGoogleMember(userInfo);
 
@@ -129,7 +129,7 @@ public class GoogleAuthService {
     }
 
     public TokenResponse refreshGoogleToken(String refreshToken) {
-        TokenResponse tokenResponse = googleApiClient.getGoogleRefreshedToken(refreshToken);
+        TokenResponse tokenResponse = googleApiClient.getRefreshedToken(refreshToken);
         setTokenCookies(tokenResponse);
         return tokenResponse;
     }
