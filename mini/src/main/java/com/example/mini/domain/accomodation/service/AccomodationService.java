@@ -56,7 +56,7 @@ public class AccomodationService {
      * @param page  조회할 페이지 번호
      * @return      숙소 정보 목록을 포함한 응답 객체
      */
-    public PagedResponse<AccomodationCardResponseDto> getAllAccommodations(int page, Long memberId) {
+    public PagedResponse<AccomodationCardResponseDto> getAllAccommodations(int page, Optional<Long> memberId) {
         Page<Accomodation> accommodations = accomodationRepository.findAll(PageRequest.of(page - 1, PageSize));
         checkPageException(accommodations);
         return accomodationConverter.convertToPagedResponse(accommodations, null, null, memberId, this);
@@ -71,8 +71,8 @@ public class AccomodationService {
      * @param page      조회할 페이지 번호
      * @return          입력된 옵션에 대한 숙소 검색결과 반환
      */
-    public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(
-            String keyword, String region, AccommodationRequestDto request, int page, Long memberId
+    public PagedResponse<AccomodationCardResponseDto> getAllAccommodationsBySearch(
+            String keyword, String region, AccommodationRequestDto request, int page, Optional<Long> memberId
     ) {
         List<Long> keywordIList = AccommodationUtils.getIdByKeyword(keyword, accomodationSearchRepository);
         List<Long> regionIdList = AccommodationUtils.getIdByRegion(region, accomodationRepository);
@@ -89,14 +89,16 @@ public class AccomodationService {
      * @param accomodationId    숙소 id
      * @return                  숙소 정보 및 객실 목록을 포함한 응답 객체
      */
-    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut, Long memberId) {
+    public AccomodationDetailsResponseDto getAccomodationDetails(Long accomodationId, String checkIn, String checkOut, Optional<Long> memberId) {
         Accomodation accomodation = accomodationRepository.findById(accomodationId)
             .orElseThrow(() -> new GlobalException(AccomodationErrorCode.RESOURCE_NOT_FOUND));
 
         List<RoomResponseDto> rooms = getRoomResponseDto(accomodationId, checkIn, checkOut);
         List<ReviewResponseDto> reviews = getReviewResponse(accomodation.getReviews());
         Double avgStar = AccommodationUtils.calculateAverageStar(accomodation.getReviews());
-        Boolean isLiked = getIsLiked(memberId, accomodationId);
+        boolean isLiked = false;
+        if (memberId.isPresent())
+            isLiked = getIsLiked(memberId.get(), accomodationId);
 
         return AccomodationDetailsResponseDto.toDto(accomodation, rooms, reviews, avgStar, isLiked);
     }
@@ -160,9 +162,9 @@ public class AccomodationService {
 
 
     public boolean getIsLiked(Long memberId, Long accomodationId) {
-        boolean isLiked;
+        boolean isLiked = false;
         Optional<Like> optionalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
-		isLiked = optionalIsLiked.map(Like::isLiked).orElse(false);
+        isLiked = optionalIsLiked.map(Like::isLiked).orElse(false);
         return isLiked;
     }
 }

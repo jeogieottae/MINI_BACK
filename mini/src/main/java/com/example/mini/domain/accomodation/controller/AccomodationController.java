@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/accommodations")
@@ -31,22 +33,22 @@ public class AccomodationController {
         @RequestParam(value="page", defaultValue = "1") int page,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
+        Optional<Long> memberId = (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATIONS_RETRIEVED, response));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> searchByAccommodationName(
+    public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> getAllAccommodationsBySearch(
         @RequestParam(value = "accommodationName", defaultValue = "") String name,
         @RequestParam(value = "region", defaultValue = "") String region,
         @ModelAttribute AccommodationRequestDto request,
         @RequestParam(value= "page", defaultValue = "1") int page,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
+        Optional<Long> memberId = (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
         PagedResponse<AccomodationCardResponseDto> response =
-                accomodationService.searchByAccommodationName(name, region, request, page, memberId);
+                accomodationService.getAllAccommodationsBySearch(name, region, request, page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }
 
     @GetMapping("/{accomodationId}")
@@ -55,7 +57,7 @@ public class AccomodationController {
         @ModelAttribute AccommodationRequestDto request,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
+        Optional<Long> memberId = (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
         AccomodationDetailsResponseDto response = accomodationService
             .getAccomodationDetails(accomodationId, request.getCheckIn(), request.getCheckOut(), memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_DETAILS_RETRIEVED, response));
