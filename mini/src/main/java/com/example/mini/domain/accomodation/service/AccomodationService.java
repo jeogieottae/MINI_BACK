@@ -161,8 +161,8 @@ public class AccomodationService {
 
     public boolean getIsLiked(Long memberId, Long accomodationId) {
         boolean isLiked;
-        Optional<Like> optinalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
-		isLiked = optinalIsLiked.map(Like::isLiked).orElse(false);
+        Optional<Like> optionalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
+		isLiked = optionalIsLiked.map(Like::isLiked).orElse(false);
         return isLiked;
     }
 }

@@ -3,7 +3,11 @@ package com.example.mini.domain.review.model.response;
 import java.time.LocalDateTime;
 
 import com.example.mini.domain.review.entity.Review;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 
 @Getter
 @Builder

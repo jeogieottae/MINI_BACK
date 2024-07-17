@@ -2,15 +2,13 @@ package com.example.mini.global.api;
 
 import com.example.mini.global.api.exception.error.ErrorCode;
 import com.example.mini.global.api.exception.success.SuccessCode;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

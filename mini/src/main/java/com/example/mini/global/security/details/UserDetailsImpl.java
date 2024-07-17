@@ -4,7 +4,6 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.member.entity.enums.MemberState;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,7 +17,7 @@ public class UserDetailsImpl implements UserDetails {
 
 	public UserDetailsImpl(Member member) {
 		if (member == null) {
-			throw new IllegalArgumentException("Member cannot be null");
+			throw new IllegalArgumentException("Member 값이 null이 될 수 없습니다.");
 		}
 		this.member = member;
 	}

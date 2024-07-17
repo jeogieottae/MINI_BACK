@@ -1,7 +1,6 @@
 package com.example.mini.domain.reservation.service;
 
 import com.example.mini.domain.accomodation.entity.Room;
-import com.example.mini.domain.cart.model.request.ConfirmCartItemRequest;
 import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
@@ -12,7 +11,6 @@ import com.example.mini.domain.reservation.model.response.ReservationSummaryResp
 import com.example.mini.domain.reservation.repository.ReservationRepository;
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.member.repository.MemberRepository;
-import com.example.mini.global.api.exception.error.CartErrorCode;
 import com.example.mini.global.api.exception.error.ReservationErrorCode;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.email.EmailService;
