@@ -42,14 +42,16 @@ public class CartService {
 
   public PagedResponse<CartResponse> getAllCartItems(Long memberId, int page) {
     Member member = getMember(memberId);
-    cartRepository.findByMember(member)
-        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
-
-    int pageSize = 10;
-    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
-        member.getId(), ReservationStatus.PENDING, PageRequest.of(page - 1, pageSize));
+    getCartByMember(member);
+    Page<Reservation> reservations = getPendingReservations(member, page);
     List<CartResponse> content = reservations.stream().map(CartResponse::toDto).toList();
     return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
+  }
+
+  private Page<Reservation> getPendingReservations(Member member, int page) {
+    int pageSize = 10;
+    return reservationRepository.findReservationsByMemberId(
+        member.getId(), ReservationStatus.PENDING, PageRequest.of(page - 1, pageSize));
   }
 
   private Member getMember(Long memberId) {
@@ -57,15 +59,31 @@ public class CartService {
         .orElseThrow(() -> new GlobalException(CartErrorCode.MEMBER_NOT_FOUND));
   }
 
+  private Cart getCartByMember(Member member) {
+    return cartRepository.findByMember(member)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
+  }
+
   public void addCartItem(Long memberId, AddCartItemRequest request) {
     Member member = getMember(memberId);
+    Room room = getRoomById(request.getRoomId());
+    validateRequest(request, room);
 
-    Room room = roomRepository.findById(request.getRoomId())
+    Cart cart = getOrCreateCart(member);
+    validateDuplicateReservation(cart, room.getId(), request.getCheckIn(), request.getCheckOut());
+
+    Reservation reservation = createReservation(member, room, request);
+    cart.getReservationList().add(reservation);
+    cartRepository.save(cart);
+  }
+
+  private Room getRoomById(Long roomId) {
+    return roomRepository.findById(roomId)
         .orElseThrow(() -> new GlobalException(CartErrorCode.ROOM_NOT_FOUND));
+  }
 
-    int totalPeople = request.getPeopleNumber();
-
-    if (totalPeople > room.getMaxGuests()) {
+  private void validateRequest(AddCartItemRequest request, Room room) {
+    if (request.getPeopleNumber() > room.getMaxGuests()) {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
@@ -74,22 +92,20 @@ public class CartService {
     }
 
     validateOverlappingReservations(room.getId(), request.getCheckIn(), request.getCheckOut());
+  }
 
-    Cart cart = cartRepository.findByMember(member).orElse(null);
+  private Cart getOrCreateCart(Member member) {
+    return cartRepository.findByMember(member).orElseGet(() -> Cart.builder()
+        .member(member)
+        .reservationList(new ArrayList<>())
+        .build());
+  }
 
-    if (cart != null) {
-      validateDuplicateReservation(cart, room.getId(), request.getCheckIn(), request.getCheckOut());
-    } else {
-      cart = Cart.builder()
-          .member(member)
-          .reservationList(new ArrayList<>())
-          .build();
-    }
-
-    int additionalCharge = calculateAdditionalCharge(room, totalPeople);
+  private Reservation createReservation(Member member, Room room, AddCartItemRequest request) {
+    int additionalCharge = calculateAdditionalCharge(room, request.getPeopleNumber());
     int finalPrice = room.getPrice() + additionalCharge;
 
-    Reservation reservation = Reservation.builder()
+    return Reservation.builder()
         .peopleNumber(request.getPeopleNumber())
         .extraCharge(additionalCharge)
         .totalPrice(finalPrice)
@@ -100,19 +116,16 @@ public class CartService {
         .room(room)
         .status(ReservationStatus.PENDING)
         .build();
-
-    cart.getReservationList().add(reservation);
-    cartRepository.save(cart);
   }
 
   private void validateDuplicateReservation(Cart cart, Long roomId, LocalDateTime checkIn, LocalDateTime checkOut) {
-    for (Reservation existingReservation : cart.getReservationList()) {
+    cart.getReservationList().forEach(existingReservation -> {
       if (existingReservation.getRoom().getId().equals(roomId) &&
           existingReservation.getCheckIn().equals(checkIn) &&
           existingReservation.getCheckOut().equals(checkOut)) {
         throw new GlobalException(CartErrorCode.DUPLICATE_RESERVATION);
       }
-    }
+    });
   }
 
   private int calculateAdditionalCharge(Room room, int totalPeople) {
@@ -121,56 +134,67 @@ public class CartService {
 
   public void deleteCartItem(Long memberId, DeleteCartItemRequest request) {
     Member member = getMember(memberId);
+    Cart cart = getCartByMember(member);
 
-    Cart cart = cartRepository.findByMember(member)
-        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
-
-    for (Long reservationId : request.getReservationIds()) {
-      Reservation reservation = reservationRepository.findById(reservationId)
-          .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
-
-      if (!cart.getReservationList().contains(reservation)) {
-        throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
-      }
-
-      if (reservation.getStatus() != ReservationStatus.PENDING) {
-        throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
-      }
-
+    request.getReservationIds().forEach(reservationId -> {
+      Reservation reservation = getReservationById(reservationId);
+      validateReservationInCart(cart, reservation);
       cart.getReservationList().remove(reservation);
       reservationRepository.delete(reservation);
-    }
+    });
 
     cartRepository.save(cart);
+  }
+
+  private Reservation getReservationById(Long reservationId) {
+    return reservationRepository.findById(reservationId)
+        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+  }
+
+  private void validateReservationInCart(Cart cart, Reservation reservation) {
+    if (!cart.getReservationList().contains(reservation)) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_IN_CART);
+    }
+
+    if (reservation.getStatus() != ReservationStatus.PENDING) {
+      throw new GlobalException(CartErrorCode.RESERVATION_NOT_PENDING);
+    }
   }
 
   @RedissonLock(key = "'confirmReservation_' + #request.roomId + '_' + #request.checkIn + '_' + #request.checkOut")
   public CartConfirmResponse confirmReservationItem(Long memberId, ConfirmCartItemRequest request) {
     Member member = getMember(memberId);
+    Cart cart = getCartByMember(member);
 
-    Cart cart = cartRepository.findByMember(member)
-        .orElseThrow(() -> new GlobalException(CartErrorCode.CART_NOT_FOUND));
-
-    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
-      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
-    }
-
-    Reservation reservation = reservationRepository.findById(request.getReservationId())
-        .orElseThrow(() -> new GlobalException(CartErrorCode.RESERVATION_NOT_FOUND));
+    validateCheckoutDate(request);
+    Reservation reservation = getReservationById(request.getReservationId());
 
     validateReservationDetails(reservation, request, member, cart);
-
     validateOverlappingReservations(request.getRoomId(), request.getCheckIn(), request.getCheckOut());
 
     if (request.getPeopleNumber() > reservation.getRoom().getMaxGuests()) {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
-    reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
-        request.getCheckOut(), ReservationStatus.CONFIRMED, request.getReservationId());
+    updateReservationDetails(request, reservation);
 
     sendConfirmationEmail(member, reservation, request);
 
+    return createCartConfirmResponse(reservation, request);
+  }
+
+  private void validateCheckoutDate(ConfirmCartItemRequest request) {
+    if (!request.getCheckOut().isAfter(request.getCheckIn())) {
+      throw new GlobalException(CartErrorCode.INVALID_CHECKOUT_DATE);
+    }
+  }
+
+  private void updateReservationDetails(ConfirmCartItemRequest request, Reservation reservation) {
+    reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
+        request.getCheckOut(), ReservationStatus.CONFIRMED, request.getReservationId());
+  }
+
+  private CartConfirmResponse createCartConfirmResponse(Reservation reservation, ConfirmCartItemRequest request) {
     return CartConfirmResponse.builder()
         .roomId(reservation.getRoom().getId())
         .accomodationName(reservation.getRoom().getAccomodation().getName())
