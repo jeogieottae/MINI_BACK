@@ -7,12 +7,16 @@ import com.example.mini.domain.accomodation.repository.AccomodationSearchReposit
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 
 public class AccommodationUtils {
 

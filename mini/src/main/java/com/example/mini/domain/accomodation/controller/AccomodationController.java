@@ -1,7 +1,9 @@
 package com.example.mini.domain.accomodation.controller;
 
 import com.example.mini.domain.accomodation.model.request.AccommodationRequestDto;
-import com.example.mini.domain.accomodation.model.response.*;
+import com.example.mini.domain.accomodation.model.response.AccomodationCardResponseDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
+import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.api.ApiResponse;
 import com.example.mini.global.api.exception.success.SuccessCode;
@@ -10,7 +12,12 @@ import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor

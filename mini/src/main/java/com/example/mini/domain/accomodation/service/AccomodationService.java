@@ -1,25 +1,25 @@
 package com.example.mini.domain.accomodation.service;
 
 import com.example.mini.domain.accomodation.converter.AccomodationConverter;
-import com.example.mini.domain.accomodation.model.response.*;
+import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.model.response.AccomodationCardResponseDto;
+import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
+import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
+import com.example.mini.domain.accomodation.repository.AccomodationRepository;
+import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
+import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.accomodation.util.AccommodationUtils;
 import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.like.repository.LikeRepository;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.repository.ReservationRepository;
-import com.example.mini.global.model.dto.PagedResponse;
-import com.example.mini.global.util.datetime.DateTimeUtil;
-import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.domain.accomodation.entity.Room;
-import com.example.mini.domain.accomodation.repository.AccomodationRepository;
-import com.example.mini.domain.accomodation.repository.AccomodationSearchRepository;
-import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.domain.review.model.response.ReviewResponseDto;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
-
-import java.util.*;
+import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.util.datetime.DateTimeUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,6 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 import static com.example.mini.domain.accomodation.util.AccommodationUtils.checkPageException;
 
