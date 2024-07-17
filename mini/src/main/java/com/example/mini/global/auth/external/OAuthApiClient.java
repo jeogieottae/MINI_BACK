@@ -2,7 +2,6 @@ package com.example.mini.global.auth.external;
 
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AuthErrorCode;
-import com.example.mini.global.auth.model.GoogleUserInfo;
 import com.example.mini.global.auth.model.TokenResponse;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
