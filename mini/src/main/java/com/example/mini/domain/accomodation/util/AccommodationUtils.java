@@ -7,6 +7,7 @@ import com.example.mini.domain.accomodation.repository.AccomodationSearchReposit
 import com.example.mini.domain.review.entity.Review;
 import com.example.mini.global.api.exception.GlobalException;
 import com.example.mini.global.api.exception.error.AccomodationErrorCode;
+import com.example.mini.global.model.entity.BaseEntity;
 import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
@@ -55,7 +56,7 @@ public class AccommodationUtils {
 			return new ArrayList<>();
 		}
 		AccomodationCategory category = AccomodationCategory.fromName(region);
-		return accomodationRepository.findByCategory(category);
+		return accomodationRepository.findByCategory(category).stream().map(BaseEntity::getId).toList();
 	}
 
 	/**

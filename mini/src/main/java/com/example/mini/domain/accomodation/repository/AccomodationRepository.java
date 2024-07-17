@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AccomodationRepository extends JpaRepository<Accomodation, Long> {
 
-    List<Long> findByCategory(AccomodationCategory category);
+    List<Accomodation> findByCategory(AccomodationCategory category);
 
     Page<Accomodation> findAll(Pageable pageable);
 

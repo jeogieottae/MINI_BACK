@@ -3,6 +3,7 @@ package com.example.mini.domain.accomodation.service;
 import com.example.mini.domain.accomodation.converter.AccomodationConverter;
 import com.example.mini.domain.accomodation.entity.Accomodation;
 import com.example.mini.domain.accomodation.entity.Room;
+import com.example.mini.domain.accomodation.model.request.AccommodationRequestDto;
 import com.example.mini.domain.accomodation.model.response.AccomodationCardResponseDto;
 import com.example.mini.domain.accomodation.model.response.AccomodationDetailsResponseDto;
 import com.example.mini.domain.accomodation.model.response.RoomResponseDto;
@@ -66,13 +67,12 @@ public class AccomodationService {
      *
      * @param keyword   숙소 이름
      * @param region    지역명
-     * @param checkIn   체크인 시간
-     * @param checkOut  체크아웃 시간
+     * @param request   체크인/체크아웃 시간
      * @param page      조회할 페이지 번호
      * @return          입력된 옵션에 대한 숙소 검색결과 반환
      */
     public PagedResponse<AccomodationCardResponseDto> searchByAccommodationName(
-            String keyword, String region, String checkIn, String checkOut, int page, Long memberId
+            String keyword, String region, AccommodationRequestDto request, int page, Long memberId
     ) {
         List<Long> keywordIList = AccommodationUtils.getIdByKeyword(keyword, accomodationSearchRepository);
         List<Long> regionIdList = AccommodationUtils.getIdByRegion(region, accomodationRepository);
@@ -80,7 +80,7 @@ public class AccomodationService {
 
         Page<Accomodation> accommodations = accomodationRepository.findByIdIn(commonIds, PageRequest.of(page-1, PageSize));
         checkPageException(accommodations);
-        return accomodationConverter.convertToPagedResponse(accommodations, checkIn, checkOut, memberId,this);
+        return accomodationConverter.convertToPagedResponse(accommodations, request.getCheckIn(), request.getCheckOut(), memberId,this);
     }
 
     /**

@@ -40,14 +40,14 @@ public class AccomodationController {
     public ResponseEntity<ApiResponse<PagedResponse<AccomodationCardResponseDto>>> searchByAccommodationName(
         @RequestParam(value = "query", defaultValue = "") String query,
         @RequestParam(value = "region", defaultValue = "") String region,
-        @RequestParam(value = "check-in", defaultValue = "")String checkIn,
+        @ModelAttribute AccommodationRequestDto request,
         @RequestParam(value = "check-out", defaultValue = "")String checkOut,
         @RequestParam(value= "page", defaultValue = "1") int page,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         Long memberId = (userDetails==null) ? -1L : userDetails.getMemberId();
         PagedResponse<AccomodationCardResponseDto> response =
-                accomodationService.searchByAccommodationName(query, region, checkIn, checkOut, page, memberId);
+                accomodationService.searchByAccommodationName(query, region, request, page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }
 
     @GetMapping("/{accomodationId}")
