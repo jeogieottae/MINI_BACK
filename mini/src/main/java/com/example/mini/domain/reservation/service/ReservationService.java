@@ -158,4 +158,18 @@ public class ReservationService {
   private void cancelReservationDetails(Long reservationId) {
     reservationRepository.cancelReservation(reservationId, ReservationStatus.CANCELED);
   }
+
+  public PagedResponse<ReservationCancelResponse> getcanceledReservation(Long memberId, int page) {
+    getMember(memberId);
+    int pageSize = 10;
+
+    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
+        memberId, ReservationStatus.CANCELED, PageRequest.of(page - 1, pageSize));
+
+    List<ReservationCancelResponse> content = reservations.getContent().stream()
+        .map(ReservationCancelResponse::toDto)
+        .collect(Collectors.toList());
+
+    return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
+  }
 }
