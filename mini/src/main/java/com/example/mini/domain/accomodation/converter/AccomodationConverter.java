@@ -5,6 +5,7 @@ import com.example.mini.domain.accomodation.model.response.AccomodationCardRespo
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -43,5 +44,9 @@ public class AccomodationConverter {
 		}).collect(Collectors.toList());
 
 		return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
+	}
+
+	public static Optional<Long> convertToMemberId(UserDetailsImpl userDetails) {
+		return (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
 	}
 }
