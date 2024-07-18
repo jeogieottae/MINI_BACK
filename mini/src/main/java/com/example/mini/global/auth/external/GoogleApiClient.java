@@ -1,15 +1,10 @@
 package com.example.mini.global.auth.external;
 
-import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.api.exception.error.AuthErrorCode;
+
 import com.example.mini.global.auth.model.GoogleUserInfo;
-import com.example.mini.global.auth.model.TokenResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+
 
 import java.util.Map;
 

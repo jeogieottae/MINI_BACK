@@ -5,11 +5,13 @@ import com.example.mini.domain.accomodation.model.response.AccomodationCardRespo
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.model.dto.PagedResponse;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +27,18 @@ public class AccomodationConverter {
 	 */
 
 	public PagedResponse<AccomodationCardResponseDto> convertToPagedResponse(
-		Page<Accomodation> accommodations, String checkIn, String checkOut, Long memberId, AccomodationService accomodationService) {
+			Page<Accomodation> accommodations, String checkIn, String checkOut, Optional<Long> memberId, AccomodationService accomodationService) {
 		List<AccomodationCardResponseDto> content = accommodations.getContent().stream().map(accommodation -> {
 			Integer minPrice = roomRepository.findMinPriceByAccommodationId(accommodation.getId());
 			boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
 				.stream()
 				.anyMatch(room -> accomodationService.getReservationAvailable(checkIn, checkOut, room.getId()));
-			boolean isLiked = accomodationService.getIsLiked(memberId, accommodation.getId());
+
+			boolean isLiked = false;
+			if (memberId.isPresent()) {
+				isLiked = accomodationService.getIsLiked(memberId.get(), accommodation.getId());
+			}
+
 			return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable, isLiked);
 		}).collect(Collectors.toList());
 

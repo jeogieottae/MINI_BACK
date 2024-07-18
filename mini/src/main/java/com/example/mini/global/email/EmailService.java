@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailService {
 
-  private final JavaMailSender mailSender;
-
   @Async("mailExecutor")
   public void sendReservationConfirmationEmail(String to, String subject, String text) {
     SimpleMailMessage message = new SimpleMailMessage();

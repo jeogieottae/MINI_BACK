@@ -1,7 +1,5 @@
 package com.example.mini.global.util.cookies;
 
-import com.example.mini.global.api.exception.GlobalException;
-import com.example.mini.global.api.exception.error.AuthErrorCode;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

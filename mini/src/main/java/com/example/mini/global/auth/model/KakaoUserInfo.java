@@ -12,7 +12,7 @@ public class KakaoUserInfo {
 	public static final String PROFILE = "profile";
 	public static final String NICKNAME = "nickname";
 
-	private Map<String, Object> attributes;
+	private final Map<String, Object> attributes;
 
 	public KakaoUserInfo(Map<String, Object> attributes) {
 		this.attributes = attributes;

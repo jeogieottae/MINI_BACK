@@ -23,7 +23,6 @@ public class AsyncConfig implements AsyncConfigurer {
     executor.setThreadNamePrefix("MailExecutor-"); //스레드 이름
     //데코레이터 적용
     executor.setTaskDecorator(new AsyncDecorator());
-
     //거부 작업 처리
     executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
 
