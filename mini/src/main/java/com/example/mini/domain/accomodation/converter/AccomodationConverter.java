@@ -34,12 +34,7 @@ public class AccomodationConverter {
 			boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
 				.stream()
 				.anyMatch(room -> accomodationService.getReservationAvailable(checkIn, checkOut, room.getId()));
-
-			boolean isLiked = false;
-			if (memberId.isPresent()) {
-				isLiked = accomodationService.getIsLiked(memberId.get(), accommodation.getId());
-			}
-
+			boolean isLiked = accomodationService.getIsLiked(memberId, accommodation.getId());
 			return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable, isLiked);
 		}).collect(Collectors.toList());
 
