@@ -99,7 +99,7 @@ public class AccomodationService {
         Double avgStar = AccommodationUtils.calculateAverageStar(accomodation.getReviews());
         boolean isLiked = false;
         if (memberId.isPresent())
-            isLiked = getIsLiked(memberId.get(), accomodationId);
+            isLiked = getIsLiked(memberId, accomodationId);
 
         return AccomodationDetailsResponseDto.toDto(accomodation, rooms, reviews, avgStar, isLiked);
     }
@@ -162,10 +162,14 @@ public class AccomodationService {
     }
 
 
-    public boolean getIsLiked(Long memberId, Long accomodationId) {
+    public boolean getIsLiked(Optional<Long> memberId, Long accomodationId) {
         boolean isLiked = false;
-        Optional<Like> optionalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
-        isLiked = optionalIsLiked.map(Like::isLiked).orElse(false);
+        if (memberId.isPresent()) {
+            Optional<Like> optionalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId.get(), accomodationId);
+            isLiked = optionalIsLiked.map(Like::isLiked).orElse(false);
+        }
+//        Optional<Like> optionalIsLiked = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId);
+//        isLiked = optionalIsLiked.map(Like::isLiked).orElse(false);
         return isLiked;
     }
 }

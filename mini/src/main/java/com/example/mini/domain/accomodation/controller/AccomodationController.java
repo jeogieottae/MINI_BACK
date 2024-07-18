@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+import static com.example.mini.domain.accomodation.converter.AccomodationConverter.convertToMemberId;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/accommodations")
@@ -33,7 +35,7 @@ public class AccomodationController {
         @RequestParam(value="page", defaultValue = "1") int page,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Optional<Long> memberId = (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
+        Optional<Long> memberId = convertToMemberId(userDetails);
         PagedResponse<AccomodationCardResponseDto> response = accomodationService.getAllAccommodations(page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATIONS_RETRIEVED, response));
     }
@@ -46,7 +48,7 @@ public class AccomodationController {
         @RequestParam(value= "page", defaultValue = "1") int page,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Optional<Long> memberId = (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
+        Optional<Long> memberId = convertToMemberId(userDetails);
         PagedResponse<AccomodationCardResponseDto> response =
                 accomodationService.getAllAccommodationsBySearch(name, region, request, page, memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_SEARCH_SUCCESS, response));    }
@@ -57,7 +59,7 @@ public class AccomodationController {
         @ModelAttribute AccommodationRequestDto request,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        Optional<Long> memberId = (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
+        Optional<Long> memberId = convertToMemberId(userDetails);
         AccomodationDetailsResponseDto response = accomodationService
             .getAccomodationDetails(accomodationId, request.getCheckIn(), request.getCheckOut(), memberId);
         return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.ACCOMMODATION_DETAILS_RETRIEVED, response));

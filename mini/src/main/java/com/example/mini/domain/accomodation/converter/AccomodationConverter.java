@@ -5,6 +5,7 @@ import com.example.mini.domain.accomodation.model.response.AccomodationCardRespo
 import com.example.mini.domain.accomodation.repository.RoomRepository;
 import com.example.mini.domain.accomodation.service.AccomodationService;
 import com.example.mini.global.model.dto.PagedResponse;
+import com.example.mini.global.security.details.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -33,15 +34,14 @@ public class AccomodationConverter {
 			boolean isAvailable = roomRepository.findByAccomodationId(accommodation.getId())
 				.stream()
 				.anyMatch(room -> accomodationService.getReservationAvailable(checkIn, checkOut, room.getId()));
-
-			boolean isLiked = false;
-			if (memberId.isPresent()) {
-				isLiked = accomodationService.getIsLiked(memberId.get(), accommodation.getId());
-			}
-
+			boolean isLiked = accomodationService.getIsLiked(memberId, accommodation.getId());
 			return AccomodationCardResponseDto.toDto(accommodation, minPrice, isAvailable, isLiked);
 		}).collect(Collectors.toList());
 
 		return new PagedResponse<>(accommodations.getTotalPages(), accommodations.getTotalElements(), content);
+	}
+
+	public static Optional<Long> convertToMemberId(UserDetailsImpl userDetails) {
+		return (userDetails==null) ? Optional.empty() :userDetails.getMemberId().describeConstable();
 	}
 }
