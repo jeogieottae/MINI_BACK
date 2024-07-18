@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -54,6 +53,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
       @Param("status") ReservationStatus status,
       @Param("id") Long id
   );
+
+  @Modifying
+  @Query("UPDATE Reservation r SET r.status = :status WHERE r.id = :id")
+  void cancelReservation(@Param("id") Long id, @Param("status") ReservationStatus status);
 
   Optional<Reservation> findByIdAndMemberId(Long reservationId, Long memberId);
 

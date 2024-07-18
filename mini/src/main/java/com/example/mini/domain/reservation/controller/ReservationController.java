@@ -1,6 +1,7 @@
 package com.example.mini.domain.reservation.controller;
 
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
+import com.example.mini.domain.reservation.model.response.ReservationCancelResponse;
 import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
 import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
@@ -49,5 +50,14 @@ public class ReservationController {
     ReservationDetailResponse reservationDetail = reservationService.getReservationDetail(
         reservationId, memberId);
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATION_DETAIL_RETRIEVED, reservationDetail));
+  }
+
+  @PutMapping("/{reservationId}")
+  public ResponseEntity<ApiResponse<ReservationCancelResponse>> cancelReservation(
+      @PathVariable("reservationId") Long reservationId,
+      @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    Long memberId = userDetails.getMemberId();
+    ReservationCancelResponse response = reservationService.cancelReservation(reservationId, memberId);
+    return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.RESERVATION_CANCELED, response));
   }
 }

@@ -176,7 +176,7 @@ public class CartService {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
-    updateReservationDetails(request, reservation);
+    updateReservationDetails(request);
 
     emailService.sendConfirmationEmail(member, reservation, request);
 
@@ -189,7 +189,7 @@ public class CartService {
     }
   }
 
-  private void updateReservationDetails(ConfirmCartItemRequest request, Reservation reservation) {
+  private void updateReservationDetails(ConfirmCartItemRequest request) {
     reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
         request.getCheckOut(), ReservationStatus.CONFIRMED, request.getReservationId());
   }

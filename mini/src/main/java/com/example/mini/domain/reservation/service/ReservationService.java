@@ -6,6 +6,7 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
+import com.example.mini.domain.reservation.model.response.ReservationCancelResponse;
 import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
 import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
@@ -138,5 +139,23 @@ public class ReservationService {
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
     return ReservationDetailResponse.toDto(reservation);
+  }
+
+  public ReservationCancelResponse cancelReservation(Long reservationId, Long memberId) {
+    getMember(memberId);
+    Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+    if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
+      throw new GlobalException(ReservationErrorCode.INVALID_RESERVATION_STATUS);
+    }
+
+    cancelReservationDetails(reservationId);
+
+    return ReservationCancelResponse.toDto(reservation);
+  }
+
+  private void cancelReservationDetails(Long reservationId) {
+    reservationRepository.cancelReservation(reservationId, ReservationStatus.CANCELED);
   }
 }

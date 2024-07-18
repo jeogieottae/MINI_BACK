@@ -43,6 +43,7 @@ public enum SuccessCode {
     RESERVATION_CONFIRMED(HttpStatus.CREATED,  "예약 확정 성공"),
     RESERVATIONS_RETRIEVED(HttpStatus.OK,  "예약 목록 조회 성공"),
     RESERVATION_DETAIL_RETRIEVED(HttpStatus.OK,  "예약 상세 정보 조회 성공"),
+    RESERVATION_CANCELED(HttpStatus.OK, "예약 취소 성공"),
 
     /*ReviewController*/
     REVIEW_ADDED(HttpStatus.CREATED,  "리뷰 등록 성공"),
