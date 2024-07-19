@@ -26,7 +26,6 @@ public class AccomodationConverter {
 	 * @param accommodations    변환할 객체
 	 * @return                  숙소 정보 목록을 포함한 응답 객체
 	 */
-
 	public PagedResponse<AccomodationCardResponseDto> convertToPagedResponse(
 			Page<Accomodation> accommodations, String checkIn, String checkOut, Optional<Long> memberId, AccomodationService accomodationService) {
 		List<AccomodationCardResponseDto> content = accommodations.getContent().stream().map(accommodation -> {
