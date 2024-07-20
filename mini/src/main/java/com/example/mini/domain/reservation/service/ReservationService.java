@@ -5,6 +5,7 @@ import com.example.mini.domain.member.entity.Member;
 import com.example.mini.domain.reservation.entity.Reservation;
 import com.example.mini.domain.reservation.entity.enums.ReservationStatus;
 import com.example.mini.domain.reservation.model.request.ReservationRequest;
+import com.example.mini.domain.reservation.model.response.ReservationCancelResponse;
 import com.example.mini.domain.reservation.model.response.ReservationDetailResponse;
 import com.example.mini.domain.reservation.model.response.ReservationResponse;
 import com.example.mini.domain.reservation.model.response.ReservationSummaryResponse;
@@ -68,23 +69,9 @@ public class ReservationService {
 
     reservationRepository.save(reservation);
 
-    sendConfirmationEmail(member, reservation, request);
+    emailService.sendReservationConfirmationEmail(member, reservation, request);
 
     return ReservationResponse.toDto(reservation);
-  }
-
-  private void sendConfirmationEmail(Member member, Reservation reservation, ReservationRequest request) {
-    String to = member.getEmail();
-    String subject = "예약 확정 되었습니다";
-    String text = String.format("귀하의 %s에서 %s 객실 예약이 확정되었습니다.\n체크인: %s\n체크아웃: %s\n인원 수: %d명\n총 가격: %d원",
-        reservation.getRoom().getAccomodation().getName(),
-        reservation.getRoom().getName(),
-        request.getCheckIn(),
-        request.getCheckOut(),
-        request.getPeopleNumber(),
-        reservation.getTotalPrice());
-
-    emailService.sendReservationConfirmationEmail(to, subject, text);
   }
 
   private Member getMember(Long memberId) {
@@ -150,5 +137,37 @@ public class ReservationService {
         .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
 
     return ReservationDetailResponse.toDto(reservation);
+  }
+
+  public ReservationCancelResponse cancelReservation(Long reservationId, Long memberId) {
+    getMember(memberId);
+    Reservation reservation = reservationRepository.findByIdAndMemberId(reservationId, memberId)
+        .orElseThrow(() -> new GlobalException(ReservationErrorCode.RESERVATION_NOT_FOUND));
+
+    if (reservation.getStatus() != ReservationStatus.CONFIRMED) {
+      throw new GlobalException(ReservationErrorCode.INVALID_RESERVATION_STATUS);
+    }
+
+    cancelReservationDetails(reservationId);
+
+    return ReservationCancelResponse.toDto(reservation);
+  }
+
+  private void cancelReservationDetails(Long reservationId) {
+    reservationRepository.cancelReservation(reservationId, ReservationStatus.CANCELED);
+  }
+
+  public PagedResponse<ReservationCancelResponse> getcanceledReservation(Long memberId, int page) {
+    getMember(memberId);
+    int pageSize = 10;
+
+    Page<Reservation> reservations = reservationRepository.findReservationsByMemberId(
+        memberId, ReservationStatus.CANCELED, PageRequest.of(page - 1, pageSize));
+
+    List<ReservationCancelResponse> content = reservations.getContent().stream()
+        .map(ReservationCancelResponse::toDto)
+        .collect(Collectors.toList());
+
+    return new PagedResponse<>(reservations.getTotalPages(), reservations.getTotalElements(), content);
   }
 }

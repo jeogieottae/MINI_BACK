@@ -176,9 +176,9 @@ public class CartService {
       throw new GlobalException(CartErrorCode.EXCEEDS_MAX_GUESTS);
     }
 
-    updateReservationDetails(request, reservation);
+    updateReservationDetails(request);
 
-    sendConfirmationEmail(member, reservation, request);
+    emailService.sendConfirmationEmail(member, reservation, request);
 
     return createCartConfirmResponse(reservation, request);
   }
@@ -189,7 +189,7 @@ public class CartService {
     }
   }
 
-  private void updateReservationDetails(ConfirmCartItemRequest request, Reservation reservation) {
+  private void updateReservationDetails(ConfirmCartItemRequest request) {
     reservationRepository.updateReservationDetails(request.getPeopleNumber(), request.getCheckIn(),
         request.getCheckOut(), ReservationStatus.CONFIRMED, request.getReservationId());
   }
@@ -231,19 +231,5 @@ public class CartService {
     if (hasConflictingReservation) {
       throw new GlobalException(CartErrorCode.CONFLICTING_RESERVATION);
     }
-  }
-
-  private void sendConfirmationEmail(Member member, Reservation reservation, ConfirmCartItemRequest request) {
-    String to = member.getEmail();
-    String subject = "예약 확정 되었습니다";
-    String text = String.format("귀하의 %s에서 %s 객실 예약이 확정되었습니다.\n체크인: %s\n체크아웃: %s\n인원 수: %d명\n총 가격: %d원",
-        reservation.getRoom().getAccomodation().getName(),
-        reservation.getRoom().getName(),
-        request.getCheckIn(),
-        request.getCheckOut(),
-        request.getPeopleNumber(),
-        reservation.getTotalPrice());
-
-    emailService.sendReservationConfirmationEmail(to, subject, text);
   }
 }
