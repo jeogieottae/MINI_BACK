@@ -1,15 +1,15 @@
 package com.example.mini.domain.like.entity;
 
-import com.example.mini.domain.member.entity.Member;
-import com.example.mini.domain.accomodation.entity.Accomodation;
-import com.example.mini.global.model.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.experimental.SuperBuilder;
+    import com.example.mini.domain.member.entity.Member;
+    import com.example.mini.domain.accomodation.entity.Accomodation;
+    import com.example.mini.global.model.entity.BaseEntity;
+    import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.EqualsAndHashCode;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
+    import lombok.Setter;
+    import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "likes")
