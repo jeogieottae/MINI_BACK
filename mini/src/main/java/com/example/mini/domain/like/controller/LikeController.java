@@ -35,5 +35,4 @@ public class LikeController {
     PagedResponse<AccomodationResponse> likedAccomodations = likeService.getLikedAccomodations(userDetails.getMemberId(), page);
     return ResponseEntity.ok(ApiResponse.SUCCESS(SuccessCode.LIKED_ACCOMMODATIONS_RETRIEVED, likedAccomodations));
   }
-
 }

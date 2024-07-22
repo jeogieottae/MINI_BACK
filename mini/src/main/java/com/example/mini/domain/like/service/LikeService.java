@@ -70,7 +70,8 @@ public class LikeService {
   @Transactional(readOnly = true)
   public Boolean getLikeStatus(Long memberId, Long accomodationId) {
     Boolean cachedLikeStatus = cacheService.getLikeStatus(memberId, accomodationId);
-    if (cachedLikeStatus != null) {
+
+    if (cachedLikeStatus != null) { // 캐시에 데이터가 있으면 캐시에서 반환
       return cachedLikeStatus;
     }
 
@@ -81,7 +82,7 @@ public class LikeService {
     }
 
     boolean isLiked = like.isLiked();
-    cacheService.cacheLikeStatus(memberId, accomodationId, isLiked);
+    cacheService.cacheLikeStatus(memberId, accomodationId, isLiked); // DB에서 조회한 데이터를 캐시에 저장
     return isLiked;
   }
 }

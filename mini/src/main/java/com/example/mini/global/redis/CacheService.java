@@ -18,7 +18,7 @@ public class CacheService {
 		redisTemplate.opsForValue().set(key, isLiked, 1, TimeUnit.HOURS); // 1시간 TTL
 	}
 
-	public Boolean getLikeStatus(Long memberId, Long accomodationId) {
+	public Boolean getLikeStatus(Long memberId, Long accomodationId) { // redis에서 데이터 조회
 		String key = LIKE_KEY_PREFIX + memberId + "::" + accomodationId;
 		return (Boolean) redisTemplate.opsForValue().get(key);
 	}
