@@ -24,65 +24,43 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LikeService {
 
-  private final LikeRepository likeRepository;
-  private final MemberRepository memberRepository;
-  private final AccomodationRepository accomodationRepository;
-  private final CacheService cacheService;
+    private final LikeRepository likeRepository;
+    private final MemberRepository memberRepository;
+    private final AccomodationRepository accomodationRepository;
+    private final CacheService cacheService;
 
-  @Transactional
-  public boolean toggleLike(Long memberId, Long accomodationId) {
-    Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new GlobalException(LikeErrorCode.MEMBER_NOT_FOUND));
+    @Transactional
+    public boolean toggleLike(Long memberId, Long accomodationId) {
+        memberRepository.findById(memberId)
+            .orElseThrow(() -> new GlobalException(LikeErrorCode.MEMBER_NOT_FOUND));
 
-    Accomodation accomodation = accomodationRepository.findById(accomodationId)
-        .orElseThrow(() -> new GlobalException(LikeErrorCode.ACCOMODATION_NOT_FOUND));
+        accomodationRepository.findById(accomodationId)
+            .orElseThrow(() -> new GlobalException(LikeErrorCode.ACCOMODATION_NOT_FOUND));
 
-    Boolean currentStatus = getLikeStatus(memberId, accomodationId);
-    boolean newStatus = !currentStatus;
+        Boolean currentStatus = getLikeStatus(memberId, accomodationId);
+        boolean newStatus = !currentStatus;
 
-    Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId)
-        .orElseGet(() -> new Like(member, accomodation, newStatus));
+        // 캐시 갱신
+        cacheService.cacheLikeStatus(memberId, accomodationId, newStatus);
 
-    like.setLiked(newStatus);
-    likeRepository.save(like);
+        // 배치에서 데이터베이스 갱신 처리 (현재는 데이터베이스 저장을 하지 않음)
 
-    // 캐시 갱신
-    if (newStatus) {
-      cacheService.cacheLikeStatus(memberId, accomodationId, true);
-    } else {
-      cacheService.evictLikeStatus(memberId, accomodationId);
+        return newStatus;
     }
 
-    return newStatus;
-  }
+    @Transactional(readOnly = true)
+    public PagedResponse<AccomodationResponse> getLikedAccomodations(Long memberId, int page) {
+        int pageSize = 10;
+        Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, PageRequest.of(page - 1, pageSize));
 
-  @Transactional(readOnly = true)
-  public PagedResponse<AccomodationResponse> getLikedAccomodations(Long memberId, int page) {
-    int pageSize = 10;
-    Page<Like> likes = likeRepository.findByMemberIdAndIsLiked(memberId, true, PageRequest.of(page - 1, pageSize));
-
-    List<AccomodationResponse> content = likes.stream()
-        .map(like -> AccomodationResponse.toDto(like.getAccomodation()))
-        .toList();
-    return new PagedResponse<>(likes.getTotalPages(), likes.getTotalElements(), content);
-  }
-
-  @Transactional(readOnly = true)
-  public Boolean getLikeStatus(Long memberId, Long accomodationId) {
-    Boolean cachedLikeStatus = cacheService.getLikeStatus(memberId, accomodationId);
-
-    if (cachedLikeStatus != null) { // 캐시에 데이터가 있으면 캐시에서 반환
-      return cachedLikeStatus;
+        List<AccomodationResponse> content = likes.stream()
+            .map(like -> AccomodationResponse.toDto(like.getAccomodation()))
+            .toList();
+        return new PagedResponse<>(likes.getTotalPages(), likes.getTotalElements(), content);
     }
 
-    // 캐시에 없는 경우 DB에서 조회
-    Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId).orElse(null);
-    if (like == null) {
-      return false; // 좋아요가 없는 경우 false 반환
+    @Transactional(readOnly = true)
+    public Boolean getLikeStatus(Long memberId, Long accomodationId) {
+        return cacheService.readThroughLikeStatus(memberId, accomodationId, likeRepository);
     }
-
-    boolean isLiked = like.isLiked();
-    cacheService.cacheLikeStatus(memberId, accomodationId, isLiked); // DB에서 조회한 데이터를 캐시에 저장
-    return isLiked;
-  }
 }

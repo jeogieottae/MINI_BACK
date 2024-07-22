@@ -1,8 +1,11 @@
 package com.example.mini.domain.like.config;
 
+import com.example.mini.domain.accomodation.entity.Accomodation;
+import com.example.mini.domain.accomodation.repository.AccomodationRepository;
 import com.example.mini.domain.like.entity.Like;
 import com.example.mini.domain.like.repository.LikeRepository;
-import com.example.mini.global.redis.CacheService;
+import com.example.mini.domain.member.entity.Member;
+import com.example.mini.domain.member.repository.MemberRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -16,21 +19,21 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.List;
+import java.util.Set;
 
 @Configuration
 @EnableBatchProcessing
 @AllArgsConstructor
 public class LikeBatchConfiguration {
 
-	private LikeRepository likeRepository;
-
-	private CacheService cacheService;
-
-	private JobRepository jobRepository;
-
-	private PlatformTransactionManager transactionManager;
+	private final LikeRepository likeRepository;
+	private final MemberRepository memberRepository;
+	private final AccomodationRepository accomodationRepository;
+	private final RedisTemplate<String, Object> redisTemplate;
+	private final JobRepository jobRepository;
+	private final PlatformTransactionManager transactionManager;
 
 	@Bean
 	public Job updateLikeCacheJob() {
@@ -50,11 +53,27 @@ public class LikeBatchConfiguration {
 	}
 
 	@Bean
-	public Tasklet updateLikeCacheTasklet() { // Like 데이터를 데이터베이스에서 읽어와 Redis 캐시에 저장
+	public Tasklet updateLikeCacheTasklet() {
 		return (contribution, chunkContext) -> {
-			List<Like> allLikes = likeRepository.findAll();
-			for (Like like : allLikes) {
-				cacheService.cacheLikeStatus(like.getMember().getId(), like.getAccomodation().getId(), like.isLiked());
+			// Redis의 모든 좋아요 상태를 조회하여 데이터베이스에 저장
+			Set<String> keys = redisTemplate.keys("like::*");
+			if (keys != null) {
+				for (String key : keys) {
+					String[] parts = key.split("::");
+					Long memberId = Long.parseLong(parts[1]);
+					Long accomodationId = Long.parseLong(parts[2]);
+					Boolean isLiked = (Boolean) redisTemplate.opsForValue().get(key);
+
+					Member member = memberRepository.findById(memberId).orElse(null);
+					Accomodation accomodation = accomodationRepository.findById(accomodationId).orElse(null);
+
+					if (member != null && accomodation != null) {
+						Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId)
+							.orElseGet(() -> new Like(member, accomodation, isLiked));
+						like.setLiked(isLiked);
+						likeRepository.save(like);
+					}
+				}
 			}
 			return RepeatStatus.FINISHED;
 		};
