@@ -31,27 +31,19 @@ public class LikeService {
 
   @Transactional
   public boolean toggleLike(Long memberId, Long accomodationId) {
-    Member member = memberRepository.findById(memberId)
+    memberRepository.findById(memberId)
         .orElseThrow(() -> new GlobalException(LikeErrorCode.MEMBER_NOT_FOUND));
 
-    Accomodation accomodation = accomodationRepository.findById(accomodationId)
+    accomodationRepository.findById(accomodationId)
         .orElseThrow(() -> new GlobalException(LikeErrorCode.ACCOMODATION_NOT_FOUND));
 
     Boolean currentStatus = getLikeStatus(memberId, accomodationId);
     boolean newStatus = !currentStatus;
 
-    Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId)
-        .orElseGet(() -> new Like(member, accomodation, newStatus));
-
-    like.setLiked(newStatus);
-    likeRepository.save(like);
-
     // 캐시 갱신
-    if (newStatus) {
-      cacheService.cacheLikeStatus(memberId, accomodationId, true);
-    } else {
-      cacheService.evictLikeStatus(memberId, accomodationId);
-    }
+    cacheService.cacheLikeStatus(memberId, accomodationId, newStatus);
+
+    // 배치에서 데이터베이스 갱신 처리 (현재는 데이터베이스 저장을 하지 않음)
 
     return newStatus;
   }
@@ -69,19 +61,6 @@ public class LikeService {
 
   @Transactional(readOnly = true)
   public Boolean getLikeStatus(Long memberId, Long accomodationId) {
-    Boolean cachedLikeStatus = cacheService.getLikeStatus(memberId, accomodationId);
-    if (cachedLikeStatus != null) {
-      return cachedLikeStatus;
-    }
-
-    // 캐시에 없는 경우 DB에서 조회
-    Like like = likeRepository.findByMemberIdAndAccomodationId(memberId, accomodationId).orElse(null);
-    if (like == null) {
-      return false; // 좋아요가 없는 경우 false 반환
-    }
-
-    boolean isLiked = like.isLiked();
-    cacheService.cacheLikeStatus(memberId, accomodationId, isLiked);
-    return isLiked;
+    return cacheService.readThroughLikeStatus(memberId, accomodationId, likeRepository);
   }
 }

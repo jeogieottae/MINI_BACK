@@ -17,7 +17,7 @@ public class BatchScheduler { // 배치 작업을 주기적으로 실행하기 �
 
 	private Job updateLikeCacheJob;
 
-	@Scheduled(cron = "0 0 * * * *") // 매 시간마다 실행
+	@Scheduled(cron = "0 */5 * * * *") // 매 5분마다 실행
 	public void runUpdateLikeCacheJob() {
 		try {
 			jobLauncher.run(updateLikeCacheJob, new JobParametersBuilder().addLong("startAt", System.currentTimeMillis()).toJobParameters());

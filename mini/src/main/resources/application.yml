@@ -81,3 +81,6 @@ spring:
         logout:
           redirect-uri: ${LOGOUT_REDIRECT_URI}
           kakao-redirect-uri: ${LOGOUT_KAKAO_REDIRECT_URI}
+  batch:
+    jdbc:
+      initialize-schema: always

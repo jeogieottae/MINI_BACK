@@ -7,7 +7,6 @@ import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
-@EnableBatchProcessing
 public class BatchConfig {
 
 	@Bean
