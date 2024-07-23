@@ -54,10 +54,10 @@ k6로 확인 후 시나리오 반복 평균 실행 시간을 줄이기 위해 �
 ![bandicam 2024-07-23 01-24-12-768](https://github.com/user-attachments/assets/455d5eb6-6bc5-4eb4-885f-61416437f36e)
 
 ### 🔸  검색 
-숙소 이름, 지역 카테고리, 체크인/아웃에 대한 검색이 가능합니다.
-그 중에서 숙소 이름 검색 기능의 경우 full text search 기능이 제공되는 검색 엔진인 Elasticsearch를 사용해 검색 기능을 구현하였습니다.
-API 서버로 사용중인 EC2 인스턴스의 메모리 및 저장공간에 의한 불안정을 확인하여 Elasticsearch 서버를 별개로 운영 하였습니다.
-DB의 accommodation 테이블 데이터 중 일부인 id와 name을 Elasticsearch index에 추가로 저장합니다.
+숙소 이름, 지역 카테고리, 체크인/아웃에 대한 검색이 가능합니다.<br>
+그 중에서 숙소 이름 검색 기능의 경우 full text search 기능이 제공되는 검색 엔진인 Elasticsearch를 사용해 검색 기능을 구현하였습니다.<br>
+API 서버로 사용중인 EC2 인스턴스의 메모리 및 저장공간에 의한 불안정을 확인하여 Elasticsearch 서버를 별개로 운영 하였습니다.<br>
+DB의 accommodation 테이블 데이터 중 일부인 id와 name을 Elasticsearch index에 추가로 저장합니다.<br>
 클라이언트에게서 검색 요청이 들어오면 1차적으로 각 조건에 부합하는 숙소의 id를 얻어내고, 해당하는 id의 숙소 데이터를 DB에서 조회하는 방식으로 데이터를 조회합니다.
 
 ### 🔸 배포 
