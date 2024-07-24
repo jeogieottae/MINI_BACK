@@ -46,3 +46,8 @@ server:
     key-store: /app/cert.p12
     key-store-password: kwonjongwon
     keyStoreType: PKCS12
+
+  batch:
+    jdbc:
+      initialize-schema: always
+
